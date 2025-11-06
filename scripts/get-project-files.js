@@ -3,7 +3,7 @@ const path = require("path");
 const { getFiles } = require("./lib");
 const { getFilesToBackup, updateBackupInfo, close: closeDb } = require("./db");
 
-const MAX_FILES = 45;
+const MAX_FILES = 3;
 const projectIds = process.argv.slice(2);
 
 (async () => {

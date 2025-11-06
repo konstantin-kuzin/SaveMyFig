@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Figma Backup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Figma Backup Tool</h1>
+
+    <div id="step1" class="step active">
+      <h2>1. Установка зависимостей</h2>
+      <button id="btn-install">Установить (npm install)</button>
+      <div id="install-log" class="log"></div>
+      <button id="btn-next1" disabled>Далее</button>
+      <button id="btn-next2">2</button>
+    </div>
+
+    <div id="step2" class="step">
+      <h2>2. Настройка</h2>
+      <label>FIGMA_ACCESS_TOKEN:<br>
+        <input type="password" id="token" placeholder="Вставьте ваш токен Figma">
+      </label><br><br>
+
+      <label>PROJECTS (через запятую):<br>
+        <input type="text" id="projects" placeholder="file_key1,file_key2,...">
+      </label><br><br>
+
+      <label>Папка для бэкапов:<br>
+        <input type="text" id="outputDir" readonly placeholder="Выберите папку">
+        <button id="btn-select-dir">Выбрать</button>
+      </label><br><br>
+
+      <button id="btn-save-env">Сохранить настройки</button>
+      <button id="btn-back2">Назад</button>
+      <button id="btn-next2" disabled>Далее</button>
+      
+    </div>
+
+    <div id="step3" class="step">
+      <h2>3. Запуск бэкапа111</h2>
+      <button id="btn-run-backup">Запустить бэкап</button>
+      <div id="backup-log" class="log"></div>
+      <button id="btn-back3">Назад</button>
+      <button id="btn-show-report" disabled>Показать отчёт</button>
+    </div>
+
+    <div id="step4" class="step">
+      <h2>4. Отчёт</h2>
+      <pre id="report-content"></pre>
+      <button id="btn-back">Назад к бэкапу</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

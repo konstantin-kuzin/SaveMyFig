@@ -33,10 +33,11 @@
   "include": [
     "**/*",
     ".env",
+    "renderer/types.d.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    //"renderer/**/*.js"  // Не компилируем UI файлы - они уже JavaScript
+    "renderer/**"  // Не компилируем UI файлы - они уже JavaScript
   ]
 }

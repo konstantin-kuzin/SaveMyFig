@@ -32,13 +32,10 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatabaseManager = void 0;
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
 const sqlite3 = __importStar(require("sqlite3"));
 const logger_1 = require("./logger");
 class DatabaseManager {
@@ -47,11 +44,11 @@ class DatabaseManager {
     db = null;
     constructor() {
         this.logger = new logger_1.Logger();
-        this.dbPath = path_1.default.join(process.cwd(), '..', 'figma_backups.db');
+        this.dbPath = path.join(process.cwd(), '..', 'figma_backups.db');
         this.initializeDatabase();
     }
     initializeDatabase() {
-        if (!fs_1.default.existsSync(this.dbPath)) {
+        if (!fs.existsSync(this.dbPath)) {
             this.logger.warn('Database file not found, using existing database or it will be created by original scripts');
         }
         else {

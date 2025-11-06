@@ -1,6 +1,6 @@
 {
   "name": "figma-export-gui",
-  "version": "1.0",
+ "version": "1.0.0",
   "description": "GUI для Figma Export Tool",
   "main": "renderer/main.js",
   "scripts": {
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "dotenv": "^16.0.0",
-    "electron": "^28.3.3",
     "execa": "^8.0.0",
     "sqlite3": "^5.1.7"
   },
@@ -21,6 +20,7 @@
     "@electron/rebuild": "^3.3.0",
     "@types/node": "^20.0",
     "@types/sqlite3": "^3.1.11",
+    "electron": "^28.3.3",
     "electron-builder": "^24.9.1",
     "typescript": "^5.0.0"
   },

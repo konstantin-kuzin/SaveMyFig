@@ -1,7 +1,7 @@
 import { test as setup, expect } from "@playwright/test";
-import dotenv from "dotenv";
-import fs from "fs";
-import path from "path";
+import * as dotenv from "dotenv";
+import * as fs from "fs";
+import * as path from "path";
 
 dotenv.config();
 
@@ -64,10 +64,20 @@ setup("authenticate", async ({ page }) => {
       .getByRole("textbox", { name: "password" })
       .fill(process.env[`FIGMA_ACCOUNT_${accountNum}_PASSWORD`]!);
     await page.getByRole("button", { name: "log in" }).click();
+
+    // Wait for redirect to files page after login
+    await page.waitForURL('**/files**', { timeout: 30000 });
   }
 
+  // Navigate to files page if not already there
+  if (!page.url().includes('/files')) {
+    await page.goto("https://www.figma.com/files");
+  }
+
+  // Wait for page to load completely and check for profile button
+  await page.waitForLoadState('networkidle');
   await expect(page.getByTestId("ProfileButton")).toBeAttached({
-    timeout: 10 * 1000,
+    timeout: 30 * 1000,
   });
 
   await page.context().storageState({ path: authFile });

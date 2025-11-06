@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "lib": ["ES2022", "dom", "dom.iterable"],
-    "outDir": "./renderer",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
     "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
@@ -11,9 +11,9 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": false,        // ✅ Отключаем source maps
-    "declaration": false,      // ✅ Отключаем .d.ts файлы
-    "declarationMap": false,   // ✅ Отключаем .d.ts.map файлы
+    "sourceMap": false,
+    "declaration": false,
+    "declarationMap": false,
     "removeComments": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -21,22 +21,18 @@
     "noImplicitThis": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["*"],
-      "@utils/*": ["utils/*"],
-      "@renderer/*": ["renderer/*"],
-      "@components/*": ["renderer/components/*"]
-    }
+    "moduleResolution": "node"
   },
+
   "include": [
-    "**/*",
-    ".env",
+    "playwright.config.ts",
+    "automations/**/*.ts",
+    "scripts/**/*.ts",
     "renderer/types.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "gui"
   ]
 }

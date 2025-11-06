@@ -1,7 +1,7 @@
 import { test } from "@playwright/test";
-import fs from "node:fs";
-import dotenv from "dotenv";
-import { updateBackupDate, recordBackupFailure } from "../scripts/db";
+import * as fs from "node:fs";
+import * as dotenv from "dotenv";
+import { updateBackupDate, recordBackupFailure } from "../scripts/db.js";
 
 dotenv.config();
 

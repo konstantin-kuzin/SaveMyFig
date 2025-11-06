@@ -4,7 +4,9 @@ const { execSync } = require("child_process");
 const dotenv = require("dotenv");
 const { close: closeDb } = require("./db");
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, "../.env") });
+
+
 
 async function runBackup() {
   try {
@@ -14,17 +16,24 @@ async function runBackup() {
       fs.unlinkSync(filesJsonPath);
     }
 
+    console.log(filesJsonPath);
+    console.log(process.env.PROJECTS);
+    console.log(process.env.FIGMA_ACCOUNT_1_EMAIL);
+
     const teams = process.env.TEAMS;
     const projects = process.env.PROJECTS;
 
+
+
     // Step 1: Generate files.json
+    const projectRoot = path.join(__dirname, "..");
     if (teams) {
       console.log(`Generating files.json for TEAMS: ${teams}...`);
-      execSync(`node scripts/get-team-files.js ${teams}`, { stdio: "inherit" });
+      execSync(`node scripts/get-team-files.js ${teams}`, { stdio: "inherit", cwd: projectRoot });
     }
     else if (projects) {
       console.log(`Generating files.json for PROJECTS: ${projects}...`);
-      execSync(`node scripts/get-project-files.js ${projects}`, { stdio: "inherit" });
+      execSync(`node scripts/get-project-files.js ${projects}`, { stdio: "inherit", cwd: projectRoot });
     } else {
       console.log("PROJECTS/TEAMS are not defined in .env file. Skipping file generation.");
       return;
@@ -34,7 +43,7 @@ async function runBackup() {
     console.log("Running tests...");
     try {
       // execSync("npx playwright test automations/download.spec.ts --headed", { stdio: "inherit" });
-      execSync("npx playwright test automations/download.spec.ts", { stdio: "inherit" });
+      execSync("npx playwright test automations/download.spec.ts", { stdio: "inherit", cwd: projectRoot });
       
       console.log("Backup completed successfully!");
     } catch (testError) {

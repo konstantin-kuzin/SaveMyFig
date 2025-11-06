@@ -1,11 +1,41 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
 const electron_1 = require("electron");
 class Logger {
     logFile;
@@ -13,17 +43,17 @@ class Logger {
     maxLogFiles = 5;
     constructor() {
         const userDataPath = electron_1.app ? electron_1.app.getPath('userData') : process.cwd();
-        const logsDir = path_1.default.join(userDataPath, 'logs');
-        if (!fs_1.default.existsSync(logsDir)) {
-            fs_1.default.mkdirSync(logsDir, { recursive: true });
+        const logsDir = path.join(userDataPath, 'logs');
+        if (!fs.existsSync(logsDir)) {
+            fs.mkdirSync(logsDir, { recursive: true });
         }
-        this.logFile = path_1.default.join(logsDir, 'figma-export-gui.log');
+        this.logFile = path.join(logsDir, 'figma-export-gui.log');
     }
     log(level, message) {
         const timestamp = new Date().toISOString();
         const logEntry = `[${timestamp}] [${level}] ${message}\n`;
         try {
-            fs_1.default.appendFileSync(this.logFile, logEntry);
+            fs.appendFileSync(this.logFile, logEntry);
             this.rotateLogsIfNeeded();
         }
         catch (error) {
@@ -32,18 +62,18 @@ class Logger {
     }
     rotateLogsIfNeeded() {
         try {
-            const stats = fs_1.default.statSync(this.logFile);
+            const stats = fs.statSync(this.logFile);
             if (stats.size > this.maxLogSize) {
-                const dir = path_1.default.dirname(this.logFile);
-                const files = fs_1.default.readdirSync(dir)
+                const dir = path.dirname(this.logFile);
+                const files = fs.readdirSync(dir)
                     .filter(f => f.startsWith('figma-export-gui'))
                     .sort()
                     .reverse();
                 if (files.length >= this.maxLogFiles) {
-                    fs_1.default.unlinkSync(path_1.default.join(dir, files[files.length - 1]));
+                    fs.unlinkSync(path.join(dir, files[files.length - 1]));
                 }
                 const timestamp = Date.now();
-                fs_1.default.renameSync(this.logFile, `${this.logFile}.${timestamp}`);
+                fs.renameSync(this.logFile, `${this.logFile}.${timestamp}`);
             }
         }
         catch (error) {

@@ -1,265 +1,252 @@
-# A bit more intelligent figma-export
+# Figma Export Tool + GUI
 
-Improved version of [figma-export](https://github.com/alexchantastic/figma-export) by [@alexchantastic](https://github.com/alexchantastic). Quite old, check for a new one in original repo.
+Инструмент для массового скачивания файлов Figma в формате .fig/.jam/.deck с возможностью графического интерфейса.
 
-Improvements:
-- Use sqlite3 to store file metadata and prioritize downloads
-- Intelligent backup selection based on file modification dates and backup history
-- Automatic retry mechanism for failed downloads with exponential backoff
-- Configurable backup limits and priority-based file selection
+## 📋 Описание
 
+Этот инструмент позволяет автоматически скачивать все файлы Figma из указанных команд или проектов, используя официальное Figma API. Также включает графический интерфейс (GUI) для удобства использования.
 
-figma-export is a CLI tool for bulk exporting Figma, FigJam, and Figma Slides files to your local desktop in Figma's proprietary `.fig`/`.jam`/`.deck` format. figma-export supports downloading by team, project, and even drafts.
+### Преимущества
 
-This tool leverages [Figma's REST API](https://www.figma.com/developers/api) and [Playwright](https://playwright.dev/) to automate discovering Figma files and downloading them.
+- **Массовая загрузка** - Скачивание всех файлов одной командой
+- **Автоматическая авторизация** - Поддержка нескольких аккаунтов Figma
+- **Обход ограничений API** - Использование нескольких аккаунтов для увеличения лимита
+- **Отслеживание изменений** - База данных SQLite для отслеживания изменений файлов
+- **Повтор неудачных** - Автоматический повтор неудачных загрузок
+- **Графический интерфейс** - Удобный GUI для настройки и мониторинга
 
-> [!NOTE]
-> If you are a complete beginner to the terminal and CLI tools, please refer to the [Complete beginner guide](https://github.com/alexchantastic/figma-export/wiki/Complete-beginner-guide) in the wiki.
+## 🖥️ Требования
 
-## Table of contents
+### CLI версия
+- Node.js 20 LTS
+- npm 10+
+- Playwright (устанавливается автоматически)
 
-- [Requirements](#requirements)
-- [Installation](#Installation)
-- [Usage](#usage)
-- [Commands](#commands)
-- [Known issues](#known-issues)
+### GUI версия
+- macOS 11+ (Big Sur и новее)
+- Node.js 20 LTS (устанавливается автоматически при первом запуске)
+- Доступ к интернету для установки зависимостей
 
-## Requirements
+## 📦 Установка
 
-- node (v20 LTS)
-- npm (v10 LTS)
-
-Other versions may work, but have not been officially tested.
-
-You will also need a [Figma access token](https://www.figma.com/developers/api#authentication) with scope access to **file content** that you can generate through your Figma user profile settings.
-
-## Installation
-
-1. Clone the repository or download the latest release
-2. `cd` into the repository
-3. Run `npm install`
-
-## Usage
-
-### Environment variables
-
-Create a `.env` file at the root of the repository. You must provide a single Figma access token for API access, and you can provide an array of accounts for browser login (round-robin):
-
-```sh
-# Single API token (required for all API operations)
-FIGMA_ACCESS_TOKEN="figd_abcdefghijklmnopqrstuvwxyz"
-
-# Multiple accounts for browser login (round-robin)
-FIGMA_ACCOUNT_1_EMAIL="email1@example.com"
-FIGMA_ACCOUNT_1_PASSWORD="password1"
-# Or, if using SSO/cookie:
-# FIGMA_ACCOUNT_1_AUTH_COOKIE="cookie1"
-
-FIGMA_ACCOUNT_2_EMAIL="email2@example.com"
-FIGMA_ACCOUNT_2_PASSWORD="password2"
-# Or, if using SSO/cookie:
-# FIGMA_ACCOUNT_2_AUTH_COOKIE="cookie2"
-
-# Add as many accounts as you need:
-# FIGMA_ACCOUNT_3_EMAIL=...
-# ...
-
-DOWNLOAD_PATH="/Users/anonymous/Downloads" # Absolute path where files will be downloaded to
-WAIT_TIMEOUT=10000 # Time in ms to wait between downloads (defaults to 10000)
-
-# Backup configuration (optional)
-MAX_FILES=45 # Maximum files to backup per run (defaults to 45)
-RETRY_DELAY_HOURS=72 # Hours to wait before retrying failed downloads (defaults to 72)
-```
-
-> [!CAUTION]
-> Figma has started to implement anti-automation detection which may cause issues with using this tool. It is recommended that you do not set a lower `WAIT_TIMEOUT` than `10000`. To be on the safer side, you may want to increase it even further.
-
-If you are using SSO to log in to Figma, you can either manually set a password (see [wiki](https://github.com/alexchantastic/figma-export/wiki/Manually-setting-a-Figma-password)) _or_ you can provide your Figma auth session cookie through `FIGMA_ACCOUNT_X_AUTH_COOKIE` in lieu of `FIGMA_ACCOUNT_X_EMAIL` and `FIGMA_ACCOUNT_X_PASSWORD`:
-
-```sh
-FIGMA_ACCOUNT_1_AUTH_COOKIE="my-auth-cookie-value"
-FIGMA_ACCESS_TOKEN="figd_abcdefghijklmnopqrstuvwxyz"
-DOWNLOAD_PATH="/Users/anonymous/Downloads"
-WAIT_TIMEOUT=10000
-```
-
-The value for `FIGMA_ACCOUNT_X_AUTH_COOKIE` should be the value of the `__Host-figma.authn` cookie. Please refer to the [wiki](https://github.com/alexchantastic/figma-export/wiki/Getting-your-Figma-auth-session-cookie) on how to grab this value.
-
-> **Note:**
-> - Only one `FIGMA_ACCESS_TOKEN` is used for all API requests.
-> - The array of accounts is used only for browser-based login automation (to help avoid rate limits or anti-automation detection).
-> - The tool will automatically round-robin through all configured accounts for browser login.
-
-### Generating files.json
-
-`files.json` determines which Figma files within your account will be downloaded.
-
-> [!TIP]
-> Drafts are just a hidden project in Figma so you can absolutely download them with figma-export. Check out the [wiki](https://github.com/alexchantastic/figma-export/wiki/Downloading-draft-files) to learn about how to grab the drafts project ID.
-
-It is recommended that you use one of the built-in commands to generate `files.json`:
-
-- `npm run get-team-files {team_ids ...}` - Gets all files for all projects within given team IDs (space separated)
-  - Example: `npm run get-team-files 12345 67890`
-- `npm run get-project-files {project_ids ...}` - Gets all files for given project IDs (space separated)
-  - Example: `npm run get-project-files 12345 67890`
-
-To find your Figma team ID, navigate to your [Figma home](https://www.figma.com/files/), right click your team in the left sidebar, and then click **Copy link**. The last segment of the URL that you copied will contain your team ID: `https://www.figma.com/files/team/1234567890`.
-
-To find a project ID, navigate to your team's home, right click the project, and then click **Copy link**. The last segment of the URL that you copied will contain the project ID: `https://www.figma.com/files/project/1234567890`.
-
-You are free to manually construct this file as long as it follows this structure:
-
-```json
-[
-  {
-    "name": String,
-    "id": String,
-    "team_id": String?,
-    "files": [
-      {
-        "key": String,
-        "name": String
-      },
-      ...
-    ]
-  },
-  ...
-]
-```
-
-This is a modified structure from the return value of [Figma's GET project files](https://www.figma.com/developers/api#get-project-files-endpoint) endpoint.
-
-### Backup Selection Logic
-
-This enhanced version includes intelligent backup selection that prioritizes files based on several criteria:
-
-#### Database Schema
-The tool uses SQLite3 to track file metadata in the `backups` table:
-- `file_key` - Unique Figma file identifier
-- `project_name` - Name of the project containing the file
-- `file_name` - Display name of the file
-- `last_backup_date` - When the file was last successfully backed up
-- `last_modified_date` - When the file was last modified in Figma
-- `next_attempt_date` - When to retry a failed backup (72 hours after failure)
-
-#### Selection Criteria
-Files are selected for backup based on the following priority:
-
-1. **Never backed up** - Files with `last_backup_date IS NULL` get highest priority
-2. **Modified since last backup** - Files where `last_modified_date > last_backup_date`
-3. **Retry failed downloads** - Files where `next_attempt_date <= current_time`
-4. **Oldest backups first** - Among files with same priority, older `last_backup_date` comes first
-
-#### Configuration
-- **Backup limit**: Maximum 45 files per backup run (configurable via `MAX_FILES` in scripts)
-- **Retry delay**: Failed downloads are retried after 72 hours
-- **Automatic updates**: File metadata is updated from Figma API on each run
-
-#### Workflow
-1. Fetch latest file metadata from Figma API
-2. Update database with current modification dates
-3. Query database for files needing backup (sorted by priority)
-4. Apply backup limit to selected files
-5. Generate `files.json` with only selected files
-6. Execute downloads using Playwright
-7. Update backup dates for successful downloads
-8. Schedule retry for failed downloads
-
-### Starting the downloads
-
-Once you have generated `files.json`, you can then run `npm run start` to start the downloads. The status of each download will be shown in the console.
-
-Each file will be downloaded to your specified `DOWNLOAD_PATH` in a folder named with the project's name and ID. Each file will be saved as the file's name and ID (key). The folder structure will look something like this:
-
-```
-Project A (12345)/
-├── File X (123).fig
-└── File Y (456).fig
-Project B (67890)/
-└── File Z (789).fig
-```
-
-If you ran `get-team-files`, your `files.json` will also have references to the team ID(s) so projects will be placed in a folder named after the team ID. In which case, the folder structure will look something like this:
-
-```
-1029384756/
-├── Project A (12345)/
-│   ├── File X (123).fig
-│   └── File Y (456).fig
-└── Project B (67890)/
-    └── File Z (789).fig
-5647382910/
-└── Project C (45678)/
-    └── File W (012).fig
-```
-
-### Parallel downloads
-
-Parallel downloads are disabled by default. To enable them, update the following properties in `playwright.config.ts`:
-
-```ts
-export default defineConfig({
-  ...
-  fullyParallel: true,
-  workers: 3, // The maximum number of parallel downloads
-  ...
-});
-```
-
-> [!CAUTION]
-> It is not advised to use parallel downloads as Figma has started to invoke anti-automation safe guards.
-
-### Retrying failed downloads
-
-If you encounter downloads that fail, you can attempt to re-run _only_ those failed downloads using the `npm run retry` command.
-
-Note that downloads may fail due to any number of reasons, but typically it is due to reaching the Playwright timeout. You can increase this timeout by updating the `timeout` configuration in `playwright.config.ts`.
-
-## Commands
-
-The following commands are available via `npm run`:
-
-| Command             | Description                                     |
-| ------------------- | ----------------------------------------------- |
-| `get-team-files`    | Generates `files.json` from Figma team ID(s) with intelligent backup selection |
-| `get-project-files` | Generates `files.json` from Figma project ID(s) with intelligent backup selection |
-| `start`             | Starts downloads                                |
-| `retry`             | Retries failed downloads from last run          |
-| `dry-run`           | Lists files that will be downloaded             |
-| `report`            | Show an HTML report of the last run             |
-| `run-backup`        | Automated backup workflow (generates files.json + downloads + rsync) |
-
-At any time, you can press `ctrl+c` to stop a command.
-
-### Database Management
-
-The tool automatically creates and manages a SQLite database (`figma_backups.db`) to track backup status. You can inspect the database directly:
+### CLI версия
 
 ```bash
-# View all files in backup queue
-sqlite3 figma_backups.db "SELECT file_key, project_name, file_name, last_backup_date, last_modified_date, next_attempt_date FROM backups ORDER BY last_backup_date ASC;"
+# Клонирование репозитория
+git clone https://github.com/konstantin-kuzin/Figma-export.git
+cd Figma-export
 
-# View files needing backup
-sqlite3 figma_backups.db "SELECT file_key, project_name, file_name FROM backups WHERE (last_modified_date > last_backup_date OR last_backup_date IS NULL) AND (next_attempt_date IS NULL OR next_attempt_date <= datetime('now'));"
+# Установка зависимостей
+npm install
 
-# Reset failed downloads (remove retry delay)
-sqlite3 figma_backups.db "UPDATE backups SET next_attempt_date = NULL WHERE next_attempt_date IS NOT NULL;"
+# Установка Playwright browsers
+npx playwright install
+
+# Создание .env файла (см. пример ниже)
+cp .env.example .env
 ```
 
-### Monitoring Backup Progress
+### GUI версия
 
-The tool provides detailed console output showing:
-- Number of files fetched from Figma API
-- Number of files found in database needing backup
-- Number of files selected for current backup run
-- Individual download status for each file
-- Summary of successful/failed downloads
+1. Скачайте релиз с GitHub
+2. Распакуйте архив
+3. Запустите `start-gui.command` двойным кликом
+4. При первом запуске приложение автоматически установит все зависимости
 
-## Known issues
+## ⚙️ Конфигурация
 
-- Two-factor authentication is not supported (suggest temporarily disabling two-factor authentication)
-- You must have editor access to a file in order to download it
-- Some downloads may take a long time (large file size, slow internet connection, etc.) which can trigger the Playwright timeout and lead to a failed download (suggest increasing the `timeout` in `playwright.config.ts`)
-- Figma will invoke anti-automation measures based off of how many files you download (suggest using a `WAIT_TIMEOUT` of at least `10000`)
+### Создание .env файла
+
+Создайте файл `.env` в корне проекта на основе `.env.example`:
+
+```bash
+# Figma API Access Token (обязательно)
+FIGMA_ACCESS_TOKEN=figd_...
+
+# Аккаунты Figma (минимум один, максимум 5)
+# Вариант A: Email + Password
+FIGMA_ACCOUNT_1_TYPE="password"
+FIGMA_ACCOUNT_1_EMAIL="user@example.com"
+FIGMA_ACCOUNT_1_PASSWORD="password123"
+
+# Вариант B: Auth Cookie
+FIGMA_ACCOUNT_2_TYPE="cookie"
+FIGMA_ACCOUNT_2_AUTH_COOKIE="__Host-figma.authn=..."
+
+# Пути и параметры
+DOWNLOAD_PATH="./downloads"
+WAIT_TIMEOUT="10000"
+MAX_FILES="45"
+RETRY_DELAY_HOURS="72"
+
+# Team/Project IDs (выберите один вариант)
+SELECT_TYPE="team"
+TEAM_IDS="team1,team2,team3"
+# или
+# PROJECT_IDS="project1,project2,project3"
+```
+
+### Получение Figma Access Token
+
+1. Перейдите в [Figma Developer Settings](https://www.figma.com/developers/api#authentication)
+2. Создайте Personal Access Token
+3. Убедитесь, что токен начинается с `figd_`
+
+### Получение Auth Cookie
+
+1. Авторизуйтесь в Figma в браузере
+2. Откройте инструменты разработчика (F12)
+3. Перейдите во вкладку Application → Cookies → https://www.figma.com
+4. Найдите cookie с именем `__Host-figma.authn`
+5. Скопируйте его значение
+
+### Генерация files.json
+
+```bash
+# Для Team IDs
+npm run get-team-files
+
+# Для Project IDs  
+npm run get-project-files
+```
+
+## ▶️ Использование
+
+### CLI версия
+
+```bash
+# Основной запуск
+npm run start
+
+# Повтор неудачных
+npm run retry
+
+# Предпросмотр без скачивания
+npm run dry-run
+
+# Полный автоматический цикл
+npm run run-backup
+```
+
+### GUI версия
+
+1. Запустите `start-gui.command`
+2. Следуйте инструкциям на экране
+3. Настройте параметры в графическом интерфейсе
+4. Запускайте процессы бэкапа одним кликом
+
+## 📊 Мониторинг
+
+### База данных SQLite
+
+Инструмент использует базу данных SQLite (`figma_backups.db`) для отслеживания состояния файлов:
+
+```sql
+-- Таблица backups содержит информацию о каждом файле
+CREATE TABLE backups (
+  file_key TEXT PRIMARY KEY,
+  project_name TEXT,
+  file_name TEXT,
+  last_backup_date TEXT,
+  last_modified_date TEXT,
+  next_attempt_date TEXT
+);
+```
+
+### Скрипты мониторинга
+
+```bash
+# Генерация отчета по базе данных
+npm run generate-db-report
+```
+
+## 🛠️ Разработка
+
+### Структура проекта
+
+```
+figma-export/
+├── scripts/                 # Оригинальные CLI скрипты
+│   ├── get-team-files.js    # Получение списка файлов по Team IDs
+│   ├── get-project-files.js # Получение списка файлов по Project IDs
+│   ├── run-backup.js        # Основной скрипт бэкапа
+│   ├── db.js                # Работа с базой данных
+│   ├── lib.js               # Вспомогательные функции
+│   └── generate-db-report.js # Генерация отчетов
+├── gui/                     # Графический интерфейс (Electron)
+│   ├── main.ts              # Main process
+│   ├── preload.ts          # Preload script
+│   ├── renderer/           # Renderer process
+│   └── utils/               # Утилиты GUI
+├── automations/             # Playwright автоматизации
+├── docs/                   # Документация
+├── .env                     # Конфигурационный файл
+├── files.json               # Список файлов для загрузки
+├── figma_backups.db         # База данных SQLite
+└── logs/                    # Логи приложения
+```
+
+### Сборка GUI
+
+```bash
+# Установка зависимостей GUI
+cd gui
+npm install
+
+# Компиляция TypeScript
+npm run build
+
+# Создание дистрибутива
+npm run dist
+```
+
+## 🤝 Вклад в проект
+
+1. Форкните репозиторий
+2. Создайте ветку для новой функции (`git checkout -b feature/amazing-feature`)
+3. Зафиксируйте изменения (`git commit -m 'Add amazing feature'`)
+4. Отправьте изменения в ветку (`git push origin feature/amazing-feature`)
+5. Откройте Pull Request
+
+## 📄 Лицензия
+
+MIT License - смотрите файл [LICENSE](LICENSE) для подробностей.
+
+## 👤 Автор
+
+Konstantin Kuzin - [@konstantin_kuzin](https://github.com/konstantin-kuzin)
+
+## 🙏 Благодарности
+
+- [Figma API](https://www.figma.com/developers/api) за возможность автоматизации
+- [Playwright](https://playwright.dev/) за отличный инструмент автоматизации
+- [Electron](https://www.electronjs.org/) за кроссплатформенную среду выполнения
+
+---
+
+## 🆕 Что нового
+
+### Версия 2.0 - GUI Release
+- Добавлен графический интерфейс на Electron
+- Автоматическая установка зависимостей
+- Удобная настройка параметров
+- Мониторинг процесса бэкапа в реальном времени
+- Просмотр статистики и базы данных
+- Встроенные инструменты диагностики
+
+### Версия 1.2 - Улучшения CLI
+- Добавлена поддержка Project IDs
+- Улучшена обработка ошибок
+- Добавлены логи и отчеты
+- Оптимизирована работа с базой данных
+
+### Версия 1.1 - Множественные аккаунты
+- Поддержка нескольких аккаунтов Figma
+- Обход ограничений API через ротацию аккаунтов
+- Улучшенная обработка ошибок авторизации
+
+### Версия 1.0 - Базовая функциональность
+- Массовая загрузка файлов Figma
+- Поддержка форматов .fig/.jam/.deck
+- Отслеживание изменений через SQLite
+- Автоматический повтор неудачных загрузок
