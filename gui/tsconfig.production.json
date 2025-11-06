@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "outDir": "./renderer",
+    "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": false,        // ✅ Отключаем source maps
+    "declaration": false,      // ✅ Отключаем .d.ts файлы
+    "declarationMap": false,   // ✅ Отключаем .d.ts.map файлы
+    "removeComments": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["*"],
+      "@utils/*": ["utils/*"],
+      "@renderer/*": ["renderer/*"],
+      "@components/*": ["renderer/components/*"]
+    }
+  },
+  "include": [
+    "**/*",
+    ".env",
+    "renderer/types.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

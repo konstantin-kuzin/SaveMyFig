@@ -1,0 +1,43 @@
+{
+  "name": "figma-export-gui",
+  "version": "1.0",
+  "description": "GUI для Figma Export Tool",
+  "main": "renderer/main.js",
+  "scripts": {
+    "start": "unset ELECTRON_RUN_AS_NODE && electron .",
+    "dev": "unset ELECTRON_RUN_AS_NODE && electron . --dev",
+    "run-backup": "node ../scripts/run-backup.js",
+    "build": "tsc",
+    "dist": "electron-builder",
+    "build:electron": "electron-builder"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "electron": "^28.3.3",
+    "execa": "^8.0.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.3.0",
+    "@types/node": "^20.0",
+    "@types/sqlite3": "^3.1.11",
+    "electron-builder": "^24.9.1",
+    "typescript": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.figmaexport.gui",
+    "productName": "Figma Export GUI",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/electron/**",
+      "!dist/**",
+      "!*.ts",
+      "!*.tsbuildinfo"
+    ]
+  }
+}

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Figma Export GUI</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Навигация -->
+    <nav class="sidebar">
+      <div class="logo">
+        <h1>Figma Export</h1>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="#" data-tab="welcome" class="nav-link active">🏠 Установка</a></li>
+        <li><a href="#" data-tab="config" class="nav-link">⚙️ Настройки</a></li>
+        <li><a href="#" data-tab="backup" class="nav-link">📥 Скачивание</a></li>
+        <li><a href="#" data-tab="statistics" class="nav-link">📊 Статистика</a></li>
+        <li><a href="#" data-tab="settings" class="nav-link">🔧 Диагностика</a></li>
+      </ul>
+    </nav>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+      <!-- Экран установки -->
+      <div id="welcome-tab" class="tab-content active">
+        <div class="tab-header">
+          <h2>Установка и настройка</h2>
+          <p>Проверка системы и установка необходимых зависимостей</p>
+        </div>
+        <div class="tab-body">
+          <div id="system-check" class="check-section">
+            <h3>Проверка системы</h3>
+            <div id="node-status" class="status-item">
+              <span class="status-label">Node.js:</span>
+              <span class="status-value">Проверка...</span>
+            </div>
+            <div id="npm-status" class="status-item">
+              <span class="status-label">npm:</span>
+              <span class="status-value">Проверка...</span>
+            </div>
+          
+          </div>
+
+          <div id="installation-section" class="install-section">
+            <h3>Установка зависимостей</h3>
+            <button id="install-btn" class="btn btn-primary" disabled>
+              Установить зависимости
+            </button>
+            <div id="install-progress" class="progress-container hidden">
+              <div class="progress-bar">
+                <div class="progress-fill"></div>
+              </div>
+              <div class="progress-text">Установка...</div>
+            </div>
+            <div id="install-log" class="log-container hidden">
+              <div class="log-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Экран конфигурации -->
+      <div id="config-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>Конфигурация</h2>
+          <p>Настройка параметров Figma и путей загрузки</p>
+        </div>
+        <div class="tab-body">
+          <form id="config-form">
+            <!-- Figma Access Token -->
+            <div class="form-section">
+              <h3>Figma Access Token</h3>
+              <div class="form-group">
+                <label for="figma-token">Токен доступа:</label>
+                <div class="input-group">
+                  <input type="password" id="figma-token" name="FIGMA_ACCESS_TOKEN" 
+                         placeholder="figd_..." required>
+                  <button type="button" id="toggle-token" class="btn btn-secondary">👁️</button>
+                </div>
+                <small class="form-help">
+                  <a href="https://www.figma.com/developers/api#authentication" target="_blank">
+                    Как получить токен
+                  </a>
+                </small>
+              </div>
+            </div>
+
+            <!-- Figma Accounts -->
+            <div class="form-section">
+              <h3>Аккаунты Figma</h3>
+              <div id="accounts-container">
+                <!-- Аккаунты будут добавлены динамически -->
+              </div>
+              <button type="button" id="add-account" class="btn btn-secondary">
+                + Добавить аккаунт
+              </button>
+            </div>
+
+            <!-- Пути и параметры -->
+            <div class="form-section">
+              <h3>Пути и параметры</h3>
+              <div class="form-group">
+                <label for="download-path">Папка для загрузки:</label>
+                <div class="input-group">
+                  <input type="text" id="download-path" name="DOWNLOAD_PATH" 
+                         placeholder="Выберите папку" readonly required>
+                  <button type="button" id="select-path" class="btn btn-secondary">📁</button>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="wait-timeout">Таймаут (мс):</label>
+                  <input type="number" id="wait-timeout" name="WAIT_TIMEOUT"
+                        value="10000" min="5000" max="600" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="max-files">Максимум файлов:</label>
+                  <input type="number" id="max-files" name="MAX_FILES"
+                        value="45" min="1" max="200" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="retry-delay">Задержка повтора (часы):</label>
+                <input type="number" id="retry-delay" name="RETRY_DELAY_HOURS"
+                       value="72" min="1" max="720" required>
+              </div>
+            </div>
+            <!-- Team/Project IDs -->
+            <div class="form-section">
+              <h3>Выбор файлов</h3>
+              <div class="form-group">
+                <div class="radio-group">
+                  <label>
+                    <input type="radio" name="select-type" value="team" checked>
+                    По Team IDs
+                  </label>
+                  <label>
+                    <input type="radio" name="select-type" value="project">
+                    По Project IDs
+                  </label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="team-ids" class="team-label">Team IDs:</label>
+                <label for="project-ids" class="project-label hidden">Project IDs:</label>
+                <textarea id="team-ids" name="TEAM_IDS" class="team-input" 
+                          placeholder="team1,team2,team3" rows="3"></textarea>
+                <textarea id="project-ids" name="PROJECT_IDS" class="project-input hidden" 
+                          placeholder="project1,project2,project3" rows="3"></textarea>
+                <small class="form-help">Максимум 50 ID, разделенных запятой</small>
+              </div>
+              
+              <button type="button" id="generate-files" class="btn btn-secondary">
+                🔄 Сгенерировать files.json
+              </button>
+            </div>
+
+            <!-- Кнопки действий -->
+            <div class="form-actions">
+              <button type="button" id="load-config" class="btn btn-secondary">
+                📂 Загрузить из .env
+              </button>
+              <button type="submit" class="btn btn-primary">
+                💾 Сохранить конфигурацию
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Экран выполнения бэкапа -->
+      <div id="backup-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>Выполнение бэкапа</h2>
+          <p>Запуск и мониторинг процесса скачивания файлов</p>
+        </div>
+        <div class="tab-body">
+          <div class="backup-controls">
+            <div class="form-group">
+              <label for="script-command">Команда:</label>
+              <select id="script-command" class="form-control">
+                <option value="run-backup" selected>npm run run-backup - полный цикл</option>
+                <option value="start">npm run start - основной запуск</option>
+                <option value="retry">npm run retry - повтор неудачных</option>
+                <option value="dry-run">npm run dry-run - предпросмотр</option>
+              </select>
+            </div>
+
+            <div class="backup-buttons">
+              <button id="start-backup" class="btn btn-success">▶️ Start</button>
+              <button id="stop-backup" class="btn btn-danger" disabled>⏹️ Stop</button>
+              <button id="clear-log" class="btn btn-secondary">🗑️ Clear Log</button>
+            </div>
+          </div>
+
+          <div class="backup-status">
+            <div class="status-indicator">
+              <span class="status-dot idle"></span>
+              <span class="status-text">Idle</span>
+            </div>
+            <div class="progress-info">
+              <span id="progress-text">Готов к запуску</span>
+            </div>
+          </div>
+          
+          <div class="log-container">
+            <div id="backup-log" class="log-content"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Экран статистики -->
+      <div id="statistics-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>Статистика и база данных</h2>
+          <p>Просмотр информации о бэкапах и управление базой данных</p>
+        </div>
+        <div class="tab-body">
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-value" id="total-files">0</div>
+                <div class="stat-label">Всего файлов</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-value" id="needing-backup">0</div>
+                <div class="stat-label">Требуют бэкапа</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-value" id="with-errors">0</div>
+                <div class="stat-label">С ошибками</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <table id="backups-table">
+              <thead>
+                <tr>
+                  <th data-sort="file_key">Ключ файла</th>
+                  <th data-sort="project_name">Проект</th>
+                  <th data-sort="file_name">Имя файла</th>
+                  <th data-sort="last_backup_date">Последний бэкап</th>
+                  <th data-sort="last_modified_date">Изменен в Figma</th>
+                  <th data-sort="next_attempt_date">Следующая попытка</th>
+                </tr>
+              </thead>
+              <tbody id="backups-tbody">
+                <!-- Данные будут добавлены динамически -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Экран диагностики -->
+      <div id="settings-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>Диагностика и настройки</h2>
+          <p>Информация о системе и настройках приложения</p>
+        </div>
+        <div class="tab-body">
+          <div class="diagnostic-section">
+            <h3>Системная информация</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Node.js версия:</label>
+                <span id="node-version">Проверка...</span>
+              </div>
+              <div class="info-item">
+                <label>Node.js путь:</label>
+                <span id="node-path">Проверка...</span>
+              </div>
+              <div class="info-item">
+                <label>npm версия:</label>
+                <span id="npm-version">Проверка...</span>
+              </div>
+              <div class="info-item">
+                <label>npm путь:</label>
+                <span id="npm-path">Проверка...</span>
+              </div>
+              <div class="info-item">
+                <label>Версия GUI:</label>
+                <span id="gui-version">1.0.0</span>
+              </div>
+              <div class="info-item">
+                <label>Версия скрипта:</label>
+                <span id="script-version">Проверка...</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="diagnostic-section">
+            <h3>Статус зависимостей</h3>
+            <div id="deps-status" class="status-list">
+              <!-- Статус будет добавлен динамически -->
+            </div>
+          </div>
+
+          <div class="diagnostic-section">
+            <h3>Доступ к файловой системе</h3>
+            <div id="fs-status" class="status-list">
+              <!-- Статус будет добавлен динамически -->
+            </div>
+          </div>
+          
+          <div class="diagnostic-section">
+            <h3>Доступ к Figma API</h3>
+            <div id="api-status" class="status-list">
+              <!-- Статус будет добавлен динамически -->
+            </div>
+          </div>
+          
+          <div class="diagnostic-section">
+            <h3>Логи приложения</h3>
+            <div class="log-controls">
+              <button id="refresh-logs" class="btn btn-secondary">🔄 Обновить</button>
+              <button id="clear-logs" class="btn btn-warning">🗑️ Очистить</button>
+              <button id="open-logs-folder" class="btn btn-secondary">📁 Открыть папку</button>
+            </div>
+            <div class="log-container">
+              <div id="diagnostic-log" class="log-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="renderer.js"></script>
+</body>
+</html>
