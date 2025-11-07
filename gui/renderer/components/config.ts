@@ -204,8 +204,7 @@ export function initializeConfigTab(): void {
         const formData = new FormData(configForm);
         const config: Record<string, string> = {};
         
-        const formDataEntries = Array.from(formData.entries()) as [string, string][];
-        for (const [key, value] of formDataEntries) {
+        for (const [key, value] of formData.entries()) {
           if (typeof value === 'string') {
             config[key] = value;
           }

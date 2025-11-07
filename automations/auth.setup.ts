@@ -1,7 +1,7 @@
 import { test as setup, expect } from "@playwright/test";
-import * as dotenv from "dotenv";
-import * as fs from "fs";
-import * as path from "path";
+import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();
 

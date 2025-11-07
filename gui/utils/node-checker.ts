@@ -56,7 +56,7 @@ export class NodeChecker {
     const brewPath = '/usr/local/bin';
     try {
       // Проверяем права записи в brew path
-      (await import('fs')).accessSync(brewPath, (await import('fs')).constants.W_OK);
+      require('fs').accessSync(brewPath, require('fs').constants.W_OK);
       return { canWrite: true };
     } catch {
       try {
