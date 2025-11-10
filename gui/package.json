@@ -4,12 +4,15 @@
   "description": "GUI для Figma Export Tool",
   "main": "dist/main.js",
   "scripts": {
-    "go": "tsc && npm run copy-static && unset ELECTRON_RUN_AS_NODE && electron .",
+    "go": "npm run build && npm start",
     "start": "unset ELECTRON_RUN_AS_NODE && electron .",
     "dev": "unset ELECTRON_RUN_AS_NODE && electron . --dev",
     "run-backup": "node ../scripts/run-backup.js",
-    "build": "tsc && npm run copy-static",
+    "build": "npm run build:renderer && npm run build:main && npm run copy-static && npm run convert:es6",
+    "build:renderer": "tsc -p tsconfig.renderer.json",
+    "build:main": "tsc -p tsconfig.json",
     "copy-static": "node scripts/copy-static.js",
+    "convert:es6": "node scripts/convert-to-es6.js",
     "clean": "rm -rf dist",
     "dist": "npm run build && electron-builder",
     "build:electron": "npm run build"

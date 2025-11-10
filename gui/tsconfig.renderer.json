@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "commonjs",
+    "target": "ES2015",
+    "module": "ES2015",
     "lib": ["ES2022", "dom", "dom.iterable"],
     "outDir": "./dist",
     "rootDir": "./",
@@ -22,17 +22,11 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["*"],
-      "@utils/*": ["utils/*"],
-      "@renderer/*": ["renderer/*"],
-      "@components/*": ["renderer/components/*"]
-    }
+    "baseUrl": "./"
   },
   "include": [
-    "**/*",
-    ".env"
+    "renderer/components/*.ts",
+    "types.renderer.d.ts"
   ],
   "exclude": [
     "node_modules",

@@ -60,8 +60,8 @@ function main() {
     }
   }
   
-  // Копируем папки с ES6 файлами, которые не компилируются TypeScript
-  const dirs = ['components'];
+  // Копируем только ES6 файлы, которые не компилируются TypeScript
+  const dirs = []; // Удаляем компоненты - они теперь компилируются
   for (const dir of dirs) {
     const srcPath = path.join(RENDERER_DIR, dir);
     const destPath = path.join(DIST_DIR, dir);
@@ -84,9 +84,9 @@ function main() {
   }
   
   // Копируем папку renderer/components (дублированная структура)
-  const rendererComponentsPath = path.join(RENDERER_DIR, 'renderer', 'components');
+  const rendererComponentsPath = path.join(RENDERER_DIR, 'components');
   if (fs.existsSync(rendererComponentsPath)) {
-    const destRendererComponentsPath = path.join(DIST_DIR, 'renderer', 'components');
+    const destRendererComponentsPath = path.join(DIST_DIR, 'components');
     copyDir(rendererComponentsPath, destRendererComponentsPath);
   } else {
     console.warn(`⚠️  Папка renderer/components не найдена: ${rendererComponentsPath}`);
