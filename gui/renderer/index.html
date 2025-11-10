@@ -10,16 +10,13 @@
   <div class="app">
     <!-- Навигация -->
     <nav class="sidebar">
-      <div class="logo">
-        <h1>Figma Export</h1>
+      <div class="nav-menu">
+        <div><a href="#" data-tab="welcome" class="nav-link active">Установка</a></div>
+        <div><a href="#" data-tab="config" class="nav-link">Настройки</a></div>
+        <div><a href="#" data-tab="backup" class="nav-link">Скачивание</a></div>
+        <div><a href="#" data-tab="statistics" class="nav-link">Статистика</a></div>
+        <div><a href="#" data-tab="settings" class="nav-link">Диагностика</a></div>
       </div>
-      <ul class="nav-menu">
-        <li><a href="#" data-tab="welcome" class="nav-link active">🏠 Установка</a></li>
-        <li><a href="#" data-tab="config" class="nav-link">⚙️ Настройки</a></li>
-        <li><a href="#" data-tab="backup" class="nav-link">📥 Скачивание</a></li>
-        <li><a href="#" data-tab="statistics" class="nav-link">📊 Статистика</a></li>
-        <li><a href="#" data-tab="settings" class="nav-link">🔧 Диагностика</a></li>
-      </ul>
     </nav>
 
     <!-- Основной контент -->
@@ -42,10 +39,10 @@
               <span class="status-value">Проверка...</span>
             </div>
           
-          </div>
+          </div><br/>
 
           <div id="installation-section" class="install-section">
-            <h3>Установка зависимостей</h3>
+            <h3>Установка зависимостей</h3><br/>
             <button id="install-btn" class="btn btn-primary" disabled>
               Установить зависимости
             </button>
@@ -224,21 +221,21 @@
         </div>
         <div class="tab-body">
           <div class="stats-cards">
-            <div class="stat-card">
+            <div class="form-section">
               <div class="stat-info">
                 <div class="stat-value" id="total-files">0</div>
                 <div class="stat-label">Всего файлов</div>
               </div>
             </div>
 
-            <div class="stat-card">
+            <div class="form-section">
               <div class="stat-info">
                 <div class="stat-value" id="needing-backup">0</div>
                 <div class="stat-label">Требуют бэкапа</div>
               </div>
             </div>
 
-            <div class="stat-card">
+            <div class="form-section">
               <div class="stat-info">
                 <div class="stat-value" id="with-errors">0</div>
                 <div class="stat-label">С ошибками</div>

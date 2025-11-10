@@ -1,6 +1,6 @@
 :root {
-  --primary-color: #4CAF50;
-  --primary-dark: #388E3C;
+  --primary-color: #0a5d95;
+  --primary-dark: #0b4870;
   --secondary-color: #2196F3;
   --danger-color: #f44336;
   --warning-color: #FF9800;
@@ -21,67 +21,54 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-size: 13px;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   background-color: #fafafa;
   color: var(--text-color);
- height: 100vh;
- overflow: hidden;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .app {
   display: flex;
   height: 100vh;
+  flex-direction: column;
 }
 
 /* Сайдбар навигации */
 .sidebar {
-  width: 250px;
-  background: var(--white);
-  border-right: 1px solid var(--medium-gray);
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--box-shadow);
+
   z-index: 100;
-}
-
-.logo {
-  padding: 20px;
-  border-bottom: 1px solid var(--medium-gray);
-}
-
-.logo h1 {
-  font-size: 1.5rem;
- color: var(--primary-color);
-  text-align: center;
+  padding: 0px;
+  margin: 0px;
 }
 
 .nav-menu {
-  list-style: none;
-  padding: 10px 0;
+  padding: 0px 20px 0px 20px;
   flex: 1;
+  display: flex;
+  flex-direction: row;
+  background: var(--light-gray);
+  border-bottom: 1px solid var(--medium-gray);
 }
 
 .nav-link {
   display: block;
-  padding: 15px 20px;
+  padding: 8px 8px;
   text-decoration: none;
-  color: var(--text-color);
-  transition: var(--transition);
-  border-left: 3px solid transparent;
+  color: var(--dark-gray);
 }
 
 .nav-link:hover {
-  background-color: var(--light-gray);
+  color: var(--primary-color);
 }
 
 .nav-link.active {
-  background-color: var(--light-gray);
-  border-left: 3px solid var(--primary-color);
- color: var(--primary-color);
-  font-weight: 500;
+  border-bottom: 1px solid var(--primary-color);
+  color: var(--primary-color);
 }
 
 /* Основной контент */
@@ -90,16 +77,12 @@ body {
   display: flex;
   flex-direction: column;
   overflow: auto;
-  padding: 20px;
-  background-color: var(--light-gray);
+  padding: 0px 20px;
 }
 
 .tab-content {
   display: none;
   flex: 1;
-  background: var(--white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
   overflow: auto;
 }
 
@@ -109,15 +92,12 @@ body {
 }
 
 .tab-header {
-  padding: 20px;
-  border-bottom: 1px solid var(--medium-gray);
-  background: var(--white);
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  padding: 20px 20px 10px 20px;
 }
 
 .tab-header h2 {
   font-size: 1.5rem;
- color: var(--primary-color);
+  color: var(--primary-color);
   margin-bottom: 5px;
 }
 
@@ -137,13 +117,12 @@ body {
   padding: 20px;
   border: 1px solid var(--medium-gray);
   border-radius: var(--border-radius);
-  background: var(--white);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  box-shadow: 2px 2px 10px rgba(0,0,0,0,0.03);
   transition: box-shadow 0.3s var(--transition);
 }
 
 .form-section:hover {
-  box-shadow: 0 5px 15px rgba(0,0,0.08);
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
 }
 
 .form-section h3 {
@@ -398,9 +377,9 @@ body {
   margin-top: 15px;
   border: 1px solid var(--medium-gray);
   border-radius: var(--border-radius);
-  height: 300px;
- overflow: auto;
- background: #1e1e1e;
+  height: 100%;
+  overflow: auto;
+  background: #1e1e1e;
   color: #d4d4d4;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
@@ -457,8 +436,6 @@ body {
 /* Таблица */
 .table-container {
   overflow: auto;
-  border: 1px solid var(--medium-gray);
-  border-radius: var(--border-radius);
   margin-top: 15px;
 }
 
@@ -466,45 +443,32 @@ table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  background: var(--white);
- border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: var(--box-shadow);
 }
 
 th, td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid var(--medium-gray);
+  
 }
 
 th {
-  background: linear-gradient(to bottom, var(--light-gray), #f0f0);
   font-weight: 600;
   position: sticky;
   top: 0;
   z-index: 10;
+  background-color: var(--light-gray);
 }
 
 th:hover {
  cursor: pointer;
-  background-color: #e0e0e0;
+ background-color: #e0e0e0;
 }
 
-tr:not(:last-child) {
+tr {
   border-bottom: 1px solid var(--medium-gray);
-}
-
-td:first-child, th:first-child {
-  border-left: none;
-}
-
-td:last-child, th:last-child {
-  border-right: none;
-}
-
-tr:last-child td {
-  border-bottom: none;
+  background: transparent;
 }
 
 tr:hover {
@@ -666,48 +630,7 @@ tr:hover {
  justify-content: flex-end;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-  .app {
-    flex-direction: column;
-  }
-  
-  .sidebar {
-    width: 100%;
-    height: auto;
-  }
-  
-  .nav-menu {
-    display: flex;
-    overflow-x: auto;
- }
-  
-  .nav-link {
-    white-space: nowrap;
-  }
-  
-  .form-row {
-    flex-direction: column;
-    gap: 0;
-  }
-  
-  .backup-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .backup-buttons {
-    justify-content: center;
-  }
-  
-  .table-container {
-    font-size: 0.85rem;
-  }
-  
-  th, td {
-    padding: 8px 5px;
-  }
-}
+
 
 /* Улучшения UX */
 .loading {
@@ -747,17 +670,4 @@ tr:hover {
     transform: translateY(0);
     opacity: 1;
   }
-}
-
-/* Улучшенные тени и глубина */
-.tab-content {
-  display: none;
-  flex: 1;
-  background: var(--white);
-  border-radius: var(--border-radius);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  overflow: auto;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
 }
