@@ -2,14 +2,17 @@
   "name": "figma-export-gui",
   "version": "1.0",
   "description": "GUI для Figma Export Tool",
-  "main": "renderer/main.js",
+  "main": "dist/main.js",
   "scripts": {
+    "go": "tsc && npm run copy-static && unset ELECTRON_RUN_AS_NODE && electron .",
     "start": "unset ELECTRON_RUN_AS_NODE && electron .",
     "dev": "unset ELECTRON_RUN_AS_NODE && electron . --dev",
     "run-backup": "node ../scripts/run-backup.js",
-    "build": "tsc",
-    "dist": "electron-builder",
-    "build:electron": "electron-builder"
+    "build": "tsc && npm run copy-static",
+    "copy-static": "node scripts/copy-static.js",
+    "clean": "rm -rf dist",
+    "dist": "npm run build && electron-builder",
+    "build:electron": "npm run build"
   },
   "dependencies": {
     "dotenv": "^16.0.0",

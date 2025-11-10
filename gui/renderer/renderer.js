@@ -1,9 +1,9 @@
 // Основной модуль рендерера приложения
-import { initializeWelcomeTab } from './components/welcome.js';
-import { initializeConfigTab } from './components/config.js';
-import { initializeBackupTab } from './components/backup.js';
-import { initializeStatisticsTab } from './components/statistics.js';
-import { initializeSettingsTab } from './components/settings.js';
+import { initializeWelcomeTab } from '../components/welcome.js';
+import { initializeConfigTab } from '../components/config.js';
+import { initializeBackupTab } from '../components/backup.js';
+import { initializeStatisticsTab } from '../components/statistics.js';
+import { initializeSettingsTab } from '../components/settings.js';
 
 class AppRenderer {
     constructor() {
@@ -85,3 +85,5 @@ document.addEventListener('DOMContentLoaded', () => {
     new AppRenderer();
     console.log('AppRenderer initialized successfully');
 });
+
+export { AppRenderer };

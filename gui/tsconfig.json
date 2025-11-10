@@ -3,8 +3,9 @@
     "target": "ES2022",
     "module": "commonjs",
     "lib": ["ES2022", "dom", "dom.iterable"],
-    "outDir": "./renderer",
+    "outDir": "./dist",
     "rootDir": "./",
+    "lib": ["ES2022", "dom", "dom.iterable"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -32,12 +33,10 @@
   },
   "include": [
     "**/*",
-    ".env",
-    "renderer/types.d.ts"
+    ".env"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "renderer/**"  // Не компилируем UI файлы - они уже JavaScript
+    "dist"
   ]
 }

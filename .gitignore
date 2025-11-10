@@ -1,3 +1,5 @@
+gui/dist/
+gui/logs/
 node_modules/
 test-results/
 playwright-report/
