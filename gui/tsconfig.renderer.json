@@ -25,7 +25,7 @@
     "baseUrl": "./"
   },
   "include": [
-    "renderer/components/*.ts",
+    //"renderer/components/*.ts",
     "types.renderer.d.ts"
   ],
   "exclude": [

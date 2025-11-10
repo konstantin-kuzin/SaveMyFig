@@ -83,14 +83,6 @@ function main() {
     console.warn(`⚠️  Файл renderer.js не найден: ${rendererJsPath}`);
   }
   
-  // Копируем папку renderer/components (дублированная структура)
-  const rendererComponentsPath = path.join(RENDERER_DIR, 'components');
-  if (fs.existsSync(rendererComponentsPath)) {
-    const destRendererComponentsPath = path.join(DIST_DIR, 'components');
-    copyDir(rendererComponentsPath, destRendererComponentsPath);
-  } else {
-    console.warn(`⚠️  Папка renderer/components не найдена: ${rendererComponentsPath}`);
-  }
   
   console.log('✅ Копирование статических файлов завершено!');
 }

@@ -25,9 +25,9 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["*"],
-      "@utils/*": ["utils/*"],
+      "@utils/*": ["renderer/utils/*"],
       "@renderer/*": ["renderer/*"],
-      "@components/*": ["renderer/components/*"]
+      //"@components/*": ["renderer/components/*"]
     }
   },
   "include": [

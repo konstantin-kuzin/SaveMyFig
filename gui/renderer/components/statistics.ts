@@ -23,8 +23,6 @@ export function initializeStatisticsTab(): void {
       console.log('[Statistics] Клик по кнопке "Обновить" - вызываем loadStatistics()');
       loadStatistics();
     });
-  } else {
-    console.error('[Statistics] Кнопка "Обновить" не найдена в DOM!');
   }
   
   // Проверяем доступность electronAPI
