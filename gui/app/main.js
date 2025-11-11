@@ -38,16 +38,16 @@ class FigmaExportApp {
         this.mainWindow = new electron_1.BrowserWindow({
             width: 1200,
             height: 800,
-            minWidth: 1000,
-            minHeight: 600,
+            minWidth: 8000,
+            minHeight: 400,
             webPreferences: {
                 preload: (0, path_1.join)(__dirname, 'preload.js'),
                 nodeIntegration: false
             },
         });
         const indexPath = electron_1.app.isPackaged
-            ? (0, path_1.join)(__dirname, '../renderer/index.html')
-            : (0, path_1.join)(__dirname, '../renderer/index.html');
+            ? (0, path_1.join)(__dirname, '../dist/index.html')
+            : (0, path_1.join)(__dirname, '../dist/index.html');
         this.mainWindow.loadFile(indexPath);
         if (!electron_1.app.isPackaged) {
             this.mainWindow.webContents.openDevTools();

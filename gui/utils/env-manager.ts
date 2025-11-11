@@ -9,7 +9,9 @@ export class EnvManager {
 
   constructor() {
     this.logger = new Logger();
-    this.envPath = path.join(process.cwd(), '.env');
+    // Ищем .env файл в корне проекта (на уровень выше gui/)
+    this.envPath = path.join(process.cwd(), '..', '.env');
+    this.logger.info('Looking for .env file at: ' + this.envPath);
   }
 
   async readEnv(): Promise<Record<string, string>> {

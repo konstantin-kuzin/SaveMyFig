@@ -61,22 +61,31 @@
 
       <!-- Экран конфигурации -->
       <div id="config-tab" class="tab-content">
-        <div class="tab-header">
-          <h2>Конфигурация</h2>
-          <p>Настройка параметров Figma и путей загрузки</p>
-        </div>
         <div class="tab-body">
-          <form id="config-form">
-            <!-- Figma Access Token -->
+          <div id="config-form">
+            <!-- FIGMA_ACCESS_TOKEN -->
             <div class="form-section">
-              <h3>Figma Access Token</h3>
+              <h2>Аккаунт Figma</h2>
               <div class="form-group">
-                <label for="figma-token">Токен доступа:</label>
-                <div class="input-group">
-                  <input type="password" id="figma-token" name="FIGMA_ACCESS_TOKEN" 
-                         placeholder="figd_..." required>
-                  <button type="button" id="toggle-token" class="btn btn-secondary">👁️</button>
-                </div>
+                <label for="figma-account-1-email">EMAIL (обязательное):</label>
+                <input type="email" id="figma-account-1-email" name="FIGMA_ACCOUNT_1_EMAIL"
+                       placeholder="user@example.com" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="figma-account-1-auth-cookie">FIGMA AUTH COOKIE (обязательное):</label>
+                <textarea type="text" id="figma-account-1-auth-cookie" name="FIGMA_ACCOUNT_1_AUTH_COOKIE"
+                       placeholder="__Host-figma.authn=..." required rows="2"></textarea>
+                       <small class="form-help">
+                  <a href="https://www.figma.com/developers/api#authentication" target="_blank">
+                    Как получить cookie
+                  </a>
+                </small>
+              </div>
+              <div class="form-group">
+                <label for="figma-access-token">FIGMA ACCESS TOKEN (обязательное):</label>
+                <input type="text" id="figma-access-token" name="FIGMA_ACCESS_TOKEN"
+                       placeholder="figd_..." required>
                 <small class="form-help">
                   <a href="https://www.figma.com/developers/api#authentication" target="_blank">
                     Как получить токен
@@ -85,90 +94,51 @@
               </div>
             </div>
 
-            <!-- Figma Accounts -->
+            <!-- DOWNLOAD_PATH -->
             <div class="form-section">
-              <h3>Аккаунты Figma</h3>
-              <div id="accounts-container">
-                <!-- Аккаунты будут добавлены динамически -->
-              </div>
-              <button type="button" id="add-account" class="btn btn-secondary">
-                + Добавить аккаунт
-              </button>
-            </div>
-
-            <!-- Пути и параметры -->
-            <div class="form-section">
-              <h3>Пути и параметры</h3>
+              <h2>Папка для сохранения файлов</h2>
               <div class="form-group">
-                <label for="download-path">Папка для загрузки:</label>
+                <label for="download-path">DOWNLOAD PATH (обязательное):</label>
                 <div class="input-group">
-                  <input type="text" id="download-path" name="DOWNLOAD_PATH" 
+                  <input type="text" id="download-path" name="DOWNLOAD_PATH"
                          placeholder="Выберите папку" readonly required>
                   <button type="button" id="select-path" class="btn btn-secondary">📁</button>
                 </div>
               </div>
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="wait-timeout">Таймаут (мс):</label>
-                  <input type="number" id="wait-timeout" name="WAIT_TIMEOUT"
-                        value="10000" min="5000" max="600" required>
-                </div>
+            </div>
 
-                <div class="form-group">
-                  <label for="max-files">Максимум файлов:</label>
-                  <input type="number" id="max-files" name="MAX_FILES"
-                        value="45" min="1" max="200" required>
-                </div>
-              </div>
-
+            <!-- PROJECTS и TEAMS -->
+            <div class="form-section">
+              <h2>Проекты и команды для бекапа</h2>
               <div class="form-group">
-                <label for="retry-delay">Задержка повтора (часы):</label>
-                <input type="number" id="retry-delay" name="RETRY_DELAY_HOURS"
-                       value="72" min="1" max="720" required>
+                <label for="projects">PROJECTS (обязательное, если Teams пусто):</label>
+                <textarea id="projects" name="PROJECTS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label for="teams">TEAMS (обязательное, если Projects пусто):</label>
+                <textarea id="teams" name="TEAMS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
               </div>
             </div>
-            <!-- Team/Project IDs -->
+
+            <!-- WAIT_TIMEOUT -->
             <div class="form-section">
-              <h3>Выбор файлов</h3>
+              <h2>Таймауты</h2>
               <div class="form-group">
-                <div class="radio-group">
-                  <label>
-                    <input type="radio" name="select-type" value="team" checked>
-                    По Team IDs
-                  </label>
-                  <label>
-                    <input type="radio" name="select-type" value="project">
-                    По Project IDs
-                  </label>
-                </div>
+                <label for="wait-timeout">TIMEOUT (обязательное):</label>
+                <input type="number" id="wait-timeout" name="WAIT_TIMEOUT"
+                       value="10000" min="1000" max="60000" required>
+                <small class="form-help">Таймаут ожидания (мс), по умолчанию 10000</small>
               </div>
-              
-              <div class="form-group">
-                <label for="team-ids" class="team-label">Team IDs:</label>
-                <label for="project-ids" class="project-label hidden">Project IDs:</label>
-                <textarea id="team-ids" name="TEAM_IDS" class="team-input" 
-                          placeholder="team1,team2,team3" rows="3"></textarea>
-                <textarea id="project-ids" name="PROJECT_IDS" class="project-input hidden" 
-                          placeholder="project1,project2,project3" rows="3"></textarea>
-                <small class="form-help">Максимум 50 ID, разделенных запятой</small>
-              </div>
-              
-              <button type="button" id="generate-files" class="btn btn-secondary">
-                🔄 Сгенерировать files.json
-              </button>
             </div>
 
             <!-- Кнопки действий -->
             <div class="form-actions">
-              <button type="button" id="load-config" class="btn btn-secondary">
-                📂 Загрузить из .env
-              </button>
-              <button type="submit" class="btn btn-primary">
-                💾 Сохранить конфигурацию
-              </button>
+              <small class="form-help">
+                Данные автоматически загружаются из .env файла при открытии вкладки
+              </small>
             </div>
-          </form>
+          </div>
         </div>
       </div>
 
