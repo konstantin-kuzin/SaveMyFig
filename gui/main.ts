@@ -5,11 +5,11 @@ if (process.env.ELECTRON_RUN_AS_NODE) {
 
 import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron';
 import { join } from 'path';
-import { Logger } from './renderer/utils/logger';
-import { EnvManager } from './renderer/utils/env-manager';
-import { DatabaseManager } from './renderer/utils/db-reader';
-import { ScriptRunner } from './renderer/utils/script-runner';
-import { NodeChecker } from './renderer/utils/node-checker';
+import { Logger } from './utils/logger';
+import { EnvManager } from './utils/env-manager';
+import { DatabaseManager } from './utils/db-reader';
+import { ScriptRunner } from './utils/script-runner';
+import { NodeChecker } from './utils/node-checker';
 
 class FigmaExportApp {
   private mainWindow: BrowserWindow | null = null;
