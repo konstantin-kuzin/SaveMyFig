@@ -105,6 +105,91 @@ export async function initializeConfigTab(): Promise<void> {
     }
   }
 
+  // Функция для получения корневой папки проекта
+  async function getProjectRoot(): Promise<string> {
+    try {
+      // Попытка определить корневую папку из URL файла
+      const currentPath = window.location.href;
+      console.log('🔍 [CONFIG] Current URL:', currentPath);
+      
+      // Извлекаем путь из file:// URL
+      const filePathMatch = currentPath.match(/file:\/\/(.+)\/gui\/dist\/.*$/);
+      if (filePathMatch && filePathMatch[1]) {
+        const projectRoot = decodeURIComponent(filePathMatch[1]);
+        console.log('📂 [CONFIG] Project root from file path:', projectRoot);
+        return projectRoot;
+      }
+      
+      // Fallback: пытаемся получить путь из текущего расположения скрипта
+      const scriptTags = document.querySelectorAll('script[src*="ui.js"]');
+      if (scriptTags.length > 0) {
+        const scriptSrc = scriptTags[0].getAttribute('src');
+        if (scriptSrc) {
+          // Извлекаем базовый путь из src скрипта
+          const basePathMatch = scriptSrc.match(/^(.+)\/gui\/dist\/ui\.js$/);
+          if (basePathMatch && basePathMatch[1]) {
+            console.log('📂 [CONFIG] Project root from script src:', basePathMatch[1]);
+            return basePathMatch[1];
+          }
+        }
+      }
+      
+      // Последний fallback - используем стандартный путь
+      const fallbackRoot = '/Users/Kuzin_K/Dev/Figma-export';
+      console.log('📂 [CONFIG] Using fallback project root:', fallbackRoot);
+      return fallbackRoot;
+      
+    } catch (error) {
+      console.error('❌ [CONFIG] Error detecting project root:', error);
+      // Если все методы не сработали, используем стандартный путь
+      return '/Users/Kuzin_K/Dev/Figma-export';
+    }
+  }
+
+  // Функция для преобразования абсолютного пути в относительный
+  function getRelativePath(absolutePath: string, basePath: string): string {
+    // Нормализуем пути
+    const absPath = absolutePath.replace(/\\/g, '/').replace(/\/+$/, '');
+    const base = basePath.replace(/\\/g, '/').replace(/\/+$/, '');
+    
+    // Если абсолютный путь начинается с базового пути, делаем его относительным
+    if (absPath.startsWith(base)) {
+      const relative = absPath.substring(base.length);
+      return relative.startsWith('/') ? relative.substring(1) : relative;
+    }
+    
+    // Если не удается сделать относительный, возвращаем относительно корня
+    return absPath.split('/').pop() || absPath;
+  }
+
+  // Обработчик кнопки выбора папки
+  const selectPathBtn = document.getElementById('select-path');
+  if (selectPathBtn && downloadPathInput) {
+    selectPathBtn.addEventListener('click', async () => {
+      try {
+        console.log('📁 [CONFIG] Opening directory selection dialog...');
+        
+        // Получаем корневую папку проекта для вычисления относительного пути
+        const projectRoot = await getProjectRoot();
+        
+        const absolutePath = await window.electronAPI.selectDirectory();
+        if (absolutePath) {
+          // Временно подставляем абсолютный путь (логика относительных путей будет доработана позже)
+          downloadPathInput.value = absolutePath;
+          
+          console.log('✅ [CONFIG] Selected folder:');
+          console.log('   Absolute path:', absolutePath);
+        } else {
+          console.log('⚠️ [CONFIG] No folder selected');
+        }
+      } catch (error) {
+        console.error('❌ [CONFIG] Error selecting folder:', error);
+        alert('Ошибка при выборе папки');
+      }
+    });
+    console.log('✅ [CONFIG] Directory selection button handler added');
+  }
+
   // Автоматически загружаем данные при инициализации вкладки
   console.log('🚀 [CONFIG] Starting auto-load of .env data...');
   await loadEnvData();
