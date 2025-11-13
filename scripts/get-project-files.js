@@ -21,15 +21,9 @@ console.log("Project IDs:", projectIds);
     console.log("Fetching file metadata from Figma API...");
     for (const projectId of projectIds) {
       const projectFilesData = await getFiles(projectId);
-      
+
       // Add project metadata
       projectFilesData.id = projectId;
-      // projectFilesData has 'name' which is the project name
-
-      
-      console.log("Project name:", projectFilesData.name);
-
-
       allApiFilesData.push(projectFilesData);
 
       // Step 2: Update database with latest file info (do this for all fetched files)

@@ -11,7 +11,6 @@ const teamIds = process.argv
   .split(/[,\s]+/)
   .map(id => id.trim())
   .filter(Boolean);
-console.log("Team IDs:", teamIds);
 
 (async () => {
   try {
@@ -25,14 +24,13 @@ console.log("Team IDs:", teamIds);
       for (const project of projects) {
         const projectId = project.id;
         const projectFilesData = await getFiles(projectId);
-        
+      
         // Add project metadata
         projectFilesData.id = projectId;
         projectFilesData.team_id = teamId;
         projectFilesData.project_name = project.name; // Store project name for later use
-
         allApiFilesData.push(projectFilesData);
-
+        
         // Step 2: Update database with latest file info (do this for all fetched files)
         for (const file of projectFilesData.files) {
           await updateBackupInfo(file.key, file.last_modified, project.name, file.name);
