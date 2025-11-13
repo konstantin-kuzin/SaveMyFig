@@ -19,18 +19,18 @@ export async function initializeConfigTab(): Promise<void> {
   const waitTimeoutInput = document.getElementById('wait-timeout') as HTMLInputElement;
 
   // Проверяем наличие всех элементов
-  console.log('🔍 [CONFIG] Checking form elements...');
-  console.log('📧 [CONFIG] figmaAccountEmailInput:', !!figmaAccountEmailInput);
-  console.log('🍪 [CONFIG] figmaAccountAuthCookieInput:', !!figmaAccountAuthCookieInput);
-  console.log('🔑 [CONFIG] figmaAccessTokenInput:', !!figmaAccessTokenInput);
-  console.log('📁 [CONFIG] downloadPathInput:', !!downloadPathInput);
-  console.log('📋 [CONFIG] projectsInput:', !!projectsInput);
-  console.log('👥 [CONFIG] teamsInput:', !!teamsInput);
-  console.log('⏱️ [CONFIG] waitTimeoutInput:', !!waitTimeoutInput);
+  console.log('[CONFIG] Checking form elements...');
+  console.log('[CONFIG] figmaAccountEmailInput:', !!figmaAccountEmailInput);
+  console.log('[CONFIG] figmaAccountAuthCookieInput:', !!figmaAccountAuthCookieInput);
+  console.log('[CONFIG] figmaAccessTokenInput:', !!figmaAccessTokenInput);
+  console.log('[CONFIG] downloadPathInput:', !!downloadPathInput);
+  console.log('[CONFIG] projectsInput:', !!projectsInput);
+  console.log('[CONFIG] teamsInput:', !!teamsInput);
+  console.log('[CONFIG] waitTimeoutInput:', !!waitTimeoutInput);
 
   // Функция для загрузки данных из .env файла
   async function loadEnvData(): Promise<void> {
-    console.log('📖 [CONFIG] Starting to load .env data...');
+    console.log('[CONFIG] Starting to load .env data...');
     
     try {
       console.log('🔄 [CONFIG] Calling window.electronAPI.readEnv()...');
@@ -101,7 +101,7 @@ export async function initializeConfigTab(): Promise<void> {
       console.error('❌ [CONFIG] Error loading config:', error);
       alert('Ошибка при загрузке данных из .env файла');
       waitTimeoutInput.value = '10000'; // Дефолтное значение в случае ошибки
-      console.log('📝 [CONFIG] Set default WAIT_TIMEOUT due to error: 10000');
+      console.log('[CONFIG] Set default WAIT_TIMEOUT due to error: 10000');
     }
   }
 
@@ -110,7 +110,7 @@ export async function initializeConfigTab(): Promise<void> {
     try {
       // Попытка определить корневую папку из URL файла
       const currentPath = window.location.href;
-      console.log('🔍 [CONFIG] Current URL:', currentPath);
+      console.log('[CONFIG] Current URL:', currentPath);
       
       // Извлекаем путь из file:// URL
       const filePathMatch = currentPath.match(/file:\/\/(.+)\/gui\/dist\/.*$/);
@@ -136,7 +136,7 @@ export async function initializeConfigTab(): Promise<void> {
       
       // Последний fallback - используем стандартный путь
       const fallbackRoot = '/Users/Kuzin_K/Dev/Figma-export';
-      console.log('📂 [CONFIG] Using fallback project root:', fallbackRoot);
+      console.log('[CONFIG] Using fallback project root:', fallbackRoot);
       return fallbackRoot;
       
     } catch (error) {
@@ -167,7 +167,7 @@ export async function initializeConfigTab(): Promise<void> {
   if (selectPathBtn && downloadPathInput) {
     selectPathBtn.addEventListener('click', async () => {
       try {
-        console.log('📁 [CONFIG] Opening directory selection dialog...');
+        console.log('[CONFIG] Opening directory selection dialog...');
         
         // Получаем корневую папку проекта для вычисления относительного пути
         const projectRoot = await getProjectRoot();
@@ -193,6 +193,88 @@ export async function initializeConfigTab(): Promise<void> {
   // Автоматически загружаем данные при инициализации вкладки
   console.log('🚀 [CONFIG] Starting auto-load of .env data...');
   await loadEnvData();
+  
+  // Обработчик кнопки сохранения
+  type SaveHandlerElement = HTMLElement & {
+    saveHandler?: EventListenerOrEventListenerObject;
+  };
+
+  const saveConfigBtn = document.getElementById('save-config') as SaveHandlerElement | null;
+  if (saveConfigBtn) {
+    // Удаляем предыдущий обработчик, если он существует
+    const existingHandler = saveConfigBtn.saveHandler;
+    if (existingHandler) {
+      saveConfigBtn.removeEventListener('click', existingHandler);
+    }
+    
+    const saveHandler = async () => {
+      try {
+        console.log('💾 [CONFIG] Starting config save process...');
+        
+        // Собираем данные из формы
+        const configData: Record<string, string> = {};
+        
+        if (figmaAccountEmailInput?.value) {
+          configData.FIGMA_ACCOUNT_1_EMAIL = figmaAccountEmailInput.value;
+        }
+        
+        if (figmaAccountAuthCookieInput?.value) {
+          configData.FIGMA_ACCOUNT_1_AUTH_COOKIE = figmaAccountAuthCookieInput.value;
+        }
+        
+        if (figmaAccessTokenInput?.value) {
+          configData.FIGMA_ACCESS_TOKEN = figmaAccessTokenInput.value;
+        }
+        
+        if (downloadPathInput?.value) {
+          configData.DOWNLOAD_PATH = downloadPathInput.value;
+        }
+        
+        if (projectsInput?.value) {
+          configData.PROJECTS = projectsInput.value;
+        }
+        
+        if (teamsInput?.value) {
+          configData.TEAMS = teamsInput.value;
+        }
+        
+        if (waitTimeoutInput?.value) {
+          configData.WAIT_TIMEOUT = waitTimeoutInput.value;
+        }
+        
+        console.log('📝 [CONFIG] Collected config data:', configData);
+        
+        // Валидация конфигурации перед сохранением
+        console.log('🔍 [CONFIG] Validating config before saving...');
+        const validationResponse = await window.electronAPI.validateConfig(configData);
+        if (!validationResponse.valid) {
+          console.error('❌ [CONFIG] Config validation failed:', validationResponse.errors);
+          alert('Ошибка валидации конфигурации:\n' + validationResponse.errors.join('\n'));
+          return;
+        }
+        
+        // Сохраняем конфигурацию
+        console.log('💾 [CONFIG] Saving config to .env file...');
+        const saveResponse = await window.electronAPI.writeEnv(configData);
+        
+        if (saveResponse.success) {
+          console.log('✅ [CONFIG] Config saved successfully');
+          alert('Настройки успешно сохранены!');
+        } else {
+          console.error('❌ [CONFIG] Failed to save config:', saveResponse.message);
+          alert('Ошибка при сохранении настроек: ' + saveResponse.message);
+        }
+      } catch (error) {
+        console.error('❌ [CONFIG] Error during config save:', error);
+        alert('Ошибка при сохранении настроек');
+      }
+    };
+    
+    // Сохраняем ссылку на обработчик для последующего удаления
+    saveConfigBtn.saveHandler = saveHandler;
+    saveConfigBtn.addEventListener('click', saveHandler);
+    console.log('✅ [CONFIG] Save config button handler added');
+  }
   
   console.log('🎉 [CONFIG] Config tab initialization completed');
 }
