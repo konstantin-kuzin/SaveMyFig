@@ -4,7 +4,14 @@ const { getFiles } = require("./lib");
 const { getFilesToBackup, updateBackupInfo, close: closeDb } = require("./db");
 
 const MAX_FILES = 3;
-const projectIds = process.argv.slice(2);
+const projectIds = process.argv
+  .slice(2)
+  .join(" ")
+  .split(/[,\s]+/)
+  .map(id => id.trim())
+  .filter(Boolean);
+console.log("Project IDs:", projectIds);
+
 
 (async () => {
   try {
@@ -18,6 +25,10 @@ const projectIds = process.argv.slice(2);
       // Add project metadata
       projectFilesData.id = projectId;
       // projectFilesData has 'name' which is the project name
+
+      
+      console.log("Project name:", projectFilesData.name);
+
 
       allApiFilesData.push(projectFilesData);
 

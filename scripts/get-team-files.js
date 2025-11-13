@@ -3,8 +3,15 @@ const path = require("path");
 const { getFiles, getProjects } = require("./lib");
 const { getFilesToBackup, updateBackupInfo, close: closeDb } = require("./db");
 
-const MAX_FILES = 45;
-const teamIds = process.argv.slice(2);
+const MAX_FILES = 3;
+
+const teamIds = process.argv
+  .slice(2)
+  .join(" ")
+  .split(/[,\s]+/)
+  .map(id => id.trim())
+  .filter(Boolean);
+console.log("Team IDs:", teamIds);
 
 (async () => {
   try {
