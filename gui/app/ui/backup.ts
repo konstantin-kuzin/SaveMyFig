@@ -19,7 +19,7 @@ export function initializeBackupTab(): void {
     startBackupBtn.addEventListener('click', async () => {
       if (isRunning) return;
       
-      const command = scriptCommandSelect?.value || 'run-backup';
+      const command = 'run-backup';
       isRunning = true;
       startBackupBtn.disabled = true;
       stopBackupBtn.disabled = false;

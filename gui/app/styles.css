@@ -8,12 +8,12 @@
   --info-color: #2196F3;
   --light-gray: #f5f5f5;
   --medium-gray: #e0e0e0;
- --dark-gray: #9e9e9e;
- --text-color: #333;
+  --dark-gray: #9e9e9e;
+  --text-color: #333;
   --text-light: #666;
   --white: #ffffff;
   --border-radius: 8px;
-  --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
 }
 
@@ -87,7 +87,7 @@ a:hover:not(.nav-link) {
   display: flex;
   flex-direction: column;
   overflow: auto;
-  padding: 0px 20px;
+  padding: 0px;
 }
 
 .tab-content {
@@ -112,7 +112,7 @@ a:hover:not(.nav-link) {
 }
 
 .tab-header p {
- color: var(--text-light);
+  color: var(--text-light);
 }
 
 .tab-body {
@@ -127,12 +127,12 @@ a:hover:not(.nav-link) {
   padding: 20px;
   border: 1px solid var(--medium-gray);
   border-radius: var(--border-radius);
-  box-shadow: 2px 2px 10px rgba(0,0,0,0,0.03);
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0, 0.03);
   transition: box-shadow 0.3s var(--transition);
 }
 
 .form-section:hover {
-  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .form-section h2 {
@@ -143,7 +143,7 @@ a:hover:not(.nav-link) {
 }
 
 .form-group {
- margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .form-group label {
@@ -168,7 +168,7 @@ a:hover:not(.nav-link) {
   outline: none;
   border-color: var(--primary-color);
   background: rgba(255, 255, 255, 1);
-  box-shadow: 0 0 0 3px rgba(10, 93, 149, 0.1), 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 0 0 3px rgba(10, 93, 149, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
@@ -189,11 +189,12 @@ textarea.form-control {
   line-height: 1.5;
 }
 
-input, textarea {
-    border: 1px solid var(--medium-gray);
-    width: 100%;
-    padding: 8px;
-    border-radius: 8px;
+input,
+textarea {
+  border: 1px solid var(--medium-gray);
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
 }
 
 textarea {
@@ -212,7 +213,7 @@ textarea {
 
 .input-group:focus-within {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(10, 93, 149, 0.1), 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 0 0 3px rgba(10, 93, 149, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
@@ -240,7 +241,7 @@ textarea {
 .input-group .btn:hover {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .form-row {
@@ -294,8 +295,13 @@ textarea {
 }
 
 @keyframes loading-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* Обязательные поля с красной звездочкой */
@@ -321,6 +327,7 @@ textarea {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -451,7 +458,7 @@ textarea {
   background: var(--light-gray);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .progress-container.hidden {
@@ -463,8 +470,8 @@ textarea {
   height: 24px;
   background-color: var(--light-gray);
   border-radius: 12px;
- overflow: hidden;
- position: relative;
+  overflow: hidden;
+  position: relative;
 }
 
 .progress-fill {
@@ -473,33 +480,36 @@ textarea {
   width: 0%;
   transition: width 0.4s ease;
   position: relative;
- overflow: hidden;
+  overflow: hidden;
 }
 
 .progress-fill::after {
   content: '';
   position: absolute;
- top: 0;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: linear-gradient(
-    -45deg,
-    rgba(25, 255, 255, 0.2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.2) 75%,
-    transparent 75%
-  );
+  background-image: linear-gradient(-45deg,
+      rgba(25, 255, 255, 0.2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      transparent 75%);
   background-size: 30px 30px;
   animation: progress-shine 1.5s infinite linear;
   z-index: 1;
 }
 
 @keyframes progress-shine {
-  0% { background-position: 0 0; }
-  10% { background-position: 30px 30px; }
+  0% {
+    background-position: 0 0;
+  }
+
+  10% {
+    background-position: 30px 30px;
+  }
 }
 
 .progress-text {
@@ -509,20 +519,13 @@ textarea {
   position: relative;
   z-index: 2;
   line-height: 24px;
- font-weight: 500;
+  font-weight: 500;
 }
 
 /* Лог контейнер */
 .log-container {
-  margin-top: 15px;
-  border: 1px solid var(--medium-gray);
-  border-radius: var(--border-radius);
   height: 100%;
   overflow: auto;
-  background: #1e1e1e;
-  color: #d4d4d4;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
 }
 
 .log-container.hidden {
@@ -530,9 +533,38 @@ textarea {
 }
 
 .log-content {
-  padding: 15px;
   white-space: pre-wrap;
-  line-height: 1.4;
+  color: var(--text-color);
+  font-family: monospace;
+  font-weight: 300;
+  font-size: 11px;
+}
+
+/* Full-height backup log area */
+#backup-tab {
+  min-height: 0;
+}
+
+#backup-tab .tab-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+
+}
+
+#backup-tab .log-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  margin-bottom: 20px;
+}
+
+#backup-log {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
 }
 
 /* Статистика карточки */
@@ -544,8 +576,8 @@ textarea {
 }
 
 .stat-card {
- display: flex;
- align-items: center;
+  display: flex;
+  align-items: center;
   padding: 20px;
   background: var(--white);
   border: 1px solid var(--medium-gray);
@@ -564,7 +596,7 @@ textarea {
 
 .stat-value {
   font-size: 1.8rem;
- font-weight: bold;
+  font-weight: bold;
   color: var(--primary-color);
 }
 
@@ -586,11 +618,16 @@ table {
   overflow: hidden;
 }
 
-th, td {
-  padding: 12px;
+th,
+td {
+  padding: 6px 12px;
   text-align: left;
   border-bottom: 1px solid var(--medium-gray);
-  
+}
+
+td.date {
+  font-family: monospace;
+  font-size: 0.9em;
 }
 
 th {
@@ -602,7 +639,7 @@ th {
 }
 
 th:hover {
- cursor: pointer;
+  cursor: pointer;
 }
 
 tr {
@@ -616,7 +653,7 @@ tr {
   gap: 15px;
   align-items: center;
   margin-bottom: 15px;
- flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 .table-controls input {
@@ -637,7 +674,7 @@ tr {
 /* Секции диагностики */
 .diagnostic-section {
   margin-bottom: 25px;
- padding: 15px;
+  padding: 15px;
   border: 1px solid var(--medium-gray);
   border-radius: var(--border-radius);
   background: var(--light-gray);
@@ -667,7 +704,7 @@ tr {
 
 .status-list {
   display: flex;
- flex-direction: column;
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -679,7 +716,7 @@ tr {
 /* Статус индикаторы */
 .status-indicator {
   display: flex;
- align-items: center;
+  align-items: center;
   gap: 10px;
   margin-bottom: 15px;
 }
@@ -705,9 +742,17 @@ tr {
 }
 
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.4; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .progress-info {
@@ -720,7 +765,7 @@ tr {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
- padding: 15px;
+  padding: 15px;
   background: var(--light-gray);
   border-radius: var(--border-radius);
   flex-wrap: wrap;
@@ -729,7 +774,7 @@ tr {
 
 .backup-buttons {
   display: flex;
- gap: 10px;
+  gap: 10px;
 }
 
 /* Аккаунты Figma */
@@ -762,7 +807,7 @@ tr {
   display: flex;
   gap: 10px;
   margin-top: 10px;
- justify-content: flex-end;
+  justify-content: flex-end;
 }
 
 
@@ -772,7 +817,7 @@ tr {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(255,255,.3);
+  border: 3px solid rgba(255, 255, .3);
   border-radius: 50%;
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
@@ -780,7 +825,9 @@ tr {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .fade-in {
@@ -788,8 +835,13 @@ tr {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .slide-in {
@@ -801,6 +853,7 @@ tr {
     transform: translateY(-10px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -815,16 +868,13 @@ tr {
   right: 0;
   background: var(--light-gray);
   border-top: 1px solid var(--medium-gray);
-  padding: 15px 20px;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  padding: 12px 20px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 4px;
-}
-
-/* Увеличиваем отступы для основного контента, чтобы не перекрывался футер */
-.main-content.with-fixed-footer {
-  padding-bottom: 70px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
 }

@@ -9,16 +9,6 @@
 <body>
   <div class="app">
     <!-- Навигация -->
-    <!-- <nav class="sidebar">
-      <div class="nav-menu">
-        <div><a href="#" data-tab="welcome" class="nav-link active">Установка</a></div>
-        <div><a href="#" data-tab="config" class="nav-link">Настройки</a></div>
-        <div><a href="#" data-tab="backup" class="nav-link">Скачивание</a></div>
-        <div><a href="#" data-tab="statistics" class="nav-link">Статистика</a></div>
-        <div><a href="#" data-tab="settings" class="nav-link">Диагностика</a></div>
-      </div>
-    </nav> -->
-
     <nav class="sidebar">
       <div class="nav-menu">
         <div><a href="#" data-tab="welcome" class="nav-link active">Установка</a></div>
@@ -29,7 +19,7 @@
     </nav>
 
     <!-- Основной контент -->
-    <main class="main-content with-fixed-footer">
+    <main class="main-content">
       <!-- Экран установки -->
       <div id="welcome-tab" class="tab-content active">
         <div class="tab-header">
@@ -152,30 +142,20 @@
 
       <!-- Экран выполнения бэкапа -->
       <div id="backup-tab" class="tab-content">
-        <div class="tab-header">
-          <h2>Выполнение бэкапа</h2>
-          <p>Запуск и мониторинг процесса скачивания файлов</p>
-        </div>
         <div class="tab-body">
-          <div class="backup-controls">
-            <div class="form-group">
-              <label for="script-command">Команда:</label>
-              <select id="script-command" class="form-control">
-                <option value="run-backup" selected>npm run run-backup - полный цикл</option>
-                <option value="start">npm run start - основной запуск</option>
-                <option value="retry">npm run retry - повтор неудачных</option>
-                <option value="dry-run">npm run dry-run - предпросмотр</option>
-              </select>
-            </div>
-
-            <div class="backup-buttons">
+          <div class="log-container">
+            <div id="backup-log" class="log-content"></div>
+          </div>
+        </div>
+        <!-- Фиксированный футер -->
+      <div class="fixed-footer">
+        <div class="backup-buttons">
               <button id="start-backup" class="btn btn-success">▶️ Start</button>
               <button id="stop-backup" class="btn btn-danger" disabled>⏹️ Stop</button>
               <button id="clear-log" class="btn btn-secondary">🗑️ Clear Log</button>
             </div>
-          </div>
-
-          <div class="backup-status">
+      
+      <div class="backup-status">
             <div class="status-indicator">
               <span class="status-dot idle"></span>
               <span class="status-text">Idle</span>
@@ -184,11 +164,7 @@
               <span id="progress-text">Готов к запуску</span>
             </div>
           </div>
-          
-          <div class="log-container">
-            <div id="backup-log" class="log-content"></div>
-          </div>
-        </div>
+      </div>
       </div>
 
       <!-- Экран статистики -->

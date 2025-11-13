@@ -163,8 +163,8 @@ export function initializeStatisticsTab(): void {
         <td title="${fileName}">
           ${figmaLink ? `<a href="${figmaLink}" data-figma-link="${figmaLink}" target="_blank" rel="noopener noreferrer">${fileName}</a>` : fileName}
         </td>
-        <td>${lastBackupDate}</td>
-        <td>${lastModifiedDate}</td>
+        <td class="date">${lastBackupDate}</td>
+        <td class="date">${lastModifiedDate}</td>
         <!-- <td>${nextAttemptDate}</td> -->
         <td title="${fileKey}">${shortFileKey}</td>
       `;
