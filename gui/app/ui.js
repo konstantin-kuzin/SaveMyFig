@@ -52,6 +52,9 @@ class AppRenderer {
         if (targetTab) {
             targetTab.classList.add('active');
             console.log(`Tab ${tabId} activated`);
+            if (tabId === 'statistics') {
+                document.dispatchEvent(new CustomEvent('statistics-tab-activated'));
+            }
         } else {
             console.error(`Target tab ${tabId}-tab not found`);
         }

@@ -46,6 +46,16 @@ body {
   margin: 0px;
 }
 
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+}
+
+a:hover:not(.nav-link) {
+  text-decoration: underline dotted;
+}
+
+
 .nav-menu {
   padding: 0px 20px 0px 20px;
   flex: 1;
@@ -593,16 +603,11 @@ th {
 
 th:hover {
  cursor: pointer;
- background-color: #e0e0e0;
 }
 
 tr {
   border-bottom: 1px solid var(--medium-gray);
   background: transparent;
-}
-
-tr:hover {
-  background-color: var(--light-gray);
 }
 
 /* Контролы таблицы */

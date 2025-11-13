@@ -3,7 +3,7 @@ if (process.env.ELECTRON_RUN_AS_NODE) {
   delete process.env.ELECTRON_RUN_AS_NODE;
 }
 
-import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Notification, shell } from 'electron';
 import { join } from 'path';
 import { Logger } from './utils/logger';
 import { EnvManager } from './utils/env-manager';
@@ -165,6 +165,12 @@ class FigmaExportApp {
         title: options.title,
         body: options.body
       }).show();
+    });
+
+    ipcMain.handle('open-external', async (_event: any, url: string) => {
+      if (url) {
+        await shell.openExternal(url);
+      }
     });
   }
 }

@@ -193,10 +193,6 @@
 
       <!-- Экран статистики -->
       <div id="statistics-tab" class="tab-content">
-        <div class="tab-header">
-          <h2>Статистика и база данных</h2>
-          <p>Просмотр информации о бэкапах и управление базой данных</p>
-        </div>
         <div class="tab-body">
           <div class="stats-cards">
             <div class="form-section">
@@ -225,12 +221,12 @@
             <table id="backups-table">
               <thead>
                 <tr>
-                  <th data-sort="file_key">Ключ файла</th>
                   <th data-sort="project_name">Проект</th>
                   <th data-sort="file_name">Имя файла</th>
-                  <th data-sort="last_backup_date">Последний бэкап</th>
+                  <th data-sort="last_backup_date">Бекап</th>
                   <th data-sort="last_modified_date">Изменен в Figma</th>
-                  <th data-sort="next_attempt_date">Следующая попытка</th>
+                  <th data-sort="file_key">Ключ файла</th>
+                  <!-- <th data-sort="next_attempt_date">Следующая попытка</th> -->
                 </tr>
               </thead>
               <tbody id="backups-tbody">

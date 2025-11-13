@@ -19,6 +19,7 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     resetErrors: () => ipcRenderer.invoke('reset-errors'),
     selectDirectory: () => ipcRenderer.invoke('select-directory'),
     showNotification: (options) => ipcRenderer.invoke('show-notification', options),
+    openExternal: (url) => ipcRenderer.invoke('open-external', url),
     onScriptOutput: (callback) => {
         ipcRenderer.on('script-output', (event, data) => callback(data));
     },

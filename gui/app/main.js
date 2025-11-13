@@ -129,6 +129,11 @@ class FigmaExportApp {
                 body: options.body
             }).show();
         });
+        electron_1.ipcMain.handle('open-external', async (event, url) => {
+            if (url) {
+                await electron_1.shell.openExternal(url);
+            }
+        });
     }
 }
 const appInstance = new FigmaExportApp();

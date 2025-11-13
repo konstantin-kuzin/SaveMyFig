@@ -12,9 +12,32 @@ export function initializeStatisticsTab(): void {
   const resetErrorsBtn = document.getElementById('reset-errors') as HTMLButtonElement;
   const tableSearch = document.getElementById('table-search') as HTMLInputElement;
   const filterNeedingBackup = document.getElementById('filter-needing-backup') as HTMLInputElement;
+  const tableHeaders = document.querySelectorAll('#backups-table th[data-sort]');
+  
+  let backupsData: any[] = [];
+  const dateColumns = new Set(['last_backup_date', 'last_modified_date', 'next_attempt_date']);
+  const sortState: { column: string | null; direction: 'asc' | 'desc' } = {
+    column: null,
+    direction: 'asc',
+  };
   
   // Загрузка данных при инициализации
   loadStatistics();
+  document.addEventListener('statistics-tab-activated', () => {
+    console.log('[Statistics] Таб активирован, перезагружаем данные');
+    loadStatistics();
+  });
+  backupsTbody?.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    const link = target.closest<HTMLAnchorElement>('a[data-figma-link]');
+    if (link && window.electronAPI?.openExternal) {
+      event.preventDefault();
+      const url = link.dataset.figmaLink || link.href;
+      if (url) {
+        window.electronAPI.openExternal(url);
+      }
+    }
+  });
   
   // Обработчик обновления данных
   if (refreshDataBtn) {
@@ -89,9 +112,9 @@ export function initializeStatisticsTab(): void {
 
       // Загружаем все бэкапы
       console.log('[Statistics] Запрос всех бэкапов...');
-      const backups = await window.electronAPI.getAllBackups();
-      console.log('[Statistics] Бэкапы получены:', backups.length, 'записей');
-      renderTable(backups);
+      backupsData = await window.electronAPI.getAllBackups();
+      console.log('[Statistics] Бэкапы получены:', backupsData.length, 'записей');
+      applySortAndRender();
       console.log('[Statistics] Таблица обновлена');
     } catch (error) {
       console.error('[Statistics] Ошибка при загрузке статистики:', error);
@@ -126,21 +149,30 @@ export function initializeStatisticsTab(): void {
       const row = document.createElement('tr');
       
       // Форматируем даты
-      const lastBackupDate = formatDateTime(backup.last_backup_date, 'Нет');
-      const lastModifiedDate = formatDateTime(backup.last_modified_date, 'Неизвестно');
-      const nextAttemptDate = formatDateTime(backup.next_attempt_date, 'Нет');
+      const lastBackupDate = formatDateTime(backup.last_backup_date, '—');
+      const lastModifiedDate = formatDateTime(backup.last_modified_date, '—');
+      const nextAttemptDate = formatDateTime(backup.next_attempt_date, '—');
+      const fileKey = backup.file_key || '';
+      const fileName = backup.file_name || '';
+      const figmaLink = fileKey ? `https://www.figma.com/file/${fileKey}` : null;
+      const shortFileKey = fileKey ? `${fileKey.substring(0, 40)}${fileKey.length > 40 ? '…' : ''}` : '';
       
       row.innerHTML = `
-        <td title="${backup.file_key}">${backup.file_key?.substring(0, 8) || ''}...</td>
-        <td title="${backup.project_name}">${backup.project_name || ''}</td>
-        <td title="${backup.file_name}">${backup.file_name || ''}</td>
+        
+        <td title="${backup.project_name || ''}">${backup.project_name || ''}</td>
+        <td title="${fileName}">
+          ${figmaLink ? `<a href="${figmaLink}" data-figma-link="${figmaLink}" target="_blank" rel="noopener noreferrer">${fileName}</a>` : fileName}
+        </td>
         <td>${lastBackupDate}</td>
         <td>${lastModifiedDate}</td>
-        <td>${nextAttemptDate}</td>
+        <!-- <td>${nextAttemptDate}</td> -->
+        <td title="${fileKey}">${shortFileKey}</td>
       `;
       
       backupsTbody.appendChild(row);
     });
+
+    filterTable();
   }
   
   // Фильтрация таблицы
@@ -177,4 +209,52 @@ export function initializeStatisticsTab(): void {
       }
     });
   }
+
+  function handleSort(column: string): void {
+    if (!column) return;
+    
+    if (sortState.column === column) {
+      sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortState.column = column;
+      sortState.direction = dateColumns.has(column) ? 'desc' : 'asc';
+    }
+    
+    applySortAndRender();
+  }
+
+  function applySortAndRender(): void {
+    const data = [...backupsData];
+    
+    if (sortState.column) {
+      const isDateColumn = dateColumns.has(sortState.column);
+      const multiplier = sortState.direction === 'asc' ? 1 : -1;
+      
+      data.sort((a, b) => {
+        const aValue = a[sortState.column as string];
+        const bValue = b[sortState.column as string];
+        
+        if (isDateColumn) {
+          const aTime = aValue ? new Date(aValue).getTime() : 0;
+          const bTime = bValue ? new Date(bValue).getTime() : 0;
+          return (aTime - bTime) * multiplier;
+        }
+        
+        const aText = (aValue ?? '').toString().toLowerCase();
+        const bText = (bValue ?? '').toString().toLowerCase();
+        return aText.localeCompare(bText) * multiplier;
+      });
+    }
+    
+    renderTable(data);
+  }
+
+  tableHeaders.forEach(header => {
+    header.addEventListener('click', () => {
+      const column = header.getAttribute('data-sort');
+      if (column) {
+        handleSort(column);
+      }
+    });
+  });
 }

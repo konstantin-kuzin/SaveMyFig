@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // File operations
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
+  openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
   
   // Notifications
   showNotification: (options: { title: string; body: string }) => 

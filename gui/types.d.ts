@@ -29,6 +29,7 @@ declare global {
       
       // File operations
       selectDirectory: () => Promise<string>;
+      openExternal: (url: string) => Promise<void>;
       
       // Notifications
       showNotification: (options: { title: string; body: string }) => Promise<any>;
