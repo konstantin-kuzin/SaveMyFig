@@ -16,7 +16,7 @@ export async function initializeConfigTab(): Promise<void> {
   const downloadPathInput = document.getElementById('download-path') as HTMLInputElement;
   const projectsInput = document.getElementById('projects') as HTMLTextAreaElement;
   const teamsInput = document.getElementById('teams') as HTMLTextAreaElement;
-  const waitTimeoutInput = document.getElementById('wait-timeout') as HTMLInputElement;
+  const WAIT_TIMEOUT_VALUE = '10000';
 
   // Проверяем наличие всех элементов
   console.log('[CONFIG] Checking form elements...');
@@ -26,7 +26,7 @@ export async function initializeConfigTab(): Promise<void> {
   console.log('[CONFIG] downloadPathInput:', !!downloadPathInput);
   console.log('[CONFIG] projectsInput:', !!projectsInput);
   console.log('[CONFIG] teamsInput:', !!teamsInput);
-  console.log('[CONFIG] waitTimeoutInput:', !!waitTimeoutInput);
+  console.log('[CONFIG] WAIT_TIMEOUT forced value:', WAIT_TIMEOUT_VALUE);
 
   // Функция для загрузки данных из .env файла
   async function loadEnvData(): Promise<void> {
@@ -83,25 +83,13 @@ export async function initializeConfigTab(): Promise<void> {
           console.log('⚠️ [CONFIG] TEAMS not found in config');
         }
         
-        if (config.WAIT_TIMEOUT) {
-          waitTimeoutInput.value = config.WAIT_TIMEOUT;
-          console.log('✅ [CONFIG] Set WAIT_TIMEOUT:', config.WAIT_TIMEOUT);
-        } else {
-          waitTimeoutInput.value = '10000';
-          console.log('⚠️ [CONFIG] WAIT_TIMEOUT not found, setting default: 10000');
-        }
-        
         console.log('🎉 [CONFIG] All form fields updated successfully');
       } else {
         console.log('⚠️ [CONFIG] Config is empty or null, using default values');
-        waitTimeoutInput.value = '10000'; // Устанавливаем дефолтное значение
-        console.log('📝 [CONFIG] Set default WAIT_TIMEOUT: 10000');
       }
     } catch (error) {
       console.error('❌ [CONFIG] Error loading config:', error);
       alert('Ошибка при загрузке данных из .env файла');
-      waitTimeoutInput.value = '10000'; // Дефолтное значение в случае ошибки
-      console.log('[CONFIG] Set default WAIT_TIMEOUT due to error: 10000');
     }
   }
 
@@ -238,9 +226,7 @@ export async function initializeConfigTab(): Promise<void> {
           configData.TEAMS = teamsInput.value;
         }
         
-        if (waitTimeoutInput?.value) {
-          configData.WAIT_TIMEOUT = waitTimeoutInput.value;
-        }
+        configData.WAIT_TIMEOUT = WAIT_TIMEOUT_VALUE;
         
         console.log('📝 [CONFIG] Collected config data:', configData);
         

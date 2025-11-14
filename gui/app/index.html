@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Figma Export GUI</title>
+  <title>Figma Export GUI v 1.0</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="app">
-    <!-- Навигация -->
+    <!-- Navigation -->
     <nav class="sidebar">
       <div class="nav-menu">
-        <div><a href="#" data-tab="welcome" class="nav-link active">Установка</a></div>
-        <div><a href="#" data-tab="config" class="nav-link">Настройки</a></div>
-        <div><a href="#" data-tab="backup" class="nav-link">Скачивание</a></div>
-        <div><a href="#" data-tab="statistics" class="nav-link">Статистика</a></div>
+        <div><a href="#" data-tab="welcome" class="nav-link active">Installation</a></div>
+        <div><a href="#" data-tab="config" class="nav-link">Config</a></div>
+        <div><a href="#" data-tab="backup" class="nav-link">Download</a></div>
+        <div><a href="#" data-tab="statistics" class="nav-link">Statistics</a></div>
+        <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div>
       </div>
     </nav>
 
@@ -22,34 +23,30 @@
     <main class="main-content">
       <!-- Экран установки -->
       <div id="welcome-tab" class="tab-content active">
-        <div class="tab-header">
-          <h2>Установка и настройка</h2>
-          <p>Проверка системы и установка необходимых зависимостей</p>
-        </div>
         <div class="tab-body">
           <div id="system-check" class="check-section">
-            <h3>Проверка системы</h3>
+            <h3>System Check</h3>
             <div id="node-status" class="status-item">
               <span class="status-label">Node.js:</span>
-              <span class="status-value">Проверка...</span>
+              <span class="status-value">Checking...</span>
             </div>
             <div id="npm-status" class="status-item">
               <span class="status-label">npm:</span>
-              <span class="status-value">Проверка...</span>
+              <span class="status-value">Checking...</span>
             </div>
           
           </div><br/>
 
           <div id="installation-section" class="install-section">
-            <h3>Установка зависимостей</h3><br/>
+            <h3>Dependency Installation</h3><br/>
             <button id="install-btn" class="btn btn-primary" disabled>
-              Установить зависимости
+              Install Dependencies
             </button>
             <div id="install-progress" class="progress-container hidden">
               <div class="progress-bar">
                 <div class="progress-fill"></div>
               </div>
-              <div class="progress-text">Установка...</div>
+              <div class="progress-text">Installing...</div>
             </div>
             <div id="install-log" class="log-container hidden">
               <div class="log-content"></div>
@@ -63,78 +60,63 @@
         <div class="tab-body">
           <div id="config-form">
             <!-- FIGMA_ACCESS_TOKEN -->
-            <div class="form-section">
-              <h2>Аккаунт Figma</h2>
+
               <div class="form-group">
-                <label for="figma-account-1-email">EMAIL (обязательное):</label>
+                <label for="figma-account-1-email" class="required">Email</label>
                 <input type="email" id="figma-account-1-email" name="FIGMA_ACCOUNT_1_EMAIL"
                        placeholder="user@example.com" required>
               </div>
               
               <div class="form-group">
-                <label for="figma-account-1-auth-cookie">FIGMA AUTH COOKIE (обязательное):</label>
+                <label for="figma-account-1-auth-cookie" class="required">FIGMA auth cookie</label>
                 <textarea type="text" id="figma-account-1-auth-cookie" name="FIGMA_ACCOUNT_1_AUTH_COOKIE"
                        placeholder="__Host-figma.authn=..." required rows="2"></textarea>
                        <small class="form-help">
                   <a href="https://github.com/alexchantastic/figma-export/wiki/Getting-your-Figma-auth-session-cookie" target="_blank">
-                    Как получить cookie
+                    How to get cookie
                   </a>
                 </small>
               </div>
               <div class="form-group">
-                <label for="figma-access-token">FIGMA ACCESS TOKEN (обязательное):</label>
+                <label for="figma-access-token" class="required">FIGMA access token</label>
                 <input type="text" id="figma-access-token" name="FIGMA_ACCESS_TOKEN"
                        placeholder="figd_..." required>
                 <small class="form-help">
                   <a href="https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens" target="_blank">
-                    Как получить токен
+                    How to get Figma access token
                   </a>
                 </small>
               </div>
-            </div>
+            
 
             <!-- DOWNLOAD_PATH -->
-            <div class="form-section">
-              <h2>Папка для сохранения файлов</h2>
               <div class="form-group">
-                <label for="download-path">DOWNLOAD PATH (обязательное):</label>
+                <label for="download-path" class="required">Download path</label>
                 <div style="display: flex; gap: 8px; flex-direction: row; align-items: center">
                   <input type="text" id="download-path" name="DOWNLOAD_PATH"
-                         placeholder="Выберите папку" readonly required>
-                  <button type="button" id="select-path" class="btn btn-secondary">Выбрать</button>
+                         placeholder="Select folder" readonly required>
+                  <button type="button" id="select-path" class="btn btn-secondary">Select</button>
                 </div>
               </div>
-            </div>
+            
 
             <!-- PROJECTS и TEAMS -->
-            <div class="form-section">
-              <h2>Проекты и команды для бекапа</h2>
               <div class="form-group">
-                <label for="projects">PROJECTS (обязательное, если Teams пусто):</label>
+                <label for="projects">PROJECTS (required if no Teams)</label>
                 <textarea id="projects" name="PROJECTS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
               </div>
               
               <div class="form-group">
-                <label for="teams">TEAMS (обязательное, если Projects пусто):</label>
+                <label for="teams">TEAMS (required if no Projects)</label>
                 <textarea id="teams" name="TEAMS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
               </div>
-            </div>
+            
 
-            <!-- WAIT_TIMEOUT -->
-            <div class="form-section">
-              <h2>Таймауты</h2>
-              <div class="form-group">
-                <label for="wait-timeout">TIMEOUT (обязательное):</label>
-                <input type="number" id="wait-timeout" name="WAIT_TIMEOUT"
-                       value="10000" min="1000" max="60000" required>
-                <small class="form-help">Таймаут ожидания (мс), по умолчанию 10000</small>
-              </div>
-            </div>
           </div>
         </div>
       <!-- Фиксированный футер -->
       <div class="fixed-footer">
-        <button id="save-config" class="btn btn-primary">Сохранить настройки</button>
+        <button id="save-config" class="btn btn-primary">Save settings</button>
       </div>
       </div>
       
@@ -150,21 +132,17 @@
         <!-- Фиксированный футер -->
       <div class="fixed-footer">
         <div class="backup-buttons">
-              <button id="start-backup" class="btn btn-success">▶️ Start</button>
-              <button id="stop-backup" class="btn btn-danger" disabled>⏹️ Stop</button>
-              <button id="clear-log" class="btn btn-secondary">🗑️ Clear Log</button>
-            </div>
+            <button id="start-backup" class="btn btn-primary">Start backup</button>
+            <!-- <button id="stop-backup" class="btn btn-danger" disabled>Stop backup</button> -->
+            <button id="clear-log" class="btn btn-secondary">Clear log</button>
+          </div>
       
-      <div class="backup-status">
+        
             <div class="status-indicator">
               <span class="status-dot idle"></span>
-              <span class="status-text">Idle</span>
+              <span id="progress-text">Ready to start</span>
             </div>
-            <div class="progress-info">
-              <span id="progress-text">Готов к запуску</span>
-            </div>
-          </div>
-      </div>
+        </div>
       </div>
 
       <!-- Экран статистики -->
@@ -174,21 +152,21 @@
             <div class="form-section">
               <div class="stat-info">
                 <div class="stat-value" id="total-files">0</div>
-                <div class="stat-label">Всего файлов</div>
+                <div class="stat-label">Total files</div>
               </div>
             </div>
 
             <div class="form-section">
               <div class="stat-info">
                 <div class="stat-value" id="needing-backup">0</div>
-                <div class="stat-label">Требуют бэкапа</div>
+                <div class="stat-label">Needing backup</div>
               </div>
             </div>
 
             <div class="form-section">
               <div class="stat-info">
                 <div class="stat-value" id="with-errors">0</div>
-                <div class="stat-label">С ошибками</div>
+                <div class="stat-label">With errors</div>
               </div>
             </div>
           </div>
@@ -197,16 +175,15 @@
             <table id="backups-table">
               <thead>
                 <tr>
-                  <th data-sort="project_name">Проект</th>
-                  <th data-sort="file_name">Имя файла</th>
-                  <th data-sort="last_backup_date">Бекап</th>
-                  <th data-sort="last_modified_date">Изменен в Figma</th>
-                  <th data-sort="file_key">Ключ файла</th>
-                  <!-- <th data-sort="next_attempt_date">Следующая попытка</th> -->
+                  <th data-sort="project_name">Project</th>
+                  <th data-sort="file_name">File Name</th>
+                  <th data-sort="last_backup_date">Last Backup</th>
+                  <th data-sort="last_modified_date">Last Modified in Figma</th>
+                  <th data-sort="file_key">File Key</th>
+                  <!-- <th data-sort="next_attempt_date">Next Attempt</th> -->
                 </tr>
               </thead>
               <tbody id="backups-tbody">
-                <!-- Данные будут добавлены динамически -->
               </tbody>
             </table>
           </div>
@@ -215,10 +192,6 @@
 
       <!-- Экран диагностики -->
       <div id="settings-tab" class="tab-content">
-        <div class="tab-header">
-          <h2>Диагностика и настройки</h2>
-          <p>Информация о системе и настройках приложения</p>
-        </div>
         <div class="tab-body">
           <div class="diagnostic-section">
             <h3>Системная информация</h3>

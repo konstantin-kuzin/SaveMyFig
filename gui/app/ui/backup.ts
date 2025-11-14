@@ -5,7 +5,7 @@ export function initializeBackupTab(): void {
     return;
   }
   const startBackupBtn = document.getElementById('start-backup') as HTMLButtonElement;
-  const stopBackupBtn = document.getElementById('stop-backup') as HTMLButtonElement;
+  //const stopBackupBtn = document.getElementById('stop-backup') as HTMLButtonElement;
   const clearLogBtn = document.getElementById('clear-log') as HTMLButtonElement;
   const backupLog = document.getElementById('backup-log');
   const scriptCommandSelect = document.getElementById('script-command') as HTMLSelectElement;
@@ -22,12 +22,16 @@ export function initializeBackupTab(): void {
       const command = 'run-backup';
       isRunning = true;
       startBackupBtn.disabled = true;
-      stopBackupBtn.disabled = false;
+      //stopBackupBtn.disabled = false;
       
       if (statusDot) statusDot.className = 'status-dot running';
-      if (progressText) progressText.textContent = 'Выполняется...';
+      if (progressText) progressText.textContent = 'Running...';
       
       try {
+        // Снимаем предыдущие подписки, чтобы не дублировать вывод при следующих запусках
+        window.electronAPI.removeAllListeners?.('script-output');
+        window.electronAPI.removeAllListeners?.('script-progress');
+
         // Подписываемся на вывод скрипта
         window.electronAPI.onScriptOutput((data: string) => {
           if (backupLog) {
@@ -47,44 +51,44 @@ export function initializeBackupTab(): void {
         const result = await window.electronAPI.runScriptWithProgress(command);
         
         if (result.success) {
-          if (progressText) progressText.textContent = 'Выполнено успешно';
+          if (progressText) progressText.textContent = 'Success';
         } else {
-          if (progressText) progressText.textContent = `Ошибка: ${result.message}`;
+          if (progressText) progressText.textContent = `Error: ${result.message}`;
         }
       } catch (error) {
-        console.error('Ошибка при запуске скрипта:', error);
-        if (progressText) progressText.textContent = `Ошибка: ${error}`;
+        console.error('Error while running script:', error);
+        if (progressText) progressText.textContent = `Error: ${error}`;
       } finally {
         isRunning = false;
         startBackupBtn.disabled = false;
-        stopBackupBtn.disabled = true;
+        //stopBackupBtn.disabled = true;
         
         if (statusDot) statusDot.className = 'status-dot idle';
-        if (!progressText?.textContent?.includes('Ошибка')) {
-          if (progressText) progressText.textContent = 'Завершено';
+        if (!progressText?.textContent?.includes('Error')) {
+          if (progressText) progressText.textContent = 'Completed';
         }
       }
     });
   }
   
   // Обработчик остановки бэкапа
- if (stopBackupBtn) {
-    stopBackupBtn.addEventListener('click', async () => {
-      if (!isRunning) return;
+//  if (stopBackupBtn) {
+//     stopBackupBtn.addEventListener('click', async () => {
+//       if (!isRunning) return;
       
-      try {
-        await window.electronAPI.stopScript();
-        isRunning = false;
-        startBackupBtn.disabled = false;
-        stopBackupBtn.disabled = true;
+//       try {
+//         await window.electronAPI.stopScript();
+//         isRunning = false;
+//         startBackupBtn.disabled = false;
+//         stopBackupBtn.disabled = true;
         
-        if (statusDot) statusDot.className = 'status-dot idle';
-        if (progressText) progressText.textContent = 'Остановлено пользователем';
-      } catch (error) {
-        console.error('Ошибка при остановке скрипта:', error);
-      }
-    });
- }
+//         if (statusDot) statusDot.className = 'status-dot idle';
+//         if (progressText) progressText.textContent = 'Остановлено пользователем';
+//       } catch (error) {
+//         console.error('Ошибка при остановке скрипта:', error);
+//       }
+//     });
+//  }
   
   // Обработчик очистки лога
  if (clearLogBtn && backupLog) {

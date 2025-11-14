@@ -37,7 +37,7 @@ console.log("Project IDs:", projectIds);
     // Step 3: Get ALL files that need backup from DB
     const filesToBackupFromDb = await getFilesToBackup();
     console.log(`Found ${filesToBackupFromDb.length} files potentially needing backup in the database.`);
-
+    
     // Step 4: Filter DB files against actual API files and apply limit
     const allApiFileKeys = new Set(allApiFilesData.flatMap(project => project.files.map(file => file.key)));
     
