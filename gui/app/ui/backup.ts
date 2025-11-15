@@ -8,7 +8,7 @@ export function initializeBackupTab(): void {
   //const stopBackupBtn = document.getElementById('stop-backup') as HTMLButtonElement;
   const clearLogBtn = document.getElementById('clear-log') as HTMLButtonElement;
   const backupLog = document.getElementById('backup-log');
-  const scriptCommandSelect = document.getElementById('script-command') as HTMLSelectElement;
+  //const scriptCommandSelect = document.getElementById('script-command') as HTMLSelectElement;
   const progressText = document.getElementById('progress-text');
   const statusDot = document.querySelector('.status-dot');
   

@@ -17,12 +17,6 @@
   --transition: all 0.3s ease;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-size: 13px;
-}
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -30,6 +24,14 @@ body {
   color: var(--text-color);
   height: 100vh;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+small {
+  font-size: 0.8rem;
 }
 
 .app {
@@ -144,9 +146,8 @@ h2 {
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-weight: 500;
-  font-size: 1rem;
   color: var(--text-light);
 }
 
@@ -205,13 +206,21 @@ textarea {
   border: 1px solid var(--medium-gray);
   width: 100%;
   padding: 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   background-color: #fafafa;
+  box-sizing: border-box;
 }
 
-input:active,
-textarea:active {
-  border: 1px solid var(--primary-color);
+input:hover,
+textarea:hover {
+  border: 1px solid var(--dark-gray);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid var(--dark-gray);
+  outline: none;
 }
 
 
@@ -269,18 +278,17 @@ textarea:active {
 
 .form-help {
   display: block;
-  margin-top: 5px;
+  margin-top: 4px;
   color: var(--text-light);
-  font-size: 0.9rem;
 }
 
 .form-help a {
   color: var(--secondary-color);
-  text-decoration: none;
+  text-decoration: underline dotted;
 }
 
 .form-help a:hover {
-  text-decoration: underline;
+  color: var(--primary-color);
 }
 
 .form-actions {
@@ -718,15 +726,6 @@ tr {
   padding: 10px 0;
 }
 
-/* Статус индикаторы */
-.status-indicator {
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  align-items: center;
-  gap: 10px;
-}
-
 .status-dot {
   width: 12px;
   height: 12px;
@@ -776,11 +775,6 @@ tr {
   border-radius: var(--border-radius);
   flex-wrap: wrap;
   gap: 15px;
-}
-
-.backup-buttons {
-  display: flex;
-  gap: 10px;
 }
 
 /* Аккаунты Figma */
@@ -869,18 +863,16 @@ tr {
 /* Фиксированный футер */
 .fixed-footer {
   position: fixed;
+  display: flex;
+  flex-direction: row;
   bottom: 0;
   left: 0;
   right: 0;
   background: var(--light-gray);
   border-top: 1px solid var(--medium-gray);
   padding: 12px 20px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
-  display: flex;
-  flex-direction: row;
   gap:24px;
 }

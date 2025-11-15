@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Figma Export GUI v 1.0</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <div class="app">
     <!-- Navigation -->
@@ -15,7 +17,7 @@
         <div><a href="#" data-tab="config" class="nav-link">Config</a></div>
         <div><a href="#" data-tab="backup" class="nav-link">Download</a></div>
         <div><a href="#" data-tab="statistics" class="nav-link">Statistics</a></div>
-        <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div>
+        <!-- <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div> -->
       </div>
     </nav>
 
@@ -34,11 +36,11 @@
               <span class="status-label">npm:</span>
               <span class="status-value">Checking...</span>
             </div>
-          
-          </div><br/>
+
+          </div><br />
 
           <div id="installation-section" class="install-section">
-            <h3>Dependency Installation</h3><br/>
+            <h3>Dependency Installation</h3><br />
             <button id="install-btn" class="btn btn-primary" disabled>
               Install Dependencies
             </button>
@@ -61,66 +63,67 @@
           <div id="config-form">
             <!-- FIGMA_ACCESS_TOKEN -->
 
-              <div class="form-group">
-                <label for="figma-account-1-email" class="required">Email</label>
-                <input type="email" id="figma-account-1-email" name="FIGMA_ACCOUNT_1_EMAIL"
-                       placeholder="user@example.com" required>
-              </div>
-              
-              <div class="form-group">
-                <label for="figma-account-1-auth-cookie" class="required">FIGMA auth cookie</label>
-                <textarea type="text" id="figma-account-1-auth-cookie" name="FIGMA_ACCOUNT_1_AUTH_COOKIE"
-                       placeholder="__Host-figma.authn=..." required rows="2"></textarea>
-                       <small class="form-help">
-                  <a href="https://github.com/alexchantastic/figma-export/wiki/Getting-your-Figma-auth-session-cookie" target="_blank">
-                    How to get cookie
-                  </a>
-                </small>
-              </div>
-              <div class="form-group">
-                <label for="figma-access-token" class="required">FIGMA access token</label>
-                <input type="text" id="figma-access-token" name="FIGMA_ACCESS_TOKEN"
-                       placeholder="figd_..." required>
-                <small class="form-help">
-                  <a href="https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens" target="_blank">
-                    How to get Figma access token
-                  </a>
-                </small>
-              </div>
-            
+            <div class="form-group">
+              <label for="figma-account-1-email" class="required">Email</label>
+              <input type="email" id="figma-account-1-email" name="FIGMA_ACCOUNT_1_EMAIL" placeholder="user@example.com"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="figma-account-1-auth-cookie" class="required">FIGMA auth cookie</label>
+              <textarea type="text" id="figma-account-1-auth-cookie" name="FIGMA_ACCOUNT_1_AUTH_COOKIE"
+                placeholder="__Host-figma.authn=..." required rows="2"></textarea>
+              <small class="form-help">
+                <a href="https://github.com/alexchantastic/figma-export/wiki/Getting-your-Figma-auth-session-cookie"
+                  target="_blank">
+                  How to get cookie
+                </a>
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="figma-access-token" class="required">FIGMA access token</label>
+              <input type="text" id="figma-access-token" name="FIGMA_ACCESS_TOKEN" placeholder="figd_..." required>
+              <small class="form-help">
+                <a href="https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens"
+                  target="_blank">
+                  How to get Figma access token
+                </a>
+              </small>
+            </div>
+
 
             <!-- DOWNLOAD_PATH -->
-              <div class="form-group">
-                <label for="download-path" class="required">Download path</label>
-                <div style="display: flex; gap: 8px; flex-direction: row; align-items: center">
-                  <input type="text" id="download-path" name="DOWNLOAD_PATH"
-                         placeholder="Select folder" readonly required>
-                  <button type="button" id="select-path" class="btn btn-secondary">Select</button>
-                </div>
+            <div class="form-group">
+              <label for="download-path" class="required">Download path</label>
+              <div style="display: flex; gap: 8px; flex-direction: row; align-items: center">
+                <input type="text" id="download-path" name="DOWNLOAD_PATH" placeholder="Select folder" readonly
+                  required>
+                <button type="button" id="select-path" class="btn btn-secondary">Select</button>
               </div>
-            
+            </div>
+
 
             <!-- PROJECTS и TEAMS -->
-              <div class="form-group">
-                <label for="projects">PROJECTS (required if no Teams)</label>
-                <textarea id="projects" name="PROJECTS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
-              </div>
-              
-              <div class="form-group">
-                <label for="teams">TEAMS (required if no Projects)</label>
-                <textarea id="teams" name="TEAMS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
-              </div>
-            
+            <div class="form-group">
+              <label for="projects">PROJECTS (required if no Teams)</label>
+              <textarea id="projects" name="PROJECTS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="teams">TEAMS (required if no Projects)</label>
+              <textarea id="teams" name="TEAMS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
+            </div>
+
 
           </div>
         </div>
-      <!-- Фиксированный футер -->
-      <div class="fixed-footer">
-        <button id="save-config" class="btn btn-primary">Save settings</button>
+        <!-- Фиксированный футер -->
+        <div class="fixed-footer">
+          <button id="save-config" class="btn btn-primary">Save settings</button>
+        </div>
       </div>
-      </div>
-      
-      
+
+
 
       <!-- Экран выполнения бэкапа -->
       <div id="backup-tab" class="tab-content">
@@ -130,18 +133,16 @@
           </div>
         </div>
         <!-- Фиксированный футер -->
-      <div class="fixed-footer">
-        <div class="backup-buttons">
+        <div class="fixed-footer">
+          <div style="display: flex; gap: 8px;">
             <button id="start-backup" class="btn btn-primary">Start backup</button>
             <!-- <button id="stop-backup" class="btn btn-danger" disabled>Stop backup</button> -->
             <button id="clear-log" class="btn btn-secondary">Clear log</button>
           </div>
-      
-        
-            <div class="status-indicator">
-              <span class="status-dot idle"></span>
-              <span id="progress-text">Ready to start</span>
-            </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="status-dot idle"></span>
+            <span id="progress-text">Ready to start</span>
+          </div>
         </div>
       </div>
 
@@ -170,7 +171,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="table-container">
             <table id="backups-table">
               <thead>
@@ -179,7 +180,7 @@
                   <th data-sort="file_name">File Name</th>
                   <th data-sort="last_backup_date">Last Backup</th>
                   <th data-sort="last_modified_date">Last Modified in Figma</th>
-                  <th data-sort="file_key">File Key</th>
+                  <!-- <th data-sort="file_key">File Key</th> -->
                   <!-- <th data-sort="next_attempt_date">Next Attempt</th> -->
                 </tr>
               </thead>
@@ -222,7 +223,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="diagnostic-section">
             <h3>Статус зависимостей</h3>
             <div id="deps-status" class="status-list">
@@ -236,14 +237,14 @@
               <!-- Статус будет добавлен динамически -->
             </div>
           </div>
-          
+
           <div class="diagnostic-section">
             <h3>Доступ к Figma API</h3>
             <div id="api-status" class="status-list">
               <!-- Статус будет добавлен динамически -->
             </div>
           </div>
-          
+
           <div class="diagnostic-section">
             <h3>Логи приложения</h3>
             <div class="log-controls">
@@ -262,4 +263,5 @@
 
   <script type="module" src="./ui.js"></script>
 </body>
+
 </html>

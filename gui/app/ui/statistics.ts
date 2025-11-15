@@ -166,7 +166,7 @@ export function initializeStatisticsTab(): void {
         <td class="date">${lastBackupDate}</td>
         <td class="date">${lastModifiedDate}</td>
         <!-- <td>${nextAttemptDate}</td> -->
-        <td title="${fileKey}">${shortFileKey}</td>
+        <!-- <td title="${fileKey}">${shortFileKey}</td> -->
       `;
       
       backupsTbody.appendChild(row);
