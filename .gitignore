@@ -1,14 +1,7 @@
 gui/dist/
 gui/logs/
 node_modules/
-test-results/
-playwright-report/
-blob-report/
 playwright/.cache/
-.auth/
-.env
+.userData/
 .DS_Store
-files.json
-backup_report.html
-figma_backups.db
 rsync.sh

@@ -18,11 +18,11 @@
 | Слой | Назначение | Основные файлы |
 | --- | --- | --- |
 | **CLI / backend** | Сбор списка файлов через Figma API, ведение SQLite, запуск Playwright для скачивания `.fig/.jam/.deck` | `scripts/*.js`, `automations/*.ts`, `playwright.config.ts`, `figma_backups.db` |
-| **GUI (Electron)** | Настройка `.env`, установка зависимостей, запуск CLI‑скриптов и просмотр статистики без терминала | `gui/main.ts`, `gui/preload.ts`, `gui/dist/*`, `gui/utils/*`, `gui/app/ui/*.ts` |
-| **Инфраструктура** | Конфигурация окружения, хранение токенов, файлов и логов | `.env`, `.auth/*`, `files.json`, `downloads/*`, `logs/` |
+| **GUI (Electron)** | Настройка `.userData/.env`, установка зависимостей, запуск CLI‑скриптов и просмотр статистики без терминала | `gui/main.ts`, `gui/preload.ts`, `gui/dist/*`, `gui/utils/*`, `gui/app/ui/*.ts` |
+| **Инфраструктура** | Конфигурация, хранение токенов, очереди и логов | `.userData/.env`, `.userData/figma_backups.db`, `.userData/files.json`, `.auth/*`, `downloads/*`, `logs/` |
 
-Основной сценарий: пользователь задаёт токены/ID в `.env`, запускает `npm run run-backup` (через GUI или CLI), после чего:
-1. Генерируется свежий `files.json` (по TEAMS или PROJECTS).
+Основной сценарий: пользователь задаёт токены/ID в `.userData/.env`, запускает `npm run run-backup` (через GUI или CLI), после чего:
+1. Генерируется свежий `.userData/files.json` (по TEAMS или PROJECTS).
 2. Playwright выполняет авторизацию в Figma и скачивает файлы в `DOWNLOAD_PATH`.
 3. SQLite фиксирует дату последнего бэкапа и переносит ошибки в очередь повторов.
 4. (Опционально) выполняется `rsync` на внешнее хранилище, если смонтирован `Alloy`.
@@ -35,10 +35,10 @@
 Figma-export/
 ├── automations/              # Playwright setup + тест скачивания
 │   ├── auth.setup.ts         # Авторизация/ротация аккаунтов → .auth/user.json
-│   └── download.spec.ts      # Скачивание файлов из files.json
+│   └── download.spec.ts      # Скачивание файлов из .userData/files.json
 ├── scripts/
 │   ├── run-backup.js         # Точка входа, orchestration
-│   ├── get-team-files.js     # Генерация files.json по team ID
+│   ├── get-team-files.js     # Генерация .userData/files.json по team ID
 │   ├── get-project-files.js  # Аналог по project ID
 │   ├── db.js                 # Работа с SQLite (backups)
 │   ├── lib.js                # Вызовы Figma API
@@ -48,10 +48,14 @@ Figma-export/
 │   ├── dist/                 # Скомпилированный main/renderer/ui
 │   ├── app/ui/*.ts           # Логика экранов
 │   └── utils/*.ts            # EnvManager, ScriptRunner, DatabaseManager и т.д.
+├── .userData/                # Runtime‑данные и конфигурация
+│   ├── .env                  # Основной конфиг (токены, пути, ID)
+│   ├── files.json            # Очередь скачивания (внутри .userData/)
+│   ├── figma_backups.db      # SQLite база
+│   ├── backup-results/       # Трейсы и артефакты Playwright
+│   └── backup-reports/       # HTML отчёты
 ├── playwright.config.ts
 ├── README.md, docs/*.md
-├── figma_backups.db          # SQLite (создается автоматически)
-├── files.json                # Очередь скачивания (runtime)
 └── downloads/…               # Результат скачиваний (см. DOWNLOAD_PATH)
 ```
 
@@ -59,13 +63,13 @@ Figma-export/
 
 ## 4. Поток данных CLI
 
-1. **Конфигурация** — `.env` содержит `FIGMA_ACCESS_TOKEN`, акккаунты (`FIGMA_ACCOUNT_<N>_*`), `DOWNLOAD_PATH`, `TEAMS` или `PROJECTS`, `WAIT_TIMEOUT`.
-2. **Выбор исходных данных** — `scripts/run-backup.js` читает `.env` и вызывает:
+1. **Конфигурация** — `.userData/.env` содержит `FIGMA_ACCESS_TOKEN`, акккаунты (`FIGMA_ACCOUNT_<N>_*`), `DOWNLOAD_PATH`, `TEAMS` или `PROJECTS`, `WAIT_TIMEOUT`.
+2. **Выбор исходных данных** — `scripts/run-backup.js` читает `.userData/.env` и вызывает:
    - `node scripts/get-team-files.js <teamIds>` если задан `TEAMS`.
    - `node scripts/get-project-files.js <projectIds>` если задан `PROJECTS`.
 3. **Figma API** — `scripts/lib.js` вызывает `/v1/teams/{teamId}/projects` и `/v1/projects/{projectId}/files` с заголовком `X-FIGMA-TOKEN`.
 4. **SQLite** — `scripts/db.js` обновляет таблицу `backups` (ключ `file_key`) и сортирует очередь по `last_backup_date`/`next_attempt_date`.
-5. **files.json** — `get-team-files.js` / `get-project-files.js` фильтруют записи БД и записывают только выбранные файлы (по умолчанию `MAX_FILES = 3` за прогон) в формат:
+5. **files.json** — `get-team-files.js` / `get-project-files.js` фильтруют записи БД и записывают только выбранные файлы (по умолчанию `MAX_FILES = 3` за прогон) в `.userData/files.json` в формате:
    ```json
    [
      {
@@ -87,20 +91,20 @@ Figma-export/
 ## 5. Компоненты и ответственность
 
 ### 5.1 CLI
-- **`scripts/run-backup.js`** — чистит старый `files.json`, выбирает `TEAMS` или `PROJECTS`, запускает Playwright, следит за ошибками и инициирует post-processing (`rsync`).
+- **`scripts/run-backup.js`** — чистит старый `.userData/files.json`, выбирает `TEAMS` или `PROJECTS`, запускает Playwright, следит за ошибками и инициирует post-processing (`rsync`).
 - **`scripts/get-*-files.js`** — собирают файлы из API, обновляют SQLite и формируют очередь скачивания. Ключевые настройки:
   - `MAX_FILES = 3` — ограничение на число файлов за один запуск (при необходимости увеличить константу).
   - Фильтрация по наличию записей в актуальном API ответе (устаревшие записи пропускаются).
 - **`scripts/lib.js`** — инкапсулирует HTTP запросы к Figma API, повторно использует `dotenv` для токена.
 - **`scripts/db.js`** — единая точка чтения/записи SQLite. Методы: `getFilesToBackup()`, `updateBackupInfo()`, `updateBackupDate()`, `recordBackupFailure()`, `close()`.
 - **`automations/auth.setup.ts`** — формирует `.auth/user.json` и ротуирует аккаунты по порядку (`FIGMA_ACCOUNT_1_*`, `FIGMA_ACCOUNT_2_*` и т.д.), сохраняя состояние в `.auth/account-state.json`.
-- **`automations/download.spec.ts`** — единственный тест, который исчерпывающим образом скачивает каждый файл из `files.json` и кладёт результат в `DOWNLOAD_PATH`.
+- **`automations/download.spec.ts`** — единственный тест, который исчерпывающим образом скачивает каждый файл из `.userData/files.json` и кладёт результат в `DOWNLOAD_PATH`.
 
 ### 5.2 GUI (`gui/`)
 - **Main process (`gui/main.ts`)** — создаёт окно 1200×800, подключает preload, регистрирует IPC:
   - `check-nodejs`/`check-npm` — проверки через `child_process.execSync`.
   - `install-dependencies` — передаёт управление `ScriptRunner`, который последовательно выполняет `npm install` и `npx playwright install` в корне репозитория.
-  - `read-env`/`write-env`/`validate-config` — используют `EnvManager` и работают только с `.env` в корне (без electron-store).
+  - `read-env`/`write-env`/`validate-config` — используют `EnvManager` и работают только с `.userData/.env` (без electron-store).
   - `run-script(-with-progress)`/`stop-script` — запускают `npm run <command>` через `child_process.spawn`.
   - `get-statistics`, `get-all-backups`, `reset-errors` — читают SQLite через `DatabaseManager`.
   - `select-directory`, `show-notification`, `open-external` — вспомогательные операции.
@@ -112,15 +116,17 @@ Figma-export/
   4. **Statistics** — три карточки (`total`, `needing backup`, `with errors`) + таблица `backups`. Поиск/фильтры предусмотрены в коде, но элементы UI пока отсутствуют.
   5. **Diagnostics** — отображает версии Node/npm и даёт доступ к простому текстовому логу (пока без чтения реальных log-файлов).
 - **Утилиты (`gui/utils/*.ts`)**:
-  - `EnvManager` — читает/пишет `.env` (включая `CONFIG_VERSION=1.0`), выполняет базовую валидацию.
+  - `EnvManager` — читает/пишет `.userData/.env` (включая `CONFIG_VERSION=1.0`), выполняет базовую валидацию.
   - `ScriptRunner` — обёртка вокруг `spawn`, умеет парсить прогресс из stdout (`[x/y]`, `Downloaded…`).
-  - `DatabaseManager` — лениво открывает SQLite (`figma_backups.db` в корне), предоставляет запросы и `resetErrors()`.
+  - `DatabaseManager` — лениво открывает SQLite (`.userData/figma_backups.db`), предоставляет запросы и `resetErrors()`.
   - `NodeChecker` — проверяет `node --version` / `which node`, при необходимости умеет запускать `brew install node@20` (используется вручную).
   - `Logger` — пишет ротационные логи в `~/Library/Application Support/Figma Export GUI/logs/figma-export-gui.log`.
 
 ---
 
 ## 6. Конфигурация (`.env`)
+
+Файл конфигурации располагается в `.userData/.env` и игнорируется системой контроля версий.
 
 | Переменная | Обязательна | Описание |
 | --- | --- | --- |
@@ -132,13 +138,13 @@ Figma-export/
 | `TEAMS` / `PROJECTS` | Достаточно заполнить одну | Списки ID через пробел/запятую. `run-backup` выберет TEAMS в приоритете перед PROJECTS.
 | `WAIT_TIMEOUT` | Да | Таймаут в миллисекундах, передаётся в Playwright (`timeout = WAIT_TIMEOUT + 120s`). GUI всегда записывает `10000`.
 
-> **Примечание:** GUI показывает только поля первого аккаунта. Для второго/третьего аккаунтов `.env` необходимо редактировать вручную (шаблон `FIGMA_ACCOUNT_2_EMAIL` и т.д.).
+> **Примечание:** GUI показывает только поля первого аккаунта. Для второго/третьего аккаунтов `.userData/.env` необходимо редактировать вручную (шаблон `FIGMA_ACCOUNT_2_EMAIL` и т.д.).
 
 ---
 
 ## 7. База данных
 
-- Файл: `figma_backups.db` (sqlite3).
+- Файл: `.userData/figma_backups.db` (sqlite3).
 - Таблица `backups` создаётся автоматически (см. `scripts/db.js`).
 
 | Поле | Тип | Описание |
@@ -155,7 +161,7 @@ Figma-export/
 ---
 
 ## 8. Файлы и каталоги рантайма
-- `files.json` — всегда перегенерируется перед запуском Playwright. Если `TEAMS/PROJECTS` не заданы, `run-backup` завершится без создания файла.
+- `files.json` — всегда перегенерируется перед запуском Playwright и хранится в `.userData/`. Если `TEAMS/PROJECTS` не заданы, `run-backup` завершится без создания файла.
 - `.auth/user.json` — storage state Playwright, генерируется из `auth.setup.ts`. Папка `.auth` создаётся автоматически.
 - `playwright-report/` и `test-results/` — стандартные артефакты Playwright.
 - `downloads/` или значение `DOWNLOAD_PATH` — структура `<team(optional)>/<project name (id)>/<file name (key)>.fig`.
@@ -170,7 +176,7 @@ Figma-export/
 # 1. Установка зависимостей
 npm install && npx playwright install
 
-# 2. Заполнение .env (см. .env.example)
+# 2. Заполнение `.userData/.env` (см. .env.example)
 
 # 3. Запуск полной процедуры
 npm run run-backup

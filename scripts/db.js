@@ -1,7 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const db = new sqlite3.Database(path.join(__dirname, '../figma_backups.db'));
+const db = new sqlite3.Database(path.join(__dirname, '../.userData/figma_backups.db'));
 
 // Add at the top of the file with other constants
 const DEFAULT_BACKUP_LIMIT = 1;

@@ -27,9 +27,12 @@ npm install
 npx playwright install
 
 # 3. Создайте .env на основе шаблона
-cp .env.example .env
+mkdir -p .userData
+cp .env.example .userData/.env
 ```
-`.env` можно заполнить вручную или позже через вкладку Config.
+`.env` хранится в `.userData/.env`. Его можно заполнить вручную или позже через вкладку Config.
+
+> Папка `.userData/` предназначена для всех файлов с чувствительными данными: туда же автоматически сохраняются `figma_backups.db`, `files.json`, Playwright отчёты и пользовательские состояния.
 
 ---
 
@@ -50,7 +53,7 @@ cp .env.example .env
 Боковое меню содержит пять вкладок:
 
 1. **Installation** — проверка Node/npm и установка зависимостей (`npm install`, `npx playwright install`).
-2. **Config** — чтение/запись `.env` (email, auth cookie, access token, путь, списки TEAMS/PROJECTS).
+2. **Config** — чтение/запись `.userData/.env` (email, auth cookie, access token, путь, списки TEAMS/PROJECTS).
 3. **Download** — запуск `npm run run-backup`, просмотр лога и статуса.
 4. **Statistics** — чтение `figma_backups.db` (карточки + таблица файлов).
 5. **Diagnostics** — версии Node/npm, временный лог и вспомогательные кнопки.
@@ -68,11 +71,11 @@ cp .env.example .env
 
 ### 5.2 Порядок действий на вкладке Config
 1. Нажмите `Select` и выберите папку для загрузки.
-2. Заполните email аккаунта и auth cookie (используются Playwright‑скриптами). Если cookie оставить пустым, тест попробует авторизацию по паре email+password (поля пароля в GUI нет — придётся прописать `FIGMA_ACCOUNT_1_PASSWORD` вручную в `.env`).
+2. Заполните email аккаунта и auth cookie (используются Playwright‑скриптами). Если cookie оставить пустым, тест попробует авторизацию по паре email+password (поля пароля в GUI нет — придётся прописать `FIGMA_ACCOUNT_1_PASSWORD` вручную в `.userData/.env`).
 3. Укажите Personal Access Token.
 4. Добавьте `PROJECTS` или `TEAMS` (любое одно поле обязательно). ID можно вводить через пробел или запятую.
 5. Нажмите `Save settings`. В случае ошибки появится alert с перечнем проблем.
-6. Для второго и последующих аккаунтов отредактируйте `.env` вручную, добавив переменные `FIGMA_ACCOUNT_2_EMAIL`, `FIGMA_ACCOUNT_2_AUTH_COOKIE` и т.д. Playwright будет переключаться между ними автоматически.
+6. Для второго и последующих аккаунтов отредактируйте `.userData/.env` вручную, добавив переменные `FIGMA_ACCOUNT_2_EMAIL`, `FIGMA_ACCOUNT_2_AUTH_COOKIE` и т.д. Playwright будет переключаться между ними автоматически.
 
 > GUI всегда записывает `WAIT_TIMEOUT="10000"`. Если нужно изменить таймаут или лимит файлов, правьте `.env` в текстовом редакторе.
 
@@ -141,14 +144,14 @@ npx playwright test automations/download.spec.ts
 # Полный цикл
 npm run run-backup
 ```
-`figma_backups.db` и `files.json` находятся в корне репозитория, `downloads/` — в папке, указанной в `.env`.
+Все чувствительные данные (`.env`, `figma_backups.db`, `files.json`, Playwright отчёты) расположены в `.userData/` в корне репозитория. Папка `downloads/` соответствует пути, указанному в `.env`.
 
 ---
 
 ## 11. Где искать помощь
 1. Проверьте `playwright-report/index.html` — в нём отражены шаги теста.
 2. Просмотрите GUI‑лог `~/Library/Application Support/Figma Export GUI/logs/figma-export-gui.log`.
-3. Создайте issue в GitHub, приложите `.env` (без секретов), `files.json` и логи.
+3. Создайте issue в GitHub, приложите `.userData/.env` (без секретов), `.userData/files.json` и логи.
 4. Для срочных вопросов обратитесь к ответственному разработчику (Konstantin Kuzin).
 
 ---

@@ -1,12 +1,13 @@
 import { test } from "@playwright/test";
 import fs from "node:fs";
+import path from "node:path";
 import dotenv from "dotenv";
 import { updateBackupDate, recordBackupFailure } from "../scripts/db";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), ".userData/.env") });
 
 const projects = JSON.parse(
-  fs.readFileSync("files.json", { encoding: "utf-8" }),
+  fs.readFileSync(".userData/files.json", { encoding: "utf-8" }),
 );
 
 // Set a longer timeout for downloads (60 minutes)

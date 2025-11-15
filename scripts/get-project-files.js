@@ -3,7 +3,7 @@ const path = require("path");
 const { getFiles } = require("./lib");
 const { getFilesToBackup, updateBackupInfo, close: closeDb } = require("./db");
 
-const MAX_FILES = 3;
+const MAX_FILES = 1;
 const projectIds = process.argv
   .slice(2)
   .join(" ")
@@ -57,7 +57,7 @@ console.log("Project IDs:", projectIds);
     })).filter(project => project.files.length > 0);
 
     // Step 6: Write to files.json
-    const filesJsonPath = path.join(__dirname, "../files.json");
+    const filesJsonPath = path.join(__dirname, "../.userData/files.json");
     fs.writeFileSync(filesJsonPath, JSON.stringify(filteredFiles, null, 2));
     console.log(`Successfully wrote ${filteredFiles.length} projects with ${filteredFiles.reduce((acc, proj) => acc + proj.files.length, 0)} files to ${filesJsonPath}`);
     

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const filesJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../files.json'), 'utf8'));
+const filesJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../.userData/files.json'), 'utf8'));
 
 if (!Array.isArray(filesJson)) {
   throw new Error('files.json must be an array');

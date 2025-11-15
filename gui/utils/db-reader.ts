@@ -19,7 +19,7 @@ export class DatabaseManager {
 
   constructor() {
     this.logger = new Logger();
-    this.dbPath = path.join(process.cwd(), '..', 'figma_backups.db');
+    this.dbPath = path.join(process.cwd(), '..', '.userData', 'figma_backups.db');
     // console.log('DatabaseManager initialized', this.dbPath);
     this.initializeDatabase();
     

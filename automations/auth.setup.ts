@@ -3,10 +3,10 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), ".userData/.env") });
 
-const authFile = ".auth/user.json";
-const accountStateFile = ".auth/account-state.json";
+const authFile = ".userData/user.json";
+const accountStateFile = ".userData/account-state.json";
 
 // Check and create authentication directory if it doesn't exist
 const authDir = path.dirname(authFile);

@@ -9,8 +9,12 @@ export class EnvManager {
 
   constructor() {
     this.logger = new Logger();
-    // Ищем .env файл в корне проекта (на уровень выше gui/)
-    this.envPath = path.join(process.cwd(), '..', '.env');
+    const userDataDir = path.join(process.cwd(), '..', '.userData');
+    if (!fs.existsSync(userDataDir)) {
+      fs.mkdirSync(userDataDir, { recursive: true });
+    }
+    // Ищем .env файл в .userData на уровень выше gui/
+    this.envPath = path.join(userDataDir, '.env');
     this.logger.info('Looking for .env file at: ' + this.envPath);
   }
 

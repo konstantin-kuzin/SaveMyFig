@@ -32,7 +32,7 @@
   },
   "include": [
     "**/*",
-    ".env"
+    "../.userData/.env"
   ],
   "exclude": [
     "node_modules",

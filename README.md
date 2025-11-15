@@ -43,7 +43,8 @@ npm install
 npx playwright install
 
 # Создание .env файла (см. пример ниже)
-cp .env.example .env
+mkdir -p .userData
+cp .env.example .userData/.env
 ```
 
 ### GUI версия
@@ -57,7 +58,7 @@ cp .env.example .env
 
 ### Создание .env файла
 
-Создайте файл `.env` в корне проекта на основе `.env.example`:
+Создайте файл `.userData/.env` (директория `.userData` находится в корне проекта и не попадает в git) на основе `.env.example`:
 
 ```bash
 # Figma API Access Token (обязательно)
@@ -85,6 +86,8 @@ TEAM_IDS="team1,team2,team3"
 # или
 # PROJECT_IDS="project1,project2,project3"
 ```
+
+> ⚠️ Все файлы с токенами, cookie и runtime‑данными (`.env`, `figma_backups.db`, `files.json`, Playwright отчёты) хранятся в `.userData/`. Не добавляйте эту папку в git и делайте резервные копии с учётом безопасности.
 
 ### Получение Figma Access Token
 
@@ -166,6 +169,12 @@ npm run generate-db-report
 
 ```
 figma-export/
+├── .userData/               # Закрытая директория пользовательских данных
+│   ├── .env                 # Конфигурация (токены, ID)
+│   ├── figma_backups.db     # База данных SQLite
+│   ├── files.json           # Список файлов для загрузки
+│   ├── backup-results/      # Playwright артефакты
+│   └── backup-reports/      # HTML отчёты
 ├── scripts/                 # Оригинальные CLI скрипты
 │   ├── get-team-files.js    # Получение списка файлов по Team IDs
 │   ├── get-project-files.js # Получение списка файлов по Project IDs
@@ -180,9 +189,6 @@ figma-export/
 │   └── utils/               # Утилиты GUI
 ├── automations/             # Playwright автоматизации
 ├── docs/                   # Документация
-├── .env                     # Конфигурационный файл
-├── files.json               # Список файлов для загрузки
-├── figma_backups.db         # База данных SQLite
 └── logs/                    # Логи приложения
 ```
 

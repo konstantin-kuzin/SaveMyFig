@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { exec } = require("node:child_process");
 
-const dbPath = path.join(__dirname, "../figma_backups.db");
+const dbPath = path.join(__dirname, "../.userData/figma_backups.db");
 const reportPath = path.join(__dirname, "../backup_report.html");
 
 /**
