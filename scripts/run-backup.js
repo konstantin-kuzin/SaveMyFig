@@ -35,7 +35,7 @@ async function runBackup() {
     console.log("Running backup...");
     try {
       // execSync("npx playwright test automations/download.spec.ts --headed", { stdio: "inherit" });
-      execSync("npx playwright test automations/download.spec.ts", { stdio: "inherit", cwd: projectRoot });
+      //execSync("npx playwright test automations/download.spec.ts", { stdio: "inherit", cwd: projectRoot });
       
       console.log("Backup completed successfully!");
     } catch (testError) {
@@ -46,13 +46,13 @@ async function runBackup() {
     await closeDb();
 
     // After closing DB, check if Alloy volume is mounted and run rsync if so
-    const alloyBackupPath = "/Volumes/Alloy/ptsecurity/figma-all-backups";
-    if (fs.existsSync(alloyBackupPath)) {
-      console.log("Alloy volume is mounted. Running rsync...");
+    const backupPath = "/Volumes/Design Backup/Figma/HEXA UI";
+    if (fs.existsSync(backupPath)) {
+      console.log("Network volume is mounted. Running rsync...");
       try {
         execSync(
-          'rsync -av --remove-source-files "/Users/mike/work/git-repos/work/stuff/figma-export-clean/downloads/1446837479148090378/" "/Volumes/Alloy/ptsecurity/figma-clean-backups-download/1446837479148090378/"',
-          { stdio: "inherit" }
+          //'rsync -av --remove-source-files "/Users/mike/work/git-repos/work/stuff/figma-export-clean/downloads/1446837479148090378/" "/Volumes/Alloy/ptsecurity/figma-clean-backups-download/1446837479148090378/"',
+          //{ stdio: "inherit" }
         );
         console.log("rsync completed successfully!");
       } catch (rsyncError) {
