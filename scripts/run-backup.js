@@ -1,3 +1,43 @@
+/**
+ * Figma Backup Orchestrator Script
+ *
+ * This script manages the complete Figma file backup workflow by coordinating multiple components:
+ *
+ * 1. Environment Setup:
+ *    - Loads environment variables from .userData/.env using dotenv
+ *    - Establishes database connection via scripts/db.js for tracking backup status
+ *
+ * 2. File Cleanup:
+ *    - Removes any existing .userData/files.json to ensure clean state
+ *
+ * 3. File Discovery:
+ *    - Checks for TEAMS or PROJECTS environment variables to determine backup scope
+ *    - Executes team-based backup via scripts/get-team-files.js if TEAMS is defined
+ *    - Executes project-based backup via scripts/get-project-files.js if PROJECTS is defined
+ *    - Skips file generation if neither environment variable is set
+ *
+ * 4. Backup Execution:
+ *    - Runs Playwright tests (automations/download.spec.ts) to perform actual Figma file downloads
+ *    - Uses headless mode for automated execution
+ *    - Handles test failures by logging errors and propagating exceptions
+ *
+ * 5. Resource Cleanup:
+ *    - Closes database connection to ensure data integrity
+ *
+ * 6. Optional Network Backup:
+ *    - Contains commented-out rsync functionality to copy files to network volume
+ *    - Would run rsync with --remove-source-files option after successful backup
+ *    - Includes mount point validation for "/Volumes/Design Backup/Figma/HEXA UI"
+ *
+ * The script implements error handling throughout the process:
+ * - Catches and logs errors at each stage
+ * - Exits with status code 1 on failures
+ * - Ensures database connection is closed even when errors occur
+ *
+ * Configuration requires setting either TEAMS or PROJECTS environment variables
+ * in the .userData/.env file to specify which Figma files to back up.
+ */
+
 const fs = require("node:fs");
 const path = require("path");
 const { execSync } = require("child_process");
