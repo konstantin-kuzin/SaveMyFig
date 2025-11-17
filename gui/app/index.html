@@ -72,7 +72,7 @@
             <div class="form-group">
               <label for="figma-account-1-auth-cookie" class="required">FIGMA auth cookie</label>
               <textarea type="text" id="figma-account-1-auth-cookie" name="FIGMA_ACCOUNT_1_AUTH_COOKIE"
-                placeholder="__Host-figma.authn=..." required rows="2"></textarea>
+                placeholder="__Host-figma.authn=..." required rows="3"></textarea>
               <small class="form-help">
                 <a href="https://github.com/alexchantastic/figma-export/wiki/Getting-your-Figma-auth-session-cookie"
                   target="_blank">
@@ -106,12 +106,12 @@
             <!-- PROJECTS и TEAMS -->
             <div class="form-group">
               <label for="projects">PROJECTS (required if no Teams)</label>
-              <textarea id="projects" name="PROJECTS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
+              <textarea id="projects" name="PROJECTS" placeholder="12345, 67890, 12345, 67890" rows="3"></textarea>
             </div>
 
             <div class="form-group">
               <label for="teams">TEAMS (required if no Projects)</label>
-              <textarea id="teams" name="TEAMS" placeholder="12345, 67890, 12345, 67890" rows="2"></textarea>
+              <textarea id="teams" name="TEAMS" placeholder="12345, 67890, 12345, 67890" rows="3"></textarea>
             </div>
 
 
@@ -139,7 +139,7 @@
             <!-- <button id="stop-backup" class="btn btn-danger" disabled>Stop backup</button> -->
             <button id="clear-log" class="btn btn-secondary">Clear log</button>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="status-indicator">
             <span class="status-dot idle"></span>
             <span id="progress-text">Ready to start</span>
           </div>
@@ -150,21 +150,21 @@
       <div id="statistics-tab" class="tab-content">
         <div class="tab-body">
           <div class="stats-cards">
-            <div class="form-section">
+            <div class="stat-section">
               <div class="stat-info">
                 <div class="stat-value" id="total-files">0</div>
                 <div class="stat-label">Total files</div>
               </div>
             </div>
 
-            <div class="form-section">
+            <div class="stat-section">
               <div class="stat-info">
                 <div class="stat-value" id="needing-backup">0</div>
                 <div class="stat-label">Needing backup</div>
               </div>
             </div>
 
-            <div class="form-section">
+            <div class="stat-section">
               <div class="stat-info">
                 <div class="stat-value" id="with-errors">0</div>
                 <div class="stat-label">With errors</div>
