@@ -60,11 +60,11 @@ async function runBackup() {
     // Step 1: Generate files.json
     const projectRoot = path.join(__dirname, "..");
     if (teams) {
-      console.log(`Checking queue for TEAMS: ${teams}...`);
+      console.log(`Checking queue for TEAMS: ${teams}.`);
       execSync(`node scripts/get-team-files.js ${teams}`, { stdio: "inherit", cwd: projectRoot });
     }
     else if (projects) {
-      console.log(`Checking queue for PROJECTS: ${projects}...`);
+      console.log(`Checking queue for PROJECTS: ${projects}.`);
       execSync(`node scripts/get-project-files.js ${projects}`, { stdio: "inherit", cwd: projectRoot });
     } else {
       console.log("PROJECTS/TEAMS are not defined in .env file. Skipping file generation.");
