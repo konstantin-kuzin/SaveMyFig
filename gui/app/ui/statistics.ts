@@ -12,13 +12,13 @@ export function initializeStatisticsTab(): void {
   const resetErrorsBtn = document.getElementById('reset-errors') as HTMLButtonElement;
   const tableSearch = document.getElementById('table-search') as HTMLInputElement;
   const filterNeedingBackup = document.getElementById('filter-needing-backup') as HTMLInputElement;
-  const tableHeaders = document.querySelectorAll('#backups-table th[data-sort]');
+  const tableHeaders = document.querySelectorAll<HTMLTableCellElement>('#backups-table th[data-sort]');
   
   let backupsData: any[] = [];
   const dateColumns = new Set(['last_backup_date', 'last_modified_date', 'next_attempt_date']);
   const sortState: { column: string | null; direction: 'asc' | 'desc' } = {
-    column: null,
-    direction: 'asc',
+    column: 'last_backup_date',
+    direction: 'desc',
   };
   
   // Загрузка данных при инициализации
@@ -247,6 +247,17 @@ export function initializeStatisticsTab(): void {
     }
     
     renderTable(data);
+    updateSortIndicators();
+  }
+
+  function updateSortIndicators(): void {
+    tableHeaders.forEach(header => {
+      header.classList.remove('sort-asc', 'sort-desc');
+      const column = header.getAttribute('data-sort');
+      if (column && column === sortState.column) {
+        header.classList.add(sortState.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+      }
+    });
   }
 
   tableHeaders.forEach(header => {
