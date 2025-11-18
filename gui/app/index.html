@@ -98,7 +98,7 @@
               <div style="display: flex; gap: 8px; flex-direction: row; align-items: center">
                 <input type="text" id="download-path" name="DOWNLOAD_PATH" placeholder="Select folder" readonly
                   required>
-                <button type="button" id="select-path" class="btn btn-secondary">Select</button>
+                <button type="button" id="select-path" class="btn btn-secondary border-square">Select</button>
               </div>
             </div>
 
@@ -118,7 +118,7 @@
           </div>
         </div>
         <!-- Фиксированный футер -->
-        <div class="fixed-footer">
+        <div class="footer">
           <button id="save-config" class="btn btn-primary">Save settings</button>
         </div>
       </div>
@@ -133,7 +133,7 @@
           </div>
         </div>
         <!-- Фиксированный футер -->
-        <div class="fixed-footer">
+        <div class="footer">
           <div style="display: flex; gap: 8px;">
             <button id="start-backup" class="btn btn-primary">Start backup</button>
             <!-- <button id="stop-backup" class="btn btn-danger" disabled>Stop backup</button> -->
@@ -149,26 +149,20 @@
       <!-- Экран статистики -->
       <div id="statistics-tab" class="tab-content">
         <div class="tab-body">
-          <div class="stats-cards">
+          <div class="stat-cards">
             <div class="stat-section">
-              <div class="stat-info">
                 <div class="stat-value" id="total-files">0</div>
                 <div class="stat-label">Total files</div>
-              </div>
             </div>
 
             <div class="stat-section">
-              <div class="stat-info">
                 <div class="stat-value" id="needing-backup">0</div>
                 <div class="stat-label">Need backup</div>
-              </div>
             </div>
 
             <div class="stat-section">
-              <div class="stat-info">
                 <div class="stat-value" id="with-errors">0</div>
                 <div class="stat-label">With errors</div>
-              </div>
             </div>
           </div>
 
