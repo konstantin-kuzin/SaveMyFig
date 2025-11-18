@@ -6,7 +6,7 @@
   --warning-color: #FF9800;
   --success-color: #4CAF50;
   --info-color: #2196F3;
-  --light-gray: #efefef;
+  --light-gray: #f2f2f2;
   --medium-gray: #e0e0e0;
   --dark-gray: #9e9e9e;
   --text-color: #333;
@@ -468,6 +468,10 @@ td {
 td.date {
   font-family: monospace;
   font-size: 0.9em;
+}
+
+.date.date-newer {
+  color: var(--danger-color)
 }
 
 th {

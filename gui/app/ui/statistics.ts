@@ -149,8 +149,14 @@ export function initializeStatisticsTab(): void {
       const row = document.createElement('tr');
       
       // Форматируем даты
-      const lastBackupDate = formatDateTime(backup.last_backup_date, '—');
-      const lastModifiedDate = formatDateTime(backup.last_modified_date, '—');
+      const lastBackupRaw = backup.last_backup_date;
+      const lastModifiedRaw = backup.last_modified_date;
+      const lastBackupDate = formatDateTime(lastBackupRaw, '—');
+      const lastModifiedDate = formatDateTime(lastModifiedRaw, '—');
+      const isModifiedAfterBackup = Boolean(
+        lastModifiedRaw &&
+        (!lastBackupRaw || new Date(lastModifiedRaw).getTime() > new Date(lastBackupRaw).getTime())
+      );
       const nextAttemptDate = formatDateTime(backup.next_attempt_date, '—');
       const fileKey = backup.file_key || '';
       const fileName = backup.file_name || '';
@@ -164,8 +170,8 @@ export function initializeStatisticsTab(): void {
           ${figmaLink ? `<a href="${figmaLink}" data-figma-link="${figmaLink}" target="_blank" rel="noopener noreferrer">${fileName}</a>` : fileName}
         </td>
         <td class="date">${lastBackupDate}</td>
-        <td class="date">${lastModifiedDate}</td>
-        <!-- <td>${nextAttemptDate}</td> -->
+        <td class="date${isModifiedAfterBackup ? ' date-newer' : ''}">${lastModifiedDate}</td>
+        <td>${nextAttemptDate}</td>
         <!-- <td title="${fileKey}">${shortFileKey}</td> -->
       `;
       

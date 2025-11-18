@@ -9,7 +9,7 @@ export class Logger {
 
   constructor() {
     const userDataPath = app ? app.getPath('userData') : process.cwd();
-    const logsDir = path.join(userDataPath, 'logs');
+    const logsDir = path.join(userDataPath, '.userData/logs');
     
     if (!fs.existsSync(logsDir)) {
       fs.mkdirSync(logsDir, { recursive: true });
@@ -54,6 +54,6 @@ export class Logger {
 
   info(message: string): void { this.log('INFO', message); }
   warn(message: string): void { this.log('WARN', message); }
- error(message: string): void { this.log('ERROR', message); }
+  error(message: string): void { this.log('ERROR', message); }
   debug(message: string): void { this.log('DEBUG', message); }
 }
