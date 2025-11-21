@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const DIST_DIR = path.join(__dirname, '..', 'dist');
-const APP_DIR = path.join(__dirname, '..', 'app');
-const DIST_UI_DIR = path.join(DIST_DIR,'app', 'ui');
-const DIST_TMP_DIR = path.join(DIST_DIR,'app');
+// Paths are relative to the gui/ folder where this script lives
+const DIST_DIR = path.join(__dirname, 'dist');
+const APP_DIR = path.join(__dirname, 'app');
+const DIST_UI_DIR = path.join(DIST_DIR, 'app');
+const DIST_TMP_DIR = path.join(DIST_DIR, 'app');
 const DIST_UI_FILE = path.join(DIST_DIR, 'ui.js');
 
 
@@ -47,7 +48,7 @@ function copyDir(src, dest) {
 }
 
 function main() {
-  console.log('🚀 Начинаем копирование статических файлов...');
+  console.log('Копирование статических файлов...');
   
   // Создаем папку dist если её нет
   ensureDir(DIST_DIR);
@@ -97,10 +98,9 @@ if (require.main === module) {
 
 module.exports = { main };
 
-
-
 function inlineComponents() {
-  console.log('🔗 Встраивание компонентов в ui.js...');
+  console.log('');
+  console.log('Встраивание компонентов в ui.js...');
   
   if (!fs.existsSync(DIST_UI_FILE)) {
     console.error('❌ Файл ui.js не найден');
@@ -117,7 +117,7 @@ function inlineComponents() {
   
   // Получаем список всех компонентов
   const componentFiles = fs.readdirSync(DIST_UI_DIR)
-    .filter(file => file.endsWith('.js') && !file.endsWith('.d.ts'));
+    .filter(file => file.endsWith('.js') && file.startsWith('ui-'));
   
   console.log(`Найдено компонентов: ${componentFiles.length}`);
   
@@ -132,13 +132,10 @@ function inlineComponents() {
     componentContent = componentContent
       .replace(/"use strict";\n?/g, '')
       .replace(/Object\.defineProperty\(exports, "__esModule", \{ value: true \}\);\n/g, '')
-      // Заменяем export function functionName() { return functionName(); } на просто function
+      // Удаляем следы экспорта, оставляя только объявление функции
+      .replace(/exports\.(\w+) = (\w+);\n?/g, '')
       .replace(/export function (\w+)\(\) \{ return \1\(\); \}\n?/g, '')
-      // Или заменяем exports.functionName = functionName на functionName = functionName
-      .replace(/exports\.(\w+) = (\w+);/g, '$1 = $2;');
-    
-    // Удаляем избыточные экспорты
-    componentContent = componentContent.replace(/export function (\w+)\(\) \{ return \1\(\); \}/g, '');
+      .replace(/export \{.*\};?\n?/g, '');
     
     allComponents += componentContent + '\n\n';
     console.log(`✅ Обработан: ${componentFile}`);
@@ -147,6 +144,7 @@ function inlineComponents() {
   // Удаляем все импорты компонентов
   rendererContent = rendererContent
     .replace(/import.*from ['"]\.\/ui\/.*['"];?\n?/g, '')
+    .replace(/import.*from ['"]\.\/ui-.*['"];?\n?/g, '')
     .replace(/\/\/ Встроенный компонент: \w+\n?/g, '');
   
   // Заменяем класс AppRenderer на встроенные компоненты + класс

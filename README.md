@@ -184,9 +184,9 @@ figma-export/
 │   └── generate-db-report.js # Генерация отчетов
 ├── gui/                     # Графический интерфейс (Electron)
 │   ├── main.ts              # Main process
-│   ├── preload.ts          # Preload script
-│   ├── renderer/           # Renderer process
-│   └── utils/               # Утилиты GUI
+│   ├── utils/               # Утилиты GUI и preload
+│   │   └── preload.ts      # Preload script
+│   └── renderer/           # Renderer process
 ├── automations/             # Playwright автоматизации
 ├── docs/                   # Документация
 └── logs/                    # Логи приложения

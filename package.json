@@ -4,22 +4,35 @@
   "name": "figma-backup-gui",
   "version": "1.0.0",
   "description": "GUI для бэкапа проектов Figma",
-  "main": "main.js",
+  "main": "gui/dist/main.js",
+  "private": true,
+  "workspaces": [
+    "gui"
+  ],
   "scripts": {
-    "start": "electron .",
+    "main": "npm --workspace gui run main",
+    "start": "npm --workspace gui run start",
     "run-backup": "node scripts/run-backup.js",
     "dist": "electron-builder",
-    "build:electron": "electron-builder"
+    "build:electron": "electron-builder",
+    "gui:main": "npm run main --workspace gui",
+    "gui:start": "npm run start --workspace gui",
+    "gui:build": "npm run build --workspace gui",
+    "gui:dist": "npm run dist --workspace gui"
   },
   "dependencies": {
     "dotenv": "^16.0.0",
-    "sqlite3": "^5.1.6"
+    "execa": "^8.0.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "electron": "^28.0.0",
-    "electron-builder": "^24.9.1",
     "@playwright/test": "^1.48.2",
-    "@types/node": "^22.14.1"
+    "@types/node": "^22.14.1",
+    "@types/sqlite3": "^3.1.11",
+    "@electron/rebuild": "^3.3.0",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.9.1",
+    "typescript": "^5.0.0"
   },
   "build": {
     "appId": "com.figmaexport.backup",

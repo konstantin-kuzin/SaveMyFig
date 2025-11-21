@@ -8,7 +8,7 @@
     "start": "unset ELECTRON_RUN_AS_NODE && electron .",
     "build": "npm run build:main && npm run copy-static",
     "build:main": "tsc -p tsconfig.json",
-    "copy-static": "node scripts/copy-static.js",
+    "copy-static": "node copy-static.js",
     "dist": "npm run build && electron-builder",
     "build:electron": "npm run build",
     "run-backup": "node ../scripts/run-backup.js"
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",
-    "@types/node": "^20.0",
+    "@types/node": "^22.14.1",
     "@types/sqlite3": "^3.1.11",
     "electron-builder": "^24.9.1",
     "typescript": "^5.0.0"

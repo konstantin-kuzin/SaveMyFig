@@ -68,7 +68,6 @@
 gui/
 ├── package.json              # Зависимости GUI
 ├── main.ts                   # Main process (Electron)
-├── preload.ts                # Preload script (IPC bridge)
 ├── renderer/                 # Renderer process
 │   ├── index.html           # UI markup
 │   ├── styles.css           # Стили
@@ -79,7 +78,8 @@ gui/
 │       ├── backup.ts        # Экран выполнения бэкапа
 │       ├── statistics.ts    # Экран статистики
 │       └── settings.ts       # Экран настроек
-└── utils/                   # Утилиты
+└── utils/                   # Утилиты и preload
+    ├── preload.ts           # Preload script (IPC bridge)
     ├── node-checker.ts      # Проверка Node.js
     ├── installer.ts         # Установка зависимостей
     ├── env-manager.ts       # Управление `.userData/.env`

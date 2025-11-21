@@ -76,7 +76,6 @@ async function runBackup() {
     try {
       //execSync("npx playwright test automations/download.spec.ts  --headed", { stdio: "inherit", cwd: projectRoot });
       execSync("npx playwright test automations/download.spec.ts", { stdio: "inherit", cwd: projectRoot });
-      
       console.log("Backup completed successfully!");
     } catch (testError) {
       console.error("Playwright tests failed:", testError);

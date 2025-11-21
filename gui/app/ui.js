@@ -1,9 +1,9 @@
 // Основной модуль рендерера приложения
-import { initializeConfigTab } from './ui/config.js';
-import { initializeWelcomeTab } from './ui/welcome.js';
-import { initializeBackupTab } from './ui/backup.js';
-import { initializeStatisticsTab } from './ui/statistics.js';
-import { initializeSettingsTab } from './ui/settings.js';
+import { initializeConfigTab } from './ui-config.js';
+import { initializeWelcomeTab } from './ui-welcome.js';
+import { initializeBackupTab } from './ui-backup.js';
+import { initializeStatisticsTab } from './ui-statistics.js';
+import { initializeSettingsTab } from './ui-settings.js';
 
 class AppRenderer {
     constructor() {

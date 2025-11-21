@@ -45,7 +45,7 @@ class FigmaExportApp {
       minWidth: 1000,
       minHeight: 600,
       webPreferences: {
-        preload: join(__dirname, 'preload.js'),
+        preload: join(__dirname, 'utils', 'preload.js'),
         //contextIsolation: true,
         nodeIntegration: false
       },

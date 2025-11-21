@@ -18,7 +18,7 @@
 | Слой | Назначение | Основные файлы |
 | --- | --- | --- |
 | **CLI / backend** | Сбор списка файлов через Figma API, ведение SQLite, запуск Playwright для скачивания `.fig/.jam/.deck` | `scripts/*.js`, `automations/*.ts`, `playwright.config.ts`, `figma_backups.db` |
-| **GUI (Electron)** | Настройка `.userData/.env`, установка зависимостей, запуск CLI‑скриптов и просмотр статистики без терминала | `gui/main.ts`, `gui/preload.ts`, `gui/dist/*`, `gui/utils/*`, `gui/app/ui/*.ts` |
+| **GUI (Electron)** | Настройка `.userData/.env`, установка зависимостей, запуск CLI‑скриптов и просмотр статистики без терминала | `gui/main.ts`, `gui/utils/preload.ts`, `gui/dist/*`, `gui/utils/*`, `gui/app/ui/*.ts` |
 | **Инфраструктура** | Конфигурация, хранение токенов, очереди и логов | `.userData/.env`, `.userData/figma_backups.db`, `.userData/files.json`, `.auth/*`, `downloads/*`, `logs/` |
 
 Основной сценарий: пользователь задаёт токены/ID в `.userData/.env`, запускает `npm run run-backup` (через GUI или CLI), после чего:
@@ -44,7 +44,7 @@ Figma-export/
 │   ├── lib.js                # Вызовы Figma API
 │   └── generate-db-report.js # HTML-отчёт по БД
 ├── gui/                      # Электронный GUI
-│   ├── main.ts, preload.ts
+│   ├── main.ts, utils/preload.ts
 │   ├── dist/                 # Скомпилированный main/renderer/ui
 │   ├── app/ui/*.ts           # Логика экранов
 │   └── utils/*.ts            # EnvManager, ScriptRunner, DatabaseManager и т.д.
@@ -108,7 +108,7 @@ Figma-export/
   - `run-script(-with-progress)`/`stop-script` — запускают `npm run <command>` через `child_process.spawn`.
   - `get-statistics`, `get-all-backups`, `reset-errors` — читают SQLite через `DatabaseManager`.
   - `select-directory`, `show-notification`, `open-external` — вспомогательные операции.
-- **Preload (`gui/preload.ts`)** — экспортирует API под `window.electronAPI` (ContextBridge включён, но `contextIsolation` пока закомментирован в `BrowserWindow`).
+- **Preload (`gui/utils/preload.ts`)** — экспортирует API под `window.electronAPI` (ContextBridge включён, но `contextIsolation` пока закомментирован в `BrowserWindow`).
 - **Renderer (`gui/dist/index.html`, `gui/app/ui/*.ts`)** — реализует 5 вкладок:
   1. **Installation** — проверяет Node/npm и запускает установку зависимостей.
   2. **Config** — простая форма для `FIGMA_ACCOUNT_1_EMAIL`, `FIGMA_ACCOUNT_1_AUTH_COOKIE`, `FIGMA_ACCESS_TOKEN`, `DOWNLOAD_PATH`, `PROJECTS`, `TEAMS`. `WAIT_TIMEOUT` жёстко фиксирован на `10000` мс.
