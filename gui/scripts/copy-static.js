@@ -10,7 +10,8 @@ const DIST_UI_FILE = path.join(DIST_DIR, 'ui.js');
 
 const STATIC_FILES = [
   'index.html',
-  'styles.css'
+  'styles.css',
+  'bg.jpg'
 ];
 
 function ensureDir(dir) {

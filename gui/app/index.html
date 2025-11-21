@@ -167,11 +167,17 @@
           </div>
 
           <div class="table-container">
+            <div class="table-controls hidden" id="table-controls">
+              <input type="search" id="table-search" placeholder="Search by file name" aria-label="Search by file name">
+            </div>
             <table id="backups-table">
               <thead>
                 <tr>
                   <th data-sort="project_name">Project</th>
-                  <th data-sort="file_name">File Name</th>
+                  <th data-sort="file_name" class="file-name-header">
+                    <span>File Name</span>
+                    <button type="button" id="table-search-toggle" class="icon-button" aria-label="Toggle file name search">🔍</button>
+                  </th>
                   <th data-sort="last_backup_date">Last Backup</th>
                   <th data-sort="last_modified_date">Last Modified in Figma</th>
                   <!-- <th data-sort="file_key">File Key</th> -->

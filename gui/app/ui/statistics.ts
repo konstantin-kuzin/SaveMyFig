@@ -11,6 +11,8 @@ export function initializeStatisticsTab(): void {
   const refreshDataBtn = document.getElementById('refresh-data') as HTMLButtonElement;
   const resetErrorsBtn = document.getElementById('reset-errors') as HTMLButtonElement;
   const tableSearch = document.getElementById('table-search') as HTMLInputElement;
+  const tableControls = document.getElementById('table-controls') as HTMLElement;
+  const tableSearchToggle = document.getElementById('table-search-toggle') as HTMLButtonElement;
   const filterNeedingBackup = document.getElementById('filter-needing-backup') as HTMLInputElement;
   const tableHeaders = document.querySelectorAll<HTMLTableCellElement>('#backups-table th[data-sort]');
   
@@ -86,6 +88,26 @@ export function initializeStatisticsTab(): void {
       filterTable();
     });
   }
+
+  // Обработчик показа/скрытия поля поиска
+  if (tableSearchToggle && tableControls) {
+    tableSearchToggle.addEventListener('click', (event) => {
+      // Prevent triggering column sort when toggling search
+      event.stopPropagation();
+
+      const isHidden = tableControls.classList.contains('hidden');
+      tableControls.classList.toggle('hidden');
+      tableSearchToggle.classList.toggle('active');
+      if (isHidden) {
+        tableSearch?.focus();
+      } else {
+        if (tableSearch) {
+          tableSearch.value = '';
+        }
+        filterTable();
+      }
+    });
+  }
   
   // Загрузка статистики
   async function loadStatistics(): Promise<void> {
@@ -139,7 +161,7 @@ export function initializeStatisticsTab(): void {
     return `${day}.${month}.${year} ${hours}:${minutes}`;
   }
 
-  // Отображение таблицы
+ // Отображение таблицы
  function renderTable(backups: any[]): void {
     if (!backupsTbody) return;
     
@@ -162,6 +184,7 @@ export function initializeStatisticsTab(): void {
       const fileName = backup.file_name || '';
       const figmaLink = fileKey ? `https://www.figma.com/file/${fileKey}` : null;
       const shortFileKey = fileKey ? `${fileKey.substring(0, 40)}${fileKey.length > 40 ? '…' : ''}` : '';
+      row.dataset.fileName = fileName.toLowerCase();
       
       row.innerHTML = `
         
@@ -183,23 +206,15 @@ export function initializeStatisticsTab(): void {
   
   // Фильтрация таблицы
   function filterTable(): void {
-    const searchTerm = tableSearch?.value.toLowerCase() || '';
+    const searchTerm = tableSearch?.value.trim().toLowerCase() || '';
     const needingBackupOnly = filterNeedingBackup?.checked || false;
     
     const rows = backupsTbody?.querySelectorAll('tr') || [];
     
     rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      let matchesSearch = false;
+      const fileName = (row as HTMLElement).dataset.fileName || '';
+      const matchesSearch = fileName.includes(searchTerm);
       let matchesFilter = true;
-      
-      // Проверяем, соответствует ли строка поисковому запросу
-      for (const cell of cells) {
-        if (cell.textContent?.toLowerCase().includes(searchTerm)) {
-          matchesSearch = true;
-          break;
-        }
-      }
       
       // Проверяем, соответствует ли строка фильтру "требующие бэкапа"
       if (needingBackupOnly) {

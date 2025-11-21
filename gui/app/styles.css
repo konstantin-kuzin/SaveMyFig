@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --primary-color: #007e8a;
-  --primary-dark: rgba(1, 112, 149, 0.902);
+  --primary-color: #3a8ac9e6;
+  --primary-dark: #2e6fa3e6;
 
   --danger-color: #ff5e84;
   --warning-color: #FF9800;
@@ -48,27 +48,31 @@
 
 
 body {
-  background: linear-gradient(-45deg, #021e28, #022836, #021015);
-  background-size: 400% 400%;
-  animation: gradient 20s ease infinite;
+  width: 1200px;
+  height: 1200px;
+  display: block;
+  position: relative;
+  margin: 0 auto;
+  z-index: 0;
   height: 100vh;
   overflow: hidden;
+  background-color:black;
 }
 
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+body::after {
+  background: url(bg.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  content: "";
+  opacity: 0.3;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: -1;   
 }
-
 
 small {
   font-size: 0.8rem;
@@ -570,12 +574,45 @@ th:hover {
   flex-wrap: wrap;
 }
 
+.table-controls.hidden {
+  display: none;
+}
+
 .table-controls input {
   padding: 8px 12px;
   border: 1px solid var(--medium-gray);
   border-radius: var(--border-radius);
   flex: 1;
   min-width: 200px;
+}
+
+.file-name-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-button {
+  border: 1px solid transparent;
+  background: var(--bg-soft);
+  color: var(--text-soft);
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+  line-height: 1;
+}
+
+.icon-button:hover {
+  color: var(--text-hard);
+  border-color: var(--border-medium);
+  background: var(--bg-medium);
+}
+
+.icon-button.active {
+  border-color: var(--primary-color);
+  color: var(--text-hard);
+  background: var(--bg-medium);
 }
 
 .table-controls label {
