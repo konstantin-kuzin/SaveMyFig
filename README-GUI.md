@@ -9,22 +9,31 @@
 ## Требования
 
 - macOS 11+ (Big Sur и новее)
-- Node.js 20 LTS (будет установлен автоматически при первом запуске)
-- Доступ к интернету для установки зависимостей
+- Node.js 20 LTS (устанавливается вручную)
+- Доступ к интернету для установки npm‑зависимостей и Playwright браузеров
 
 ## Установка
 
-1. Скачайте репозиторий
-2. Запустите `start-gui.command` двойным кликом
-3. При первом запуске приложение автоматически установит все необходимые зависимости
+1. Склонируйте репозиторий и установите зависимости в корне:
+   ```bash
+   npm install
+   npx playwright install
+   ```
+2. Перейдите в `gui/`, установите зависимости и запустите приложение:
+   ```bash
+   cd gui
+   npm install
+   npm run main      # очистка dist + build + electron .
+   ```
+3. Альтернатива: из корня `npm run main` (workspace запускает тот же скрипт).
 
 ## Использование
 
 ### Первый запуск
 
-1. При первом запуске приложение проверит наличие Node.js
-2. Если Node.js не найден, будет предложено установить его
-3. После установки Node.js приложение автоматически установит все зависимости
+1. Приложение проверит версии Node.js/npm.
+2. Установка Node.js автоматом не выполняется — поставьте Node 20 вручную (nvm/Homebrew/installer).
+3. Кнопка `Install Dependencies` ставит npm пакеты в корне (`npm install`, затем `npx playwright install`).
 
 ### Настройка
 
@@ -40,13 +49,8 @@
 ### Запуск бэкапа
 
 1. Перейдите на вкладку "Скачивание"
-2. Выберите нужную команду:
-   - `npm run start` - основной запуск
-   - `npm run retry` - повтор неудачных
-   - `npm run dry-run` - предпросмотр
-   - `npm run run-backup` - полный цикл
-3. Нажмите кнопку "Start"
-4. Следите за прогрессом в реальном времени
+2. Нажмите кнопку "Start" — выполняется `npm run run-backup` в корне
+3. Следите за прогрессом в реальном времени
 
 ### Просмотр статистики
 
@@ -67,26 +71,12 @@
 ```
 gui/
 ├── package.json              # Зависимости GUI
-├── main.ts                   # Main process (Electron)
-├── renderer/                 # Renderer process
-│   ├── index.html           # UI markup
-│   ├── styles.css           # Стили
-│   ├── renderer.ts          # UI логика на TypeScript
-│   └── components/           # UI компоненты
-│       ├── welcome.ts       # Экран установки
-│       ├── config.ts        # Экран конфигурации
-│       ├── backup.ts        # Экран выполнения бэкапа
-│       ├── statistics.ts    # Экран статистики
-│       └── settings.ts       # Экран настроек
-└── utils/                   # Утилиты и preload
-    ├── preload.ts           # Preload script (IPC bridge)
-    ├── node-checker.ts      # Проверка Node.js
-    ├── installer.ts         # Установка зависимостей
-    ├── env-manager.ts       # Управление `.userData/.env`
-    ├── db-reader.ts        # Чтение SQLite
-    ├── script-runner.ts     # Запуск npm скриптов (execa)
-    ├── validator.ts         # Валидация ввода
-    └── logger.ts            # Логирование и диагностика
+├── src/
+│   ├── main.ts               # Main process (Electron)
+│   ├── static/               # index.html и стили
+│   ├── ui-*.ts               # Логика экранов (welcome, backup, statistics, config)
+│   └── utils/                # preload, ScriptRunner, EnvManager, DatabaseManager, Logger
+└── dist/                     # Собранные файлы (build)
 ```
 
 ## Разработка
