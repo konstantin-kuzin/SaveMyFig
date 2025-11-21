@@ -11,7 +11,7 @@
     "copy-static": "node copy-static.js",
     "dist": "npm run build && electron-builder",
     "build:electron": "npm run build",
-    "run-backup": "node ../scripts/run-backup.js"
+    "run-backup": "node ../backup/run-backup.js"
   },
   "dependencies": {
     "dotenv": "^16.0.0",

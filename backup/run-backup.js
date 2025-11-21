@@ -5,15 +5,15 @@
  *
  * 1. Environment Setup:
  *    - Loads environment variables from .userData/.env using dotenv
- *    - Establishes database connection via scripts/db.js for tracking backup status
+ *    - Establishes database connection via backup/db.js for tracking backup status
  *
  * 2. File Cleanup:
  *    - Removes any existing .userData/files.json to ensure clean state
  *
  * 3. File Discovery:
  *    - Checks for TEAMS or PROJECTS environment variables to determine backup scope
- *    - Executes team-based backup via scripts/get-team-files.js if TEAMS is defined
- *    - Executes project-based backup via scripts/get-project-files.js if PROJECTS is defined
+ *    - Executes team-based backup via backup/get-team-files.js if TEAMS is defined
+ *    - Executes project-based backup via backup/get-project-files.js if PROJECTS is defined
  *    - Skips file generation if neither environment variable is set
  *
  * 4. Backup Execution:
@@ -61,11 +61,11 @@ async function runBackup() {
     const projectRoot = path.join(__dirname, "..");
     if (teams) {
       console.log(`Checking queue for TEAMS: ${teams}.`);
-      execSync(`node scripts/get-team-files.js ${teams}`, { stdio: "inherit", cwd: projectRoot });
+      execSync(`node backup/get-team-files.js ${teams}`, { stdio: "inherit", cwd: projectRoot });
     }
     else if (projects) {
       console.log(`Checking queue for PROJECTS: ${projects}.`);
-      execSync(`node scripts/get-project-files.js ${projects}`, { stdio: "inherit", cwd: projectRoot });
+      execSync(`node backup/get-project-files.js ${projects}`, { stdio: "inherit", cwd: projectRoot });
     } else {
       console.log("PROJECTS/TEAMS are not defined in .env file. Skipping file generation.");
       return;

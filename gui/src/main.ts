@@ -54,8 +54,8 @@ class FigmaExportApp {
 
     // Загрузка HTML файла
     const indexPath = app.isPackaged
-      ? join(__dirname, 'index.html')
-      : join(__dirname, 'index.html');
+      ? join(__dirname, 'src', 'static', 'index.html')
+      : join(__dirname, 'src', 'static', 'index.html');
     
     this.mainWindow.loadFile(indexPath);
     

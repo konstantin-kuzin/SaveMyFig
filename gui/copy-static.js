@@ -3,17 +3,14 @@ const path = require('path');
 
 // Paths are relative to the gui/ folder where this script lives
 const DIST_DIR = path.join(__dirname, 'dist');
-const APP_DIR = path.join(__dirname, 'app');
-const DIST_UI_DIR = path.join(DIST_DIR, 'app');
-const DIST_TMP_DIR = path.join(DIST_DIR, 'app');
+const SRC_DIR = path.join(__dirname, 'src');
+const SRC_STATIC_DIR = path.join(SRC_DIR, 'static');
+const DIST_STATIC_DIR = path.join(DIST_DIR, 'src', 'static');
+const DIST_UI_DIR = DIST_DIR;
 const DIST_UI_FILE = path.join(DIST_DIR, 'ui.js');
 
 
-const STATIC_FILES = [
-  'index.html',
-  'styles.css',
-  'bg.jpg'
-];
+const STATIC_FILES = ['index.html', 'styles.css', 'bg.jpg'];
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
@@ -53,10 +50,11 @@ function main() {
   // Создаем папку dist если её нет
   ensureDir(DIST_DIR);
   
-  // Копируем отдельные статические файлы
+  // Копируем статические файлы в dist/src/static
+  ensureDir(DIST_STATIC_DIR);
   for (const file of STATIC_FILES) {
-    const srcPath = path.join(APP_DIR, file);
-    const destPath = path.join(DIST_DIR, file);
+    const srcPath = path.join(SRC_STATIC_DIR, file);
+    const destPath = path.join(DIST_STATIC_DIR, file);
     
     if (fs.existsSync(srcPath)) {
       copyFile(srcPath, destPath);
@@ -68,7 +66,7 @@ function main() {
   
   const dirs = [];
   for (const dir of dirs) {
-    const srcPath = path.join(APP_DIR, dir);
+    const srcPath = path.join(SRC_DIR, dir);
     const destPath = path.join(DIST_DIR, dir);
     
     if (fs.existsSync(srcPath)) {
@@ -79,7 +77,7 @@ function main() {
   }
   
   // Отдельно копируем ui.js
-  const uiJsPath = path.join(APP_DIR, 'ui.js');
+  const uiJsPath = path.join(SRC_DIR, 'ui.js');
   if (fs.existsSync(uiJsPath)) {
     const destRendererPath = path.join(DIST_DIR,'ui.js');
     ensureDir(path.dirname(destRendererPath));
@@ -153,13 +151,15 @@ function inlineComponents() {
     rendererContent = rendererContent.replace(classRegex, `// ===== ВСТРОЕННЫЕ КОМПОНЕНТЫ =====\n\n${allComponents}// ===== ОСНОВНОЙ КЛАСС =====\nclass AppRenderer {`);
   }
   
-  // Удаляем папку компонентов из dist
-  
-  if (fs.existsSync(DIST_TMP_DIR)) {
-    fs.rmSync(DIST_TMP_DIR, { recursive: true, force: true });
-    console.log('Удалена папка APP из dist');
- }
-  
+  // Удаляем встроенные файлы компонентов (оставляя util-модули)
+  for (const componentFile of componentFiles) {
+    const componentPath = path.join(DIST_UI_DIR, componentFile);
+    if (fs.existsSync(componentPath)) {
+      fs.rmSync(componentPath, { force: true });
+      console.log(`Удалён: ${componentFile}`);
+    }
+  }
+
   // Записываем обновленный ui.js
   fs.writeFileSync(DIST_UI_FILE, rendererContent, 'utf8');
   

@@ -12,7 +12,7 @@
   "scripts": {
     "main": "npm --workspace gui run main",
     "start": "npm --workspace gui run start",
-    "run-backup": "node scripts/run-backup.js",
+    "run-backup": "node backup/run-backup.js",
     "dist": "electron-builder",
     "build:electron": "electron-builder",
     "gui:main": "npm run main --workspace gui",

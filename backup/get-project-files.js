@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 const path = require("path");
-const { getFiles } = require("./lib");
+const { getFiles } = require("./figma-lib");
 const { getFilesToBackup, updateBackupInfo, close: closeDb } = require("./db");
 
 const MAX_FILES = 1;
