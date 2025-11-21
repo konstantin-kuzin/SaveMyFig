@@ -10,8 +10,9 @@
     "gui"
   ],
   "scripts": {
-    "main": "npm --workspace gui run main",
     "start": "npm --workspace gui run start",
+    "gui": "npm --workspace gui run gui",
+    "build": "npm --workspace gui run build",
     "run-backup": "node backup/run-backup.js",
     "dist": "electron-builder",
     "build:electron": "electron-builder",

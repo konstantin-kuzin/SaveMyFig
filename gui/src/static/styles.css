@@ -48,8 +48,8 @@
 
 
 body {
-  width: 1200px;
-  height: 1200px;
+  width: 100%;
+  height: 100%;
   display: block;
   position: relative;
   margin: 0 auto;
@@ -121,6 +121,13 @@ a:hover:not(.nav-link) {
   padding: 4px 12px;
 }
 
+.nav-link[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  color: var(--text-soft);
+}
+
 .nav-link:hover {
   color: var(--text-hard);
 }
@@ -153,6 +160,11 @@ a:hover:not(.nav-link) {
   flex-direction: column;
 }
 
+#config-tab.tab-content {
+  /* Отступ под фиксированный футер только на вкладке Config */
+  padding-bottom: 60px;
+}
+
 
 .tab-body {
   padding: 20px;
@@ -160,6 +172,15 @@ a:hover:not(.nav-link) {
   overflow: auto;
 }
 
+/* Дополнительный отступ в форме конфигурации, чтобы поля не заходили под фиксированный футер */
+#config-tab .tab-body {
+  padding-bottom: 120px;
+}
+
+
+#config-form {
+  padding-bottom: 40px;
+}
 
 h2 {
   margin-bottom: 16px;

@@ -4,11 +4,9 @@
   "description": "GUI для Figma Export Tool",
   "main": "dist/main.js",
   "scripts": {
-    "main": "rm -rf dist && npm run build && npm start",
-    "start": "unset ELECTRON_RUN_AS_NODE && electron .",
-    "build": "npm run build:main && npm run copy-static",
-    "build:main": "tsc -p tsconfig.json",
-    "copy-static": "node copy-static.js",
+    "start": "rm -rf dist && npm run build && npm run gui",
+    "gui": "unset ELECTRON_RUN_AS_NODE && electron .",
+    "build": "tsc -p tsconfig.json && node copy-static.js",
     "dist": "npm run build && electron-builder",
     "build:electron": "npm run build",
     "run-backup": "node ../backup/run-backup.js"
