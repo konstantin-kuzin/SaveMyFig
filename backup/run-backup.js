@@ -74,8 +74,16 @@ async function runBackup() {
     // Step 2: Run tests
     console.log("Running backup...");
     try {
-      //execSync("npx playwright test automations/download.spec.ts  --headed", { stdio: "inherit", cwd: projectRoot });
-      execSync("npx playwright test automations/download.spec.ts", { stdio: "inherit", cwd: projectRoot });
+      const playwrightCli = resolvePlaywrightCli(projectRoot);
+      const env = buildEnv(projectRoot);
+      execSync(
+        `"${process.execPath}" "${playwrightCli}" test automations/download.spec.ts --headed`,
+        {
+          stdio: "inherit",
+          cwd: projectRoot,
+          env
+        }
+      );
       console.log("Backup completed successfully!");
     } catch (testError) {
       console.error("Playwright tests failed:", testError);
@@ -106,4 +114,78 @@ async function runBackup() {
   }
 }
 
-runBackup(); 
+runBackup();
+
+function resolvePlaywrightCli(projectRoot) {
+  // Prefer resolving Playwright CLI entrypoint directly to avoid PATH issues
+  const resolveOptions = { paths: [projectRoot, __dirname] };
+  const fileCandidates = [
+    // resolve with exports if available
+    () => ({ label: "require playwright/cli", path: require.resolve("playwright/cli", resolveOptions) }),
+    () => ({ label: "require playwright/lib/cli", path: require.resolve("playwright/lib/cli", resolveOptions) }),
+    () => ({ label: "require playwright/lib/cli/cli", path: require.resolve("playwright/lib/cli/cli", resolveOptions) }),
+    () => ({ label: "require playwright-core/lib/cli", path: require.resolve("playwright-core/lib/cli", resolveOptions) }),
+    () => ({ label: "require playwright-core/lib/cli/cli", path: require.resolve("playwright-core/lib/cli/cli", resolveOptions) }),
+    () => ({ label: "require @playwright/test/lib/cli", path: require.resolve("@playwright/test/lib/cli", resolveOptions) }),
+    // direct file paths if exports fail
+    () => ({ label: "file playwright/cli.js", path: path.join(projectRoot, "node_modules", "playwright", "cli.js") }),
+    () => ({ label: "file playwright/lib/cli.js", path: path.join(projectRoot, "node_modules", "playwright", "lib", "cli.js") }),
+    () => ({ label: "file playwright/lib/cli/cli.js", path: path.join(projectRoot, "node_modules", "playwright", "lib", "cli", "cli.js") }),
+    () => ({ label: "file playwright-core/lib/cli.js", path: path.join(projectRoot, "node_modules", "playwright-core", "lib", "cli.js") }),
+    () => ({ label: "file playwright-core/lib/cli/cli.js", path: path.join(projectRoot, "node_modules", "playwright-core", "lib", "cli", "cli.js") }),
+    () => ({ label: "file @playwright/test/lib/cli.js", path: path.join(projectRoot, "node_modules", "@playwright", "test", "lib", "cli.js") }),
+    // bin stub
+    () => ({ label: "bin .bin/playwright", path: path.join(projectRoot, "node_modules", ".bin", "playwright") })
+  ];
+
+  const attempted = [];
+
+  for (const candidateFn of fileCandidates) {
+    try {
+      const { label, path: candidate } = candidateFn();
+      attempted.push({ label, path: candidate, exists: fs.existsSync(candidate) });
+      if (fs.existsSync(candidate)) {
+        console.log(`[playwright-cli] using ${label}: ${candidate}`);
+        return candidate;
+      }
+    } catch (err) {
+      attempted.push({ label: "resolve error", path: "", exists: false, error: String(err) });
+      // continue
+    }
+  }
+
+  console.error("[playwright-cli] not found, attempted:", attempted);
+
+  throw new Error("playwright CLI not found in packaged app");
+}
+
+function buildEnv(projectRoot) {
+  const safePaths = [
+    projectRoot && path.join(projectRoot, "node_modules", ".bin"),
+    __dirname && path.join(__dirname, "..", "node_modules", ".bin"),
+    process.resourcesPath && path.join(process.resourcesPath, "app", "node_modules", ".bin"),
+    process.resourcesPath && path.join(process.resourcesPath, "app.asar.unpacked", "node_modules", ".bin"),
+    "/opt/homebrew/bin",
+    "/usr/local/bin",
+    "/usr/bin",
+    "/bin"
+  ].filter(Boolean);
+
+  const envPaths = (process.env.PATH || "").split(path.delimiter);
+  const merged = Array.from(
+    new Set(
+      [...safePaths, ...envPaths].filter(p => {
+        try {
+          return fs.statSync(p).isDirectory();
+        } catch {
+          return false;
+        }
+      })
+    )
+  ).join(path.delimiter);
+
+  return {
+    ...process.env,
+    PATH: merged
+  };
+}

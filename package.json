@@ -14,20 +14,19 @@
     "gui": "npm --workspace gui run gui",
     "build": "npm --workspace gui run build",
     "run-backup": "node backup/run-backup.js",
-    "dist": "electron-builder",
-    "build:electron": "electron-builder",
-    "gui:main": "npm run main --workspace gui",
+    "build-app": "npm --workspace gui run build && electron-builder",
     "gui:start": "npm run start --workspace gui",
     "gui:build": "npm run build --workspace gui",
     "gui:dist": "npm run dist --workspace gui"
   },
   "dependencies": {
+    "@playwright/test": "^1.48.2",
+    "playwright": "^1.48.2",
     "dotenv": "^16.0.0",
     "execa": "^8.0.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "@playwright/test": "^1.48.2",
     "@types/node": "^22.14.1",
     "@types/sqlite3": "^3.1.11",
     "@electron/rebuild": "^3.3.0",
@@ -38,6 +37,7 @@
   "build": {
     "appId": "com.figmaexport.backup",
     "productName": "Figma Backup",
+    "asar": false,
     "mac": {
       "category": "public.app-category.utilities",
       "target": "dmg",
@@ -45,6 +45,7 @@
     },
     "files": [
       "**/*",
+      "!.node/**",
       "!node_modules/electron/**",
       "!dist/**"
     ]

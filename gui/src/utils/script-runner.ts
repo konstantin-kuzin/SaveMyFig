@@ -1,12 +1,18 @@
 import { Logger } from './logger';
 import { spawn } from 'child_process';
+import { app } from 'electron';
+import path from 'path';
+import fs from 'fs';
 
 export class ScriptRunner {
   private logger: Logger;
   private currentProcess: any = null;
+  private baseCwd: string;
 
- constructor() {
+  constructor() {
     this.logger = new Logger();
+    this.baseCwd = this.resolveBaseCwd();
+    this.logger.info(`ScriptRunner base cwd: ${this.baseCwd}`);
   }
 
   async installDependencies(): Promise<{ success: boolean; message: string }> {
@@ -15,8 +21,9 @@ export class ScriptRunner {
       
       // Используем spawn вместо execa
       this.currentProcess = spawn('npm', ['install'], {
-        cwd: process.cwd(),
-        stdio: ['pipe', 'pipe', 'pipe']
+        cwd: this.baseCwd,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: this.getSpawnEnv()
       });
 
       this.currentProcess.stdout?.on('data', (data: Buffer) => {
@@ -47,8 +54,9 @@ export class ScriptRunner {
       // Установка Playwright browsers
       this.logger.info('Installing Playwright browsers...');
       const playwrightProcess = spawn('npx', ['playwright', 'install'], {
-        cwd: process.cwd(),
-        stdio: ['pipe', 'pipe', 'pipe']
+        cwd: this.baseCwd,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: this.getSpawnEnv()
       });
       
       // Ожидаем завершения процесса Playwright
@@ -88,12 +96,32 @@ export class ScriptRunner {
  ): Promise<{ success: boolean; message?: string }> {
     try {
       this.logger.info(`Running script: ${command}`);
-      
-      // Используем spawn вместо execa
-      this.currentProcess = spawn('npm', ['run', command], {
-        cwd: process.cwd(),
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
+
+      // Специальный кейс: запуск резервного скрипта напрямую через node
+      if (command === 'run-backup') {
+        const backupScript = this.resolveBackupScript();
+        if (!backupScript) {
+          return { success: false, message: 'Не найден backup/run-backup.js в собранном приложении' };
+        }
+
+        const nodeBin = this.resolveNodeBinary();
+        if (!nodeBin) {
+          return { success: false, message: 'Node.js не найден в системе' };
+        }
+
+        this.currentProcess = spawn(nodeBin, [backupScript], {
+          cwd: this.baseCwd,
+          stdio: ['pipe', 'pipe', 'pipe'],
+          env: this.getSpawnEnv()
+        });
+      } else {
+        // Используем npm run для остальных команд
+        this.currentProcess = spawn('npm', ['run', command], {
+          cwd: this.baseCwd,
+          stdio: ['pipe', 'pipe', 'pipe'],
+          env: this.getSpawnEnv()
+        });
+      }
 
       this.currentProcess.stdout?.on('data', (data: Buffer) => {
         const text = data.toString();
@@ -187,5 +215,129 @@ export class ScriptRunner {
       return `Процесс завершился с кодом ошибки ${error.exitCode}`;
     }
     return error.message || 'Неизвестная ошибка';
+  }
+
+  private getSpawnEnv() {
+    // Ensure common PATH locations are available in packaged apps
+    const fallbackPaths = [
+      '/opt/homebrew/bin',
+      '/usr/local/bin',
+      '/usr/bin',
+      '/bin',
+      path.join(this.baseCwd, 'node_modules', '.bin'),
+      path.join(process.resourcesPath, 'app', 'node_modules', '.bin'),
+      path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', '.bin')
+    ];
+    const existing = process.env.PATH ? process.env.PATH.split(path.delimiter) : [];
+
+    // Keep only valid directories to avoid ENOTDIR when spawning
+    const unique = Array.from(new Set([...fallbackPaths, ...existing]));
+    const validDirs = unique.filter(p => {
+      try {
+        return fs.statSync(p).isDirectory();
+      } catch {
+        return false;
+      }
+    });
+
+    const merged = validDirs.join(path.delimiter);
+
+    return {
+      ...process.env,
+      PATH: merged
+    };
+  }
+
+  private resolveBaseCwd(): string {
+    if (!app?.isPackaged) {
+      return process.cwd();
+    }
+
+    const candidates = [
+      app.getAppPath(),
+      path.join(process.resourcesPath, 'app'),
+      path.join(process.resourcesPath, 'app.asar.unpacked'),
+      path.dirname(app.getAppPath()),
+      process.resourcesPath
+    ];
+
+    // Prefer a directory that has package.json with the needed script
+    for (const candidate of candidates) {
+      const pkgPath = path.join(candidate, 'package.json');
+      try {
+        const stat = fs.statSync(candidate);
+        if (!stat.isDirectory()) continue;
+        if (fs.existsSync(pkgPath)) {
+          const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+          if (pkg?.scripts?.['run-backup']) {
+            return candidate;
+          }
+        }
+      } catch {
+        // skip
+      }
+    }
+
+    // Otherwise any existing directory is fine
+    for (const candidate of candidates) {
+      try {
+        const stat = fs.statSync(candidate);
+        if (stat.isDirectory()) {
+          return candidate;
+        }
+      } catch {
+        // skip
+      }
+    }
+
+    this.logger.warn('Could not determine packaged base cwd, falling back to process.cwd()');
+    return process.cwd();
+  }
+
+  private resolveBackupScript(): string | null {
+    const candidates = [
+      path.join(this.baseCwd, 'backup', 'run-backup.js'),
+      path.join(process.resourcesPath, 'app', 'backup', 'run-backup.js'),
+      path.join(process.resourcesPath, 'app.asar.unpacked', 'backup', 'run-backup.js')
+    ];
+
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+    }
+
+    this.logger.error('Backup script not found in packaged app');
+    return null;
+  }
+
+  private resolveNodeBinary(): string | null {
+    // Build candidate paths
+    const envPaths = (this.getSpawnEnv().PATH || '').split(path.delimiter).filter(Boolean);
+    const hardcoded = [
+      '/opt/homebrew/bin',
+      '/usr/local/bin',
+      '/usr/bin',
+      '/bin',
+      path.join(this.baseCwd, '.node', 'bin'),
+      path.join(process.resourcesPath, '.node', 'bin')
+    ];
+
+    const allDirs = Array.from(new Set([...hardcoded, ...envPaths]));
+    const candidateBins = allDirs.map(dir => path.join(dir, 'node'));
+
+    for (const bin of candidateBins) {
+      try {
+        const stat = fs.statSync(bin);
+        if (stat.isFile() || stat.isSymbolicLink()) {
+          return bin;
+        }
+      } catch {
+        // skip
+      }
+    }
+
+    this.logger.error('Node binary not found in expected locations');
+    return null;
   }
 }

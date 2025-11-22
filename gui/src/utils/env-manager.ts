@@ -1,20 +1,27 @@
 import fs from 'fs';
 import path from 'path';
+import { app } from 'electron';
 import { config } from 'dotenv';
 import { Logger } from './logger';
 
 export class EnvManager {
   private logger: Logger;
- private envPath: string;
+  private envPath: string;
 
   constructor() {
     this.logger = new Logger();
-    const userDataDir = path.join(process.cwd(), '..', '.userData');
-    if (!fs.existsSync(userDataDir)) {
-      fs.mkdirSync(userDataDir, { recursive: true });
+
+    // In packaged apps process.cwd() may be '/', so rely on Electron userData path there.
+    const baseUserDataDir = app?.isPackaged
+      ? path.join(app.getPath('userData'), '.userData')
+      : path.join(process.cwd(), '..', '.userData');
+
+    if (!fs.existsSync(baseUserDataDir)) {
+      fs.mkdirSync(baseUserDataDir, { recursive: true });
     }
+
     // Ищем .env файл в .userData на уровень выше gui/
-    this.envPath = path.join(userDataDir, '.env');
+    this.envPath = path.join(baseUserDataDir, '.env');
     this.logger.info('Looking for .env file at: ' + this.envPath);
   }
 

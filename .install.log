@@ -1,0 +1,3 @@
+---- npm install (root) ----
+---- npx playwright install chromium ----
+---- npm install (gui) ----

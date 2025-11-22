@@ -7,14 +7,14 @@
     "start": "rm -rf dist && npm run build && npm run gui",
     "gui": "unset ELECTRON_RUN_AS_NODE && electron .",
     "build": "tsc -p tsconfig.json && node copy-static.js",
-    "dist": "npm run build && electron-builder",
-    "build:electron": "npm run build",
     "run-backup": "node ../backup/run-backup.js"
   },
   "dependencies": {
+    "@playwright/test": "^1.48.2",
     "dotenv": "^16.0.0",
     "electron": "^28.3.3",
     "execa": "^8.0.0",
+    "playwright": "^1.48.2",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
