@@ -547,7 +547,24 @@ td {
 
 td.date {
   font-family: monospace;
-  font-size: 0.9em;
+  font-size: 1em;
+}
+
+.date-text {
+  display: inline-block;
+}
+
+.date-missing {
+  color: var(--danger-color);
+  font-family: monospace;
+  font-size: 1em;
+}
+
+.warning-icon {
+  margin-left: 6px;
+  font-size: 1.2em;
+  cursor: default;
+  color: var(--danger-color);
 }
 
 .date.date-newer {

@@ -3,7 +3,7 @@ const path = require("path");
 const { getFiles } = require("./figma-lib");
 const { getFilesToBackup, updateBackupInfo, close: closeDb } = require("./db");
 
-const MAX_FILES = 1;
+const MAX_FILES = 20;
 const projectIds = process.argv
   .slice(2)
   .join(" ")

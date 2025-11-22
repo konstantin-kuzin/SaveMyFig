@@ -295,11 +295,23 @@ export class ScriptRunner {
   }
 
   private resolveBackupScript(): string | null {
-    const candidates = [
+    const candidates: string[] = [
       path.join(this.baseCwd, 'backup', 'run-backup.js'),
-      path.join(process.resourcesPath, 'app', 'backup', 'run-backup.js'),
-      path.join(process.resourcesPath, 'app.asar.unpacked', 'backup', 'run-backup.js')
+      // relative to compiled utils directory
+      path.join(__dirname, '..', 'backup', 'run-backup.js'),
+      path.join(__dirname, '..', '..', 'backup', 'run-backup.js'),
+      path.join(__dirname, '..', '..', '..', 'backup', 'run-backup.js'),
+      // relative to current working dir (useful when run outside of packaged app)
+      path.join(process.cwd(), 'backup', 'run-backup.js'),
+      path.join(process.cwd(), '..', 'backup', 'run-backup.js')
     ];
+
+    if (process.resourcesPath) {
+      candidates.push(
+        path.join(process.resourcesPath, 'app', 'backup', 'run-backup.js'),
+        path.join(process.resourcesPath, 'app.asar.unpacked', 'backup', 'run-backup.js')
+      );
+    }
 
     for (const candidate of candidates) {
       if (fs.existsSync(candidate)) {
@@ -307,7 +319,7 @@ export class ScriptRunner {
       }
     }
 
-    this.logger.error('Backup script not found in packaged app');
+    this.logger.error(`Backup script not found. Checked: ${candidates.join(', ')}`);
     return null;
   }
 
