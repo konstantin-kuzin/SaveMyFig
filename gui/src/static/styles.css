@@ -56,7 +56,7 @@ body {
   z-index: 0;
   height: 100vh;
   overflow: hidden;
-  background-color:black;
+  background-color: black;
 }
 
 body::after {
@@ -71,7 +71,7 @@ body::after {
   bottom: 0;
   right: 0;
   left: 0;
-  z-index: -1;   
+  z-index: -1;
 }
 
 small {
@@ -810,4 +810,28 @@ th:hover {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.alert {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-medium);
+  align-items: flex-start;
+  align-content: space-around;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.alert-critical {
+  background-color: #250101;
+  border-color: #a00505;
+  color: #fa8f8f;
+}
+
+.alert-icon {
+  font-size: 18px;
 }

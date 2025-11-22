@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Figma Export GUI v 1.0</title>
+  <title>Figma Backup GUI v 1.0</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -17,7 +17,7 @@
         <div><a href="#" data-tab="backup" class="nav-link">Backup</a></div>
         <div><a href="#" data-tab="statistics" class="nav-link active">Statistics</a></div>
         <div><a href="#" data-tab="config" class="nav-link">Config</a></div>
-        <!-- <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div> -->
+        <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div>
       </div>
     </nav>
 
@@ -128,6 +128,13 @@
       <!-- Экран выполнения бэкапа -->
       <div id="backup-tab" class="tab-content">
         <div class="tab-body">
+          <div class="alert alert-critical">
+            <div class="alert-icon">⚠️</div>
+            <div>
+              <strong>Warning:</strong> Before starting downloads, open any file in Figma, go to Preferences, and
+              DISABLE "Open link in desktop app". If you skip this, this tool will not work.
+            </div>
+          </div>
           <div class="log-container">
             <div id="backup-log" class="log-content"></div>
           </div>
@@ -151,18 +158,18 @@
         <div class="tab-body">
           <div class="stat-cards">
             <div class="stat-section">
-                <div class="stat-value" id="total-files">0</div>
-                <div class="stat-label">Total files</div>
+              <div class="stat-value" id="total-files">0</div>
+              <div class="stat-label">Total files</div>
             </div>
 
             <div class="stat-section">
-                <div class="stat-value" id="needing-backup">0</div>
-                <div class="stat-label">Need backup</div>
+              <div class="stat-value" id="needing-backup">0</div>
+              <div class="stat-label">Need backup</div>
             </div>
 
             <div class="stat-section">
-                <div class="stat-value" id="with-errors">0</div>
-                <div class="stat-label">With errors</div>
+              <div class="stat-value" id="with-errors">0</div>
+              <div class="stat-label">With errors</div>
             </div>
           </div>
 
@@ -176,7 +183,8 @@
                   <th data-sort="project_name">Project</th>
                   <th data-sort="file_name" class="file-name-header">
                     <span>File Name</span>
-                    <button type="button" id="table-search-toggle" class="icon-button" aria-label="Toggle file name search">🔍</button>
+                    <button type="button" id="table-search-toggle" class="icon-button"
+                      aria-label="Toggle file name search">🔍</button>
                   </th>
                   <th data-sort="last_backup_date">Last Backup</th>
                   <th data-sort="last_modified_date">Last Modified in Figma</th>
