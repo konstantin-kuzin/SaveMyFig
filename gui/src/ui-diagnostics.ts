@@ -1,5 +1,5 @@
 // Diagnostics screen component
-export function initializeSettingsTab(): void {
+export function initializeDiagnosticsTab(): void {
   if (!window.electronAPI) {
     console.error('electronAPI not available');
     return;
@@ -63,7 +63,7 @@ export function initializeSettingsTab(): void {
     });
   }
 
-  document.addEventListener('settings-tab-activated', () => {
+  document.addEventListener('diagnostics-tab-activated', () => {
     loadAllDiagnostics();
   });
 

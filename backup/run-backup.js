@@ -44,7 +44,7 @@ const { execSync } = require("child_process");
 const dotenv = require("dotenv");
 const { close: closeDb } = require("./db");
 
-dotenv.config({ path: path.join(__dirname, "../.userData/.env") });
+dotenv.config({ path: path.join(__dirname, "../.userData/.env"), override: true });
 
 async function runBackup() {
   try {
@@ -70,14 +70,20 @@ async function runBackup() {
       console.log("PROJECTS/TEAMS are not defined in .env file. Skipping file generation.");
       return;
     }
-
+    
+    // Breakpoint for debugging file generation issues
+    // return;
+    
     // Step 2: Run tests
     console.log("Running backup...");
     try {
       const playwrightCli = resolvePlaywrightCli(projectRoot);
       const env = buildEnv(projectRoot);
+      const debugModeEnabled = String(process.env.DEBUG_MODE || "").toLowerCase() === "on";
+      const playwrightModeFlag = debugModeEnabled ? "--headed" : "";
+      console.log(`Backup tool is running in ${debugModeEnabled ? "debug" : "silent"} mode.`);
       execSync(
-        `"${process.execPath}" "${playwrightCli}" test automations/download.spec.ts --headed`,
+        `"${process.execPath}" "${playwrightCli}" test automations/download.spec.ts ${playwrightModeFlag}`,
         {
           stdio: "inherit",
           cwd: projectRoot,
@@ -145,7 +151,7 @@ function resolvePlaywrightCli(projectRoot) {
       const { label, path: candidate } = candidateFn();
       attempted.push({ label, path: candidate, exists: fs.existsSync(candidate) });
       if (fs.existsSync(candidate)) {
-        console.log(`[playwright-cli] using ${label}: ${candidate}`);
+        //console.log(`[playwright-cli] using ${label}: ${candidate}`);
         return candidate;
       }
     } catch (err) {

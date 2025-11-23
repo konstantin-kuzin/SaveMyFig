@@ -5,7 +5,7 @@ if (process.env.ELECTRON_RUN_AS_NODE) {
 
 import fs from 'fs';
 import path from 'path';
-import { app, BrowserWindow, ipcMain, dialog, Notification, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Notification, shell, nativeImage, NativeImage } from 'electron';
 import { Logger } from './utils/logger';
 import { EnvManager } from './utils/env-manager';
 import { BackupRecord, DatabaseManager } from './utils/db-reader';
@@ -24,6 +24,8 @@ class FigmaExportApp {
   private readonly githubRepo = 'konstantin-kuzin/SaveMyFig';
 
   constructor() {
+    app.setName('SaveMy.Fig');
+
     this.logger = new Logger();
     this.envManager = new EnvManager();
     this.dbManager = new DatabaseManager();
@@ -37,18 +39,54 @@ class FigmaExportApp {
 
   private setupApp(): void {
     app.whenReady().then(() => this.createWindow());
-    
     app.on('window-all-closed', () => {
       if (process.platform !== 'darwin') app.quit();
     });
   }
 
+  private getIconImage(): Electron.NativeImage | null {
+    const staticDirs = [
+      path.join(__dirname, 'src', 'static'),                // dev build output (gui/dist/src/static)
+      path.join(__dirname, '..', 'src', 'static'),          // fallback if dist layout shifts
+      path.join(process.resourcesPath, 'app', 'src', 'static'), // packaged (asar: false)
+      path.join(process.resourcesPath, 'src', 'static'),    // packaged fallback
+    ];
+
+    const candidates: string[] = [];
+    for (const dir of staticDirs) {
+      candidates.push(path.join(dir, 'icon.icns'));
+      candidates.push(path.join(dir, 'icon.png'));
+    }
+
+    for (const iconPath of candidates) {
+      if (!fs.existsSync(iconPath)) {
+        this.logger.debug(`Icon candidate missing: ${iconPath}`);
+        continue;
+      }
+      const img = nativeImage.createFromPath(iconPath);
+      if (!img.isEmpty()) {
+        this.logger.info(`Using app icon: ${iconPath}`);
+        return img;
+      }
+      this.logger.warn(`Icon file exists but failed to load: ${iconPath}`);
+    }
+
+    this.logger.warn('App icon not found in expected locations');
+    return null;
+  }
+
   private createWindow(): void {
+    const iconImage = this.getIconImage();
+    if (iconImage && process.platform === 'darwin') {
+      app.dock.setIcon(iconImage);
+    }
+
     this.mainWindow = new BrowserWindow({
       width: 1200,
       height: 800,
       minWidth: 1000,
       minHeight: 600,
+      icon: iconImage ?? undefined,
       webPreferences: {
         preload: path.join(__dirname, 'utils', 'preload.js'),
         //contextIsolation: true,

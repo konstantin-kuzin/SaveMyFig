@@ -80,8 +80,9 @@ export class DatabaseManager {
   async getBackupsNeedingBackup(): Promise<BackupRecord[]> {
     const sql = `
       SELECT * FROM backups
-      WHERE (last_modified_date > last_backup_date OR last_backup_date IS NULL)
-        AND (next_attempt_date IS NULL OR next_attempt_date <= datetime('now'))
+      WHERE next_attempt_date IS NOT NULL
+        OR last_backup_date IS NULL
+        OR (last_modified_date IS NOT NULL AND last_modified_date > last_backup_date)
       ORDER BY
         CASE
           WHEN last_backup_date IS NULL THEN 0
@@ -106,8 +107,9 @@ export class DatabaseManager {
     const total = await this.query('SELECT COUNT(*) as count FROM backups');
     const needingBackup = await this.query(`
       SELECT COUNT(*) as count FROM backups
-      WHERE (last_modified_date > last_backup_date OR last_backup_date IS NULL)
-        AND (next_attempt_date IS NULL OR next_attempt_date <= datetime('now'))
+      WHERE next_attempt_date IS NOT NULL
+        OR last_backup_date IS NULL
+        OR (last_modified_date IS NOT NULL AND last_modified_date > last_backup_date)
     `);
     const withErrors = await this.query(`
       SELECT COUNT(*) as count FROM backups

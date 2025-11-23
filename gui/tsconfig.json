@@ -27,14 +27,14 @@
       "@/*": ["*"],
       "@utils/*": ["src/utils/*"],
       "@app/*": ["src/*"],
-      //"@components/*": ["renderer/components/*"]
     }
   },
   "include": [
     "src/**/*",
     "types.d.ts",
     "../.userData/.env"
-  ],
+,  //"../backup/backup-reporter.js"  
+],
   "exclude": [
     "node_modules",
     "dist"

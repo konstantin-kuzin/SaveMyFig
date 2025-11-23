@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SaveMy.Fig v 1.2</title>
+  <title>SaveMy.Fig v 1.3</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -26,7 +26,7 @@
         <div><a href="#" data-tab="backup" class="nav-link">Backup</a></div>
         <div><a href="#" data-tab="statistics" class="nav-link active">Statistics</a></div>
         <div><a href="#" data-tab="config" class="nav-link">Config</a></div>
-        <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div>
+        <div><a href="#" data-tab="diagnostics" class="nav-link">Diagnostics</a></div>
       </div>
     </nav>
 
@@ -125,6 +125,22 @@
               <textarea id="teams" name="TEAMS" placeholder="12345, 67890, 12345, 67890" rows="3"></textarea>
             </div>
 
+            <div class="form-group">
+              <label for="max-files" class="required">MAX_FILES (max 45)</label>
+              <input type="text" id="max-files" name="MAX_FILES" placeholder="5" min="1" max="45" required>
+              <small class="form-help">Limit of files per run for one backup session</small>
+            </div>
+
+            <div class="form-group">
+              <label class="required">Debug mode</label>
+              <div class="segmented-control" role="group" aria-label="Debug mode">
+                <button type="button" class="segment-btn debug-mode-segment active" data-value="off" aria-pressed="true">Off</button>
+                <button type="button" class="segment-btn debug-mode-segment" data-value="on" aria-pressed="false">On</button>
+              </div>
+              <input type="hidden" id="debug-mode" name="DEBUG_MODE" value="off">
+              <small class="form-help">Headless Playwright by default; switch on to run headed for debugging.</small>
+            </div>
+
 
           </div>
         </div>
@@ -211,7 +227,7 @@
       </div>
 
       <!-- Экран диагностики -->
-      <div id="settings-tab" class="tab-content">
+      <div id="diagnostics-tab" class="tab-content">
         <div class="tab-body">
           <div class="diagnostic-section">
             <h3>System Information</h3>
