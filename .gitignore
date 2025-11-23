@@ -5,5 +5,7 @@ dist/
 playwright/.cache/
 .userData/
 .node
+.install.log
+.playwright-chromium.path
 .DS_Store
 rsync.sh

@@ -32,7 +32,7 @@ SaveMy.Fig — Electron‑приложение поверх существующ
 ## 2. Пользовательские сценарии
 | ID | Сценарий | Статус реализации |
 | --- | --- | --- |
-| US1 | Проверить, установлен ли Node.js/npm, и поставить зависимости | ✅ Вкладка Installation запускает `npm install` + `npx playwright install`. Установка Node делается отдельным скриптом `install.command` (скачивает portable Node 20.17.0, если npm отсутствует). |
+| US1 | Проверить, установлен ли Node.js/npm, и поставить зависимости | ✅ Вкладка Installation запускает `npm install` + `npx playwright install`. Если npm отсутствует, `start.command` скачивает portable Node.js 24.11.1, ставит зависимости и открывает GUI на первом запуске. |
 | US2 | Заполнить или обновить `.env` без текстового редактора | ✅ Форма Config поддерживает email, auth cookie, token, download path, TEAMS/PROJECTS и пишет данные в `.userData/.env`. Остальные переменные редактируются вручную. |
 | US3 | Запустить полный цикл бэкапа | ✅ Download → `Start backup` выполняет `npm run run-backup`, выводит лог и прогресс. |
 | US4 | Посмотреть, какие файлы ещё не скачаны | ✅ Статистика отображает сумму записей, количество файлов с `last_modified > last_backup` и таблицу `backups`. |
@@ -47,7 +47,7 @@ SaveMy.Fig — Electron‑приложение поверх существующ
 1. **Installation (welcome.ts)**
    - Проверяет `node --version` и `npm --version` сразу после загрузки.
    - Кнопка `Install Dependencies` запускает `npm install` + `npx playwright install` в корне репозитория. Прогресс выводится в лог (textarea).
-   - Автоустановки Node.js внутри GUI нет; для неподготовленных пользователей предусмотрен скрипт `install.command`, который качает portable Node 20.17.0 при отсутствии npm.
+   - Автоустановки Node.js внутри GUI нет; для неподготовленных пользователей есть `start.command`, который при первом запуске качает portable Node.js 24.11.1 (если npm отсутствует), ставит зависимости (root+gui, Playwright) и открывает GUI, а при следующих запусках просто стартует GUI, если lockfile не менялся.
 
 2. **Backup (backup.ts)**
    - Single action: `Start backup`. Статус меняется (Ready → Running → Completed/Error).
@@ -84,7 +84,7 @@ SaveMy.Fig — Electron‑приложение поверх существующ
 | Категория | Требование | Статус |
 | --- | --- | --- |
 | Платформы | macOS 11+ (Intel или Apple Silicon). | ✅ Тестировано на macOS 13/14. |
-| Node.js | Версия 20 LTS. GUI только проверяет, не устанавливает автоматически. | ⚠️ Пользователь ставит сам (через nvm/brew). |
+| Node.js | Рекомендуется 20 LTS; при отсутствии npm `start.command` скачивает portable Node.js 24.11.1 (macOS), внутри GUI только проверка. | ✅ Через `start.command`; в GUI автоустановки нет. |
 | Сеть | Обязателен интернет для установки npm и доступа к Figma API. | ✅ |
 | Безопасность | `nodeIntegration: false`, но `contextIsolation` пока отключён. | ⚠️ Нужно включить перед продакшеном. |
 | Логи | GUI хранит до 5 файлов по 10 МБ в `~/Library/Application Support/SaveMy.Fig/.userData/logs`. | ✅ |
@@ -92,13 +92,13 @@ SaveMy.Fig — Electron‑приложение поверх существующ
 ---
 
 ## 5. Backlog / следующий релиз
-1. **Node installer** — добавить сценарий установки Node.js (brew / bundled).
+1. **Node installer** — расширить установщик: аналоги `start.command` для Windows/Linux или интеграция установки Node/Playwright прямо в GUI (сейчас portable Node 24.11.1 только для macOS).
 2. **Расширенная конфигурация** — множественные аккаунты, редактирование WAIT_TIMEOUT/MAX_FILES, переключатель TEAMS/PROJECTS, генерация `files.json` прямо из GUI.
 3. **Download tab** — выбор команд (`start`, `retry`, `dry-run`), кнопка Stop, сохранение логов, подсветка ошибок.
 4. **Statistics** — добавить поиск/фильтры/экспорт CSV и отображение `next_attempt_date`.
 5. **Diagnostics** — реальные проверки (наличие Playwright браузеров, права записи в DOWNLOAD_PATH, доступность Figma API, чтение логов Logger).
 6. **Hard-coded rsync** — вынести параметры в настройки или отключить по умолчанию.
-7. **Packaging** — подготовить `start-gui.command` или `.app/.dmg` на основе `electron-builder` (см. `package.json:build`).
+7. **Packaging** — подготовить `.app/.dmg` на основе `electron-builder` и аналоги для других ОС; сейчас поставка только через `start.command`.
 8. **UX копирайтинг** — привести интерфейс к одному языку (RU/EN) и добавить подсказки.
 
 ---
@@ -106,7 +106,7 @@ SaveMy.Fig — Electron‑приложение поверх существующ
 ## 6. Ограничения и риски
 - **API rate limits** — MAX_FILES=3 за запуск снижает нагрузку, но требует множества запусков. Нужно контролировать тайминг.
 - **Playwright авторизация** — опирается на cookie (`__Host-figma.authn`). При истечении cookie тест автоматически не перезапрашивает пароль (если не заполнены `FIGMA_ACCOUNT_N_PASSWORD`).
-- **Зависимость от GUI** — пользователи без Node.js не смогут работать, пока не получат помощь администратора.
+- **Зависимость от GUI/launcher** — на macOS отсутствие npm закрыто через `start.command`, но без него (или на других ОС) пользователи без Node.js остаются заблокированными.
 - **Безопасность токенов** — `.userData/.env` хранится в открытом виде, GUI не шифрует значения.
 - **Стабильность Figma UI** — Playwright скрипт кликает по конкретным ID (`mainMenu-save-as`). Любые изменения в Figma могут сломать скачивание.
 
