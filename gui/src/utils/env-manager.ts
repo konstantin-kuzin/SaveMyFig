@@ -7,6 +7,7 @@ import { Logger } from './logger';
 export class EnvManager {
   private logger: Logger;
   private envPath: string;
+  private userDataDir: string;
 
   constructor() {
     this.logger = new Logger();
@@ -20,6 +21,7 @@ export class EnvManager {
       fs.mkdirSync(baseUserDataDir, { recursive: true });
     }
 
+    this.userDataDir = baseUserDataDir;
     // Ищем .env файл в .userData на уровень выше gui/
     this.envPath = path.join(baseUserDataDir, '.env');
     this.logger.info('Looking for .env file at: ' + this.envPath);
@@ -93,5 +95,13 @@ export class EnvManager {
       valid: errors.length === 0,
       errors
     };
+  }
+
+  getEnvPath(): string {
+    return this.envPath;
+  }
+
+  getUserDataDir(): string {
+    return this.userDataDir;
   }
 }

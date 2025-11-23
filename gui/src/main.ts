@@ -73,22 +73,48 @@ class FigmaExportApp {
     });
 
     ipcMain.handle('check-npm', async () => {
-      try {
-        const version = require('child_process').execSync('npm --version', { encoding: 'utf8' }).trim();
-        const path = require('child_process').execSync('which npm', { encoding: 'utf8' }).trim();
-        const versionNumber = version;
-        const majorVersion = parseInt(versionNumber.split('.')[0]);
-        
-        return {
-          installed: true,
-          version,
-          path,
-          meetsRequirement: majorVersion >= 8
-        };
-      } catch (error) {
-        this.logger.error('npm not found: ' + error);
-        return { installed: false };
-      }
+      return await this.checkNpm();
+    });
+
+    ipcMain.handle('diagnostics:get-system-info', async () => {
+      const [nodeInfo, npmInfo] = await Promise.all([
+        this.nodeChecker.checkNodeJS(),
+        this.checkNpm()
+      ]);
+
+      return {
+        node: nodeInfo,
+        npm: npmInfo,
+        guiVersion: app.getVersion(),
+        scriptVersion: this.getScriptVersion(),
+        logFile: this.logger.getLogFilePath()
+      };
+    });
+
+    ipcMain.handle('diagnostics:get-dependencies', async () => {
+      return await this.getDependencyStatus();
+    });
+
+    ipcMain.handle('diagnostics:get-fs-status', async () => {
+      return await this.getFsStatus();
+    });
+
+    ipcMain.handle('diagnostics:get-api-status', async () => {
+      return await this.getApiStatus();
+    });
+
+    ipcMain.handle('diagnostics:read-logs', async () => {
+      return await this.readAppLogs();
+    });
+
+    ipcMain.handle('diagnostics:clear-logs', async () => {
+      return await this.clearAppLogs();
+    });
+
+    ipcMain.handle('diagnostics:open-logs-folder', async () => {
+      const folder = this.logger.getLogsDir();
+      await shell.openPath(folder);
+      return { success: true, folder };
     });
 
     // Installation
@@ -267,6 +293,355 @@ class FigmaExportApp {
     }
 
     return found;
+  }
+
+  private async checkNpm(): Promise<{
+    installed: boolean;
+    version?: string;
+    path?: string;
+    meetsRequirement?: boolean;
+  }> {
+    try {
+      const version = require('child_process').execSync('npm --version', { encoding: 'utf8' }).trim();
+      const npmPath = require('child_process').execSync('which npm', { encoding: 'utf8' }).trim();
+      const versionNumber = version;
+      const majorVersion = parseInt(versionNumber.split('.')[0]);
+      
+      return {
+        installed: true,
+        version,
+        path: npmPath,
+        meetsRequirement: majorVersion >= 8
+      };
+    } catch (error) {
+      this.logger.error('npm not found: ' + error);
+      return { installed: false };
+    }
+  }
+
+  private getScriptVersion(): string {
+    const candidates = [
+      path.join(this.resolveRepoRoot(), 'package.json'),
+      path.join(app.getAppPath(), 'package.json')
+    ];
+
+    for (const candidate of candidates) {
+      try {
+        if (!fs.existsSync(candidate)) continue;
+        const pkg = JSON.parse(fs.readFileSync(candidate, 'utf8'));
+        if (pkg?.version) {
+          return pkg.version;
+        }
+      } catch (error) {
+        this.logger.warn(`Unable to read version from ${candidate}: ${error}`);
+      }
+    }
+
+    return 'unknown';
+  }
+
+  private resolveRepoRoot(): string {
+    const baseFromRunner = this.scriptRunner.getBaseCwd();
+    const candidates = [
+      path.resolve(baseFromRunner, '..'),
+      baseFromRunner,
+      path.resolve(app.getAppPath(), '..'),
+      path.resolve(app.getAppPath(), '..', '..'),
+      process.cwd()
+    ];
+
+    for (const candidate of candidates) {
+      try {
+        const stat = fs.statSync(candidate);
+        if (stat.isDirectory() && fs.existsSync(path.join(candidate, 'package.json'))) {
+          return candidate;
+        }
+      } catch {
+        // skip
+      }
+    }
+
+    return candidates.find(c => fs.existsSync(c)) || process.cwd();
+  }
+
+  private async getDependencyStatus(): Promise<Array<{ name: string; ok: boolean; message: string }>> {
+    const repoRoot = this.resolveRepoRoot();
+    const guiDir = path.join(repoRoot, 'gui');
+    const statuses: Array<{ name: string; ok: boolean; message: string }> = [];
+
+    const rootNodeModules = path.join(repoRoot, 'node_modules');
+    statuses.push(this.buildStatus(
+      'Dependencies (root)',
+      fs.existsSync(rootNodeModules),
+      `Found (${rootNodeModules})`,
+      'Run npm install in repository root'
+    ));
+
+    const guiNodeModules = path.join(guiDir, 'node_modules');
+    const guiDepsInstalled = fs.existsSync(guiNodeModules) || fs.existsSync(rootNodeModules);
+    statuses.push(this.buildStatus(
+      'Dependencies (GUI workspace)',
+      guiDepsInstalled,
+      guiDepsInstalled
+        ? `Found (${fs.existsSync(guiNodeModules) ? guiNodeModules : rootNodeModules})`
+        : 'Not found',
+      'Run npm install in root (workspace) or inside gui/'
+    ));
+
+    const playwrightBrowsers = this.detectPlaywrightBrowsers(repoRoot);
+    statuses.push(this.buildStatus(
+      'Playwright browsers',
+      playwrightBrowsers.ok,
+      playwrightBrowsers.ok
+        ? `Found (${playwrightBrowsers.path})`
+        : `Not found${playwrightBrowsers.checked.length ? ` (checked: ${playwrightBrowsers.checked.slice(0, 3).join(', ')}${playwrightBrowsers.checked.length > 3 ? ', ...' : ''})` : ''}`,
+      'Run npx playwright install in the repo root'
+    ));
+
+    const dbPath = path.join(this.envManager.getUserDataDir(), 'figma_backups.db');
+    statuses.push(this.buildStatus(
+      'Backups DB',
+      fs.existsSync(dbPath),
+      `Found (${dbPath})`,
+      'Will be created automatically after first run'
+    ));
+
+    return statuses;
+  }
+
+  private async getFsStatus(): Promise<Array<{ name: string; ok: boolean; message: string }>> {
+    const envPath = this.envManager.getEnvPath();
+    const userDataDir = this.envManager.getUserDataDir();
+    const envConfig = await this.envManager.readEnv();
+    const downloadPath = envConfig?.DOWNLOAD_PATH;
+
+    const statuses: Array<{ name: string; ok: boolean; message: string }> = [];
+    statuses.push(this.buildStatus(
+      '.userData',
+      fs.existsSync(userDataDir),
+      `Available (${userDataDir})`,
+      '.userData directory not created yet'
+    ));
+
+    statuses.push(this.buildStatus(
+      '.env',
+      fs.existsSync(envPath),
+      `Found (${envPath})`,
+      'Create .env via Config tab'
+    ));
+
+    statuses.push(this.checkPathAccess(this.logger.getLogsDir(), 'Logs folder'));
+
+    if (downloadPath) {
+      statuses.push(this.checkPathAccess(downloadPath, 'DOWNLOAD_PATH', true));
+    } else {
+      statuses.push({
+        name: 'DOWNLOAD_PATH',
+        ok: false,
+        message: 'Path not set in .env'
+      });
+    }
+
+    return statuses;
+  }
+
+  private async getApiStatus(): Promise<Array<{ name: string; ok: boolean; message: string }>> {
+    const envConfig = await this.envManager.readEnv();
+    const statuses: Array<{ name: string; ok: boolean; message: string }> = [];
+
+    statuses.push(this.buildStatus(
+      'FIGMA_ACCESS_TOKEN',
+      Boolean(envConfig.FIGMA_ACCESS_TOKEN),
+      'Token set',
+      'Add FIGMA_ACCESS_TOKEN to .env'
+    ));
+
+    statuses.push(this.buildStatus(
+      'FIGMA_ACCOUNT_1_EMAIL',
+      Boolean(envConfig.FIGMA_ACCOUNT_1_EMAIL),
+      'Email set',
+      'Provide FIGMA_ACCOUNT_1_EMAIL'
+    ));
+
+    statuses.push(this.buildStatus(
+      'FIGMA_ACCOUNT_1_AUTH_COOKIE',
+      Boolean(envConfig.FIGMA_ACCOUNT_1_AUTH_COOKIE),
+      'Cookie set',
+      'Add FIGMA_ACCOUNT_1_AUTH_COOKIE'
+    ));
+
+    return statuses;
+  }
+
+  private buildStatus(name: string, ok: boolean, okMessage: string, failMessage: string) {
+    return {
+      name,
+      ok,
+      message: ok ? okMessage : failMessage
+    };
+  }
+
+  private checkPathAccess(targetPath: string, label: string, mustExist = false) {
+    try {
+      const exists = fs.existsSync(targetPath);
+      if (!exists && mustExist) {
+        return {
+          name: label,
+          ok: false,
+          message: `${label} not found: ${targetPath}`
+        };
+      }
+
+      const dirToCheck = exists && fs.statSync(targetPath).isDirectory()
+        ? targetPath
+        : path.dirname(targetPath);
+
+      fs.accessSync(dirToCheck, fs.constants.R_OK | fs.constants.W_OK);
+      return {
+        name: label,
+        ok: true,
+        message: `Available (${dirToCheck})`
+      };
+    } catch (error: any) {
+      return {
+        name: label,
+        ok: false,
+        message: error?.message || `No access to ${targetPath}`
+      };
+    }
+  }
+
+  private async readAppLogs(): Promise<{ success: boolean; content?: string; message?: string; path: string }> {
+    const logFile = this.logger.getLogFilePath();
+
+    try {
+      if (!fs.existsSync(logFile)) {
+        return { success: true, content: '', path: logFile };
+      }
+
+      const content = fs.readFileSync(logFile, 'utf8');
+      const maxLength = 50000; // limit to last ~50KB
+      const trimmed = content.length > maxLength ? content.slice(-maxLength) : content;
+
+      return { success: true, content: trimmed, path: logFile };
+    } catch (error: any) {
+      this.logger.error('Failed to read logs: ' + error);
+      return {
+        success: false,
+        message: error?.message || 'Failed to read logs',
+        path: logFile
+      };
+    }
+  }
+
+  private async clearAppLogs(): Promise<{ success: boolean; message?: string; path: string }> {
+    const logFile = this.logger.getLogFilePath();
+    try {
+      fs.writeFileSync(logFile, '');
+      return { success: true, path: logFile };
+    } catch (error: any) {
+      this.logger.error('Failed to clear logs: ' + error);
+      return {
+        success: false,
+        message: error?.message || 'Failed to clear logs',
+        path: logFile
+      };
+    }
+  }
+
+  private detectPlaywrightBrowsers(repoRoot: string): { ok: boolean; path?: string; checked: string[] } {
+    const checked: string[] = [];
+    const apiPath = this.getChromiumPathViaApi(repoRoot);
+    if (apiPath) {
+      return { ok: true, path: apiPath, checked };
+    }
+
+    const candidates = new Set<string>();
+    const rootNodeModules = path.join(repoRoot, 'node_modules');
+    const guiNodeModules = path.join(repoRoot, 'gui', 'node_modules');
+
+    // 1) PLAYWRIGHT_BROWSERS_PATH env (may be colon separated)
+    const envPath = process.env.PLAYWRIGHT_BROWSERS_PATH;
+    if (envPath) {
+      envPath.split(path.delimiter).filter(Boolean).forEach(p => candidates.add(p));
+    }
+
+    // 2) Local node_modules (root + gui) for playwright and playwright-core
+    [
+      path.join(rootNodeModules, 'playwright', '.local-browsers'),
+      path.join(rootNodeModules, 'playwright-core', '.local-browsers'),
+      path.join(guiNodeModules, 'playwright', '.local-browsers'),
+      path.join(guiNodeModules, 'playwright-core', '.local-browsers')
+    ].forEach(p => candidates.add(p));
+
+    // 3) Resolve playwright/playwright-core package and derive .local-browsers near it
+    const tryResolve = (mod: string, base: string) => {
+      try {
+        const resolved = require.resolve(mod, { paths: [base] });
+        const pkgDir = path.dirname(resolved);
+        candidates.add(path.join(pkgDir, '..', '.local-browsers'));
+      } catch {
+        // ignore
+      }
+    };
+    tryResolve('playwright', repoRoot);
+    tryResolve('playwright-core', repoRoot);
+    tryResolve('playwright', path.join(repoRoot, 'gui'));
+    tryResolve('playwright-core', path.join(repoRoot, 'gui'));
+
+    // 4) Default cache used by Playwright installer
+    const homeCache = path.join(require('os').homedir(), '.cache', 'ms-playwright');
+    candidates.add(homeCache);
+
+    for (const candidate of candidates) {
+      checked.push(candidate);
+      const chromiumDir = this.findChromiumFolder(candidate);
+      if (chromiumDir) {
+        return { ok: true, path: chromiumDir, checked };
+      }
+    }
+
+    return { ok: false, checked };
+  }
+
+  private getChromiumPathViaApi(repoRoot: string): string | null {
+    const bases = [repoRoot, path.join(repoRoot, 'gui')];
+    for (const base of bases) {
+      try {
+        // Try playwright-core first (lighter), then playwright
+        const pwCore = require(require.resolve('playwright-core', { paths: [base] }));
+        const execPath = pwCore.chromium?.executablePath?.();
+        if (execPath && fs.existsSync(execPath)) {
+          return path.dirname(execPath);
+        }
+      } catch {
+        // ignore
+      }
+
+      try {
+        const pw = require(require.resolve('playwright', { paths: [base] }));
+        const execPath = pw.chromium?.executablePath?.();
+        if (execPath && fs.existsSync(execPath)) {
+          return path.dirname(execPath);
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return null;
+  }
+
+  private findChromiumFolder(base: string): string | null {
+    try {
+      if (!fs.existsSync(base) || !fs.statSync(base).isDirectory()) {
+        return null;
+      }
+      const entries = fs.readdirSync(base, { withFileTypes: true });
+      const chromiumDir = entries.find(e => e.isDirectory() && e.name.startsWith('chromium-'));
+      return chromiumDir ? path.join(base, chromiumDir.name) : null;
+    } catch {
+      return null;
+    }
   }
 }
 

@@ -21,7 +21,7 @@ function ensureDir(dir) {
 function copyFile(src, dest) {
   ensureDir(path.dirname(dest));
   fs.copyFileSync(src, dest);
-  console.log(`✓ Скопирован: ${path.relative(__dirname, dest)}`);
+  //console.log(`✓ Copied: ${path.relative(__dirname, dest)}`);
 }
 
 function copyDir(src, dest) {
@@ -36,7 +36,7 @@ function copyDir(src, dest) {
     if (stat.isDirectory()) {
       copyDir(srcPath, destPath);
     } else if (stat.isFile()) {
-      // Копируем только .js файлы, которые не компилируются TypeScript
+      // Copy only .js files that are not compiled by TypeScript
       if (item.endsWith('.js') && !item.endsWith('.d.ts')) {
         copyFile(srcPath, destPath);
       }
@@ -45,12 +45,12 @@ function copyDir(src, dest) {
 }
 
 function main() {
-  console.log('Копирование статических файлов...');
+  console.log('Copying static files...');
   
-  // Создаем папку dist если её нет
+  // Create dist folder if it does not exist
   ensureDir(DIST_DIR);
   
-  // Копируем статические файлы в dist/src/static
+  // Copy static files to dist/src/static
   ensureDir(DIST_STATIC_DIR);
   for (const file of STATIC_FILES) {
     const srcPath = path.join(SRC_STATIC_DIR, file);
@@ -59,7 +59,7 @@ function main() {
     if (fs.existsSync(srcPath)) {
       copyFile(srcPath, destPath);
     } else {
-      console.warn(`⚠️  Файл не найден: ${srcPath}`);
+      console.warn(`⚠️  File not found: ${srcPath}`);
     }
   }
   
@@ -72,22 +72,22 @@ function main() {
     if (fs.existsSync(srcPath)) {
       copyDir(srcPath, destPath);
     } else {
-      console.warn(`⚠️  Папка не найдена: ${srcPath}`);
+      console.warn(`⚠️  Directory not found: ${srcPath}`);
     }
   }
   
-  // Отдельно копируем ui.js
+  // Copy ui.js separately
   const uiJsPath = path.join(SRC_DIR, 'ui.js');
   if (fs.existsSync(uiJsPath)) {
     const destRendererPath = path.join(DIST_DIR,'ui.js');
     ensureDir(path.dirname(destRendererPath));
     copyFile(uiJsPath, destRendererPath);
   } else {
-    console.warn(`⚠️  Файл ui.js не найден: ${uiJsPath}`);
+    console.warn(`⚠️  ui.js file not found: ${uiJsPath}`);
   }
-  
-  
-  console.log('✅ Копирование статических файлов завершено!');
+
+
+  console.log('✅ Copy complete!');
 }
 
 if (require.main === module) {
@@ -98,45 +98,45 @@ module.exports = { main };
 
 function inlineComponents() {
   console.log('');
-  console.log('Встраивание компонентов в ui.js...');
+  console.log('Preprocessing in ui.js...');
   
   if (!fs.existsSync(DIST_UI_FILE)) {
-    console.error('❌ Файл ui.js не найден');
+    console.error('❌ ui.js file not found');
     return;
   }
   
   if (!fs.existsSync(DIST_UI_DIR)) {
-    console.error('❌ Папка компонентов не найдена');
+    console.error('❌ Components folder not found');
     return;
   }
   
-  // Читаем содержимое ui.js
+  // Read ui.js content
   let rendererContent = fs.readFileSync(DIST_UI_FILE, 'utf8');
   
-  // Получаем список всех компонентов
+  // Get all component files
   const componentFiles = fs.readdirSync(DIST_UI_DIR)
     .filter(file => file.endsWith('.js') && file.startsWith('ui-'));
   
-  console.log(`Найдено компонентов: ${componentFiles.length}`);
+  //console.log(`Найдено компонентов: ${componentFiles.length}`);
   
   let allComponents = '';
   
-  // Собираем все компоненты
+  // Aggregate all components
   for (const componentFile of componentFiles) {
     const componentPath = path.join(DIST_UI_DIR, componentFile);
     let componentContent = fs.readFileSync(componentPath, 'utf8');
     
-    // Удаляем "use strict" и Object.defineProperty
+    // Remove "use strict" and Object.defineProperty
     componentContent = componentContent
       .replace(/"use strict";\n?/g, '')
       .replace(/Object\.defineProperty\(exports, "__esModule", \{ value: true \}\);\n/g, '')
-      // Удаляем следы экспорта, оставляя только объявление функции
+      // Remove export leftovers, keep function body only
       .replace(/exports\.(\w+) = (\w+);\n?/g, '')
       .replace(/export function (\w+)\(\) \{ return \1\(\); \}\n?/g, '')
       .replace(/export \{.*\};?\n?/g, '');
     
     allComponents += componentContent + '\n\n';
-    console.log(`✅ Обработан: ${componentFile}`);
+    //console.log(`✅ Complete: ${componentFile}`);
   }
   
   // Удаляем все импорты компонентов
@@ -145,25 +145,25 @@ function inlineComponents() {
     .replace(/import.*from ['"]\.\/ui-.*['"];?\n?/g, '')
     .replace(/\/\/ Встроенный компонент: \w+\n?/g, '');
   
-  // Заменяем класс AppRenderer на встроенные компоненты + класс
+  // Replace AppRenderer class header with inlined components + class
   const classRegex = new RegExp(`class AppRenderer \\{`, 'g');
   if (classRegex.test(rendererContent)) {
-    rendererContent = rendererContent.replace(classRegex, `// ===== ВСТРОЕННЫЕ КОМПОНЕНТЫ =====\n\n${allComponents}// ===== ОСНОВНОЙ КЛАСС =====\nclass AppRenderer {`);
+    rendererContent = rendererContent.replace(classRegex, `// ===== EMBEDDED COMPONENTS =====\n\n${allComponents}// ===== MAIN CLASS =====\nclass AppRenderer {`);
   }
   
-  // Удаляем встроенные файлы компонентов (оставляя util-модули)
+  // Remove component files after embedding (keep util modules)
   for (const componentFile of componentFiles) {
     const componentPath = path.join(DIST_UI_DIR, componentFile);
     if (fs.existsSync(componentPath)) {
       fs.rmSync(componentPath, { force: true });
-      console.log(`Удалён: ${componentFile}`);
+      //console.log(`Deleted: ${componentFile}`);
     }
   }
 
   // Записываем обновленный ui.js
   fs.writeFileSync(DIST_UI_FILE, rendererContent, 'utf8');
-  
-  console.log('✅ Вставка UI компонентов завершенa!');
+
+  console.log('✅ Compilation complete!');
 }
 
 if (require.main === module) {

@@ -1,8 +1,6 @@
-
-
 {
-  "name": "figma-backup-gui",
-  "version": "1.0.0",
+  "name": "save-my-fig",
+  "version": "1.2",
   "description": "GUI для бэкапа проектов Figma",
   "main": "gui/dist/main.js",
   "private": true,

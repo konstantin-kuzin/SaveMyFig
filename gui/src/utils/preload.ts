@@ -5,6 +5,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // System operations
   checkNodeJS: () => ipcRenderer.invoke('check-nodejs'),
   checkNpm: () => ipcRenderer.invoke('check-npm'),
+  getSystemInfo: () => ipcRenderer.invoke('diagnostics:get-system-info'),
+  getDependencyStatus: () => ipcRenderer.invoke('diagnostics:get-dependencies'),
+  getFsStatus: () => ipcRenderer.invoke('diagnostics:get-fs-status'),
+  getApiStatus: () => ipcRenderer.invoke('diagnostics:get-api-status'),
+  readLogs: () => ipcRenderer.invoke('diagnostics:read-logs'),
+  clearLogs: () => ipcRenderer.invoke('diagnostics:clear-logs'),
+  openLogsFolder: () => ipcRenderer.invoke('diagnostics:open-logs-folder'),
   
   // Installation
   installDependencies: () => ipcRenderer.invoke('install-dependencies'),

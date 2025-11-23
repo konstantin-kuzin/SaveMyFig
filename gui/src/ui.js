@@ -54,6 +54,8 @@ class AppRenderer {
             console.log(`Tab ${tabId} activated`);
             if (tabId === 'statistics') {
                 document.dispatchEvent(new CustomEvent('statistics-tab-activated'));
+            } else if (tabId === 'settings') {
+                document.dispatchEvent(new CustomEvent('settings-tab-activated'));
             }
         } else {
             console.error(`Target tab ${tabId}-tab not found`);

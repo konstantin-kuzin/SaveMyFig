@@ -352,4 +352,8 @@ export class ScriptRunner {
     this.logger.error('Node binary not found in expected locations');
     return null;
   }
+
+  getBaseCwd(): string {
+    return this.baseCwd;
+  }
 }

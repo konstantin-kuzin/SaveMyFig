@@ -140,7 +140,7 @@ EOF
     echo
     echo "Portable Node.js installed to $PORTABLE_NODE_DIR"
     echo "To enable it in this shell: source \"$ACTIVATE_FILE\""
-    echo "Or prefix commands: PATH=\"$PORTABLE_BIN:\$PATH\" npm run main"
+    echo "Or prefix commands: PATH=\"$PORTABLE_BIN:\$PATH\" npm run start"
   fi
 }
 

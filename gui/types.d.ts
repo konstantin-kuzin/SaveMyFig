@@ -6,6 +6,13 @@ declare global {
       // System operations
       checkNodeJS: () => Promise<any>;
       checkNpm: () => Promise<any>;
+      getSystemInfo: () => Promise<any>;
+      getDependencyStatus: () => Promise<any>;
+      getFsStatus: () => Promise<any>;
+      getApiStatus: () => Promise<any>;
+      readLogs: () => Promise<any>;
+      clearLogs: () => Promise<any>;
+      openLogsFolder: () => Promise<any>;
       
       // Installation
       installDependencies: () => Promise<any>;

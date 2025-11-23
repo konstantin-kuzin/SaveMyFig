@@ -1,15 +1,15 @@
-# Техническая спецификация: Figma Export Tool + GUI
+# Техническая спецификация: SaveMy.Fig (CLI + GUI)
 
 ## Версия документа: 1.1
-**Дата обновления:** 15 ноября 2025  
-**Актуализировал:** Codex (GPT‑5)  
+**Дата обновления:** 23 ноября 2025  
+**Актуализировал:** GPT‑5  
 **Платформа:** macOS 11+  
 **Статус:** Соответствует текущему коду репозитория
 
 ---
 
 ## 1. Назначение документа
-Документ фиксирует фактическую архитектуру решения для резервного копирования проектов Figma. Он описывает CLI‑скрипты, Playwright‑автоматизацию, базу данных, а также Electron‑приложение `gui/`, которое выступает в роли графической оболочки. Спецификация служит источником правды для команды разработки и документации.
+Документ фиксирует фактическую архитектуру решения SaveMy.Fig для резервного копирования проектов Figma. Он описывает CLI‑скрипты, Playwright‑автоматизацию, базу данных, а также Electron‑приложение `gui/`, которое выступает в роли графической оболочки. Спецификация служит источником правды для команды разработки и документации.
 
 ---
 
@@ -32,7 +32,7 @@
 ## 3. Структура репозитория
 
 ```
-Figma-export/
+SaveMy.Fig/
 ├── automations/              # Playwright setup + тест скачивания
 │   ├── auth.setup.ts         # Авторизация/ротация аккаунтов → .auth/user.json
 │   └── download.spec.ts      # Скачивание файлов из .userData/files.json
@@ -48,6 +48,8 @@ Figma-export/
 │   ├── src/static/*          # index.html и стили
 │   ├── src/ui-*.ts           # Логика экранов
 │   └── dist/                 # Собранный main/renderer/ui
+├── install.command           # Bootstrap: portable Node 20.17.0 (если нет npm), npm install (root+gui), playwright install, запуск GUI
+├── backup.command            # Запуск GUI после установки
 ├── .userData/                # Runtime‑данные и конфигурация
 │   ├── .env                  # Основной конфиг (токены, пути, ID)
 │   ├── files.json            # Очередь скачивания (внутри .userData/)
@@ -115,12 +117,13 @@ Figma-export/
   3. **Statistics** — три карточки (`total`, `needing backup`, `with errors`) + таблица `backups`. Поиск/фильтры предусмотрены в коде, но UI‑элементы минимальны (тоггл поиска).
   4. **Config** — форма для `FIGMA_ACCOUNT_1_EMAIL`, `FIGMA_ACCOUNT_1_AUTH_COOKIE`, `FIGMA_ACCESS_TOKEN`, `DOWNLOAD_PATH`, `PROJECTS`, `TEAMS`. `WAIT_TIMEOUT` жёстко фиксирован на `10000` мс.
   > Экран Diagnostics присутствует в коде (`ui-settings.ts`) и скрыт в меню (`index.html` закомментирована ссылка).
+- Пользовательский поток: первый запуск через `install.command` (ставит portable Node при отсутствии npm, инсталлирует зависимости и открывает GUI), последующие — через `backup.command` (просто открывает GUI).
 - **Утилиты (`gui/src/utils/*.ts`)**:
   - `EnvManager` — читает/пишет `.userData/.env` (включая `CONFIG_VERSION=1.0`), выполняет базовую валидацию.
   - `ScriptRunner` — обёртка вокруг `spawn`, умеет парсить прогресс из stdout (`[x/y]`, `Downloaded…`).
   - `DatabaseManager` — лениво открывает SQLite (`.userData/figma_backups.db`), предоставляет запросы и `resetErrors()`.
   - `NodeChecker` — проверяет `node --version` / `which node`, при необходимости умеет запускать `brew install node@20` (используется вручную).
-  - `Logger` — пишет ротационные логи в `~/Library/Application Support/Figma Export GUI/logs/figma-export-gui.log`.
+  - `Logger` — пишет ротационные логи в `~/Library/Application Support/SaveMy.Fig/.userData/logs/savemyfig.log`.
 
 ---
 
@@ -165,7 +168,7 @@ Figma-export/
 - `.auth/user.json` — storage state Playwright, генерируется из `auth.setup.ts`. Папка `.auth` создаётся автоматически.
 - `playwright-report/` и `test-results/` — стандартные артефакты Playwright.
 - `downloads/` или значение `DOWNLOAD_PATH` — структура `<team(optional)>/<project name (id)>/<file name (key)>.fig`.
-- `logs/*` — в корне нет логов GUI, зато Electron сохраняет их в `~/Library/Application Support/Figma Export GUI/logs` (см. Logger).
+- `logs/*` — в корне нет логов GUI, зато Electron сохраняет их в `~/Library/Application Support/SaveMy.Fig/.userData/logs` (см. Logger).
 
 ---
 
@@ -191,7 +194,7 @@ npm run run-backup
 ```bash
 cd gui
 npm install
-npm run main        # очистка dist + build + electron .
+npm run start       # очистка dist + build + electron .
 ```
 Далее использовать вкладки:
 1. **Installation** → Install Dependencies (важно запускать до Config).
