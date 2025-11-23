@@ -15,8 +15,12 @@ export async function initializeConfigTab(): Promise<void> {
   const projectsInput = document.getElementById('projects') as HTMLTextAreaElement;
   const teamsInput = document.getElementById('teams') as HTMLTextAreaElement;
   const maxFilesInput = document.getElementById('max-files') as HTMLInputElement;
+  const debugModeHiddenInput = document.getElementById('debug-mode') as HTMLInputElement;
+  const debugModeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.debug-mode-segment'));
+  type DebugMode = 'on' | 'off';
   const WAIT_TIMEOUT_VALUE = '10000';
   const MAX_FILES_DEFAULT = '5';
+  const DEBUG_MODE_DEFAULT: DebugMode = 'off';
 
   console.log('[CONFIG] Checking form elements...');
   console.log('[CONFIG] figmaAccountEmailInput:', !!figmaAccountEmailInput);
@@ -28,6 +32,34 @@ export async function initializeConfigTab(): Promise<void> {
   console.log('[CONFIG] WAIT_TIMEOUT forced value:', WAIT_TIMEOUT_VALUE);
   console.log('[CONFIG] maxFilesInput:', !!maxFilesInput);
   console.log('[CONFIG] MAX_FILES default value:', MAX_FILES_DEFAULT);
+  console.log('[CONFIG] debugModeHiddenInput:', !!debugModeHiddenInput);
+  console.log('[CONFIG] DEBUG_MODE default value:', DEBUG_MODE_DEFAULT);
+
+  function applyDebugMode(mode: DebugMode): void {
+    if (debugModeHiddenInput) {
+      debugModeHiddenInput.value = mode;
+    }
+
+    debugModeButtons.forEach(button => {
+      const buttonMode: DebugMode = button.dataset.value === 'on' ? 'on' : 'off';
+      const isActive = buttonMode === mode;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
+  function setupDebugModeControl(): void {
+    applyDebugMode(DEBUG_MODE_DEFAULT);
+
+    debugModeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const mode: DebugMode = button.dataset.value === 'on' ? 'on' : 'off';
+        applyDebugMode(mode);
+      });
+    });
+  }
+
+  setupDebugModeControl();
 
   async function loadEnvData(): Promise<void> {
     console.log('[CONFIG] Starting to load .env data...');
@@ -82,6 +114,14 @@ export async function initializeConfigTab(): Promise<void> {
           console.log('⚠️ [CONFIG] TEAMS not found in config');
         }
 
+        if (debugModeHiddenInput) {
+          const debugModeValue: DebugMode = config.DEBUG_MODE?.toLowerCase() === 'on' ? 'on' : DEBUG_MODE_DEFAULT;
+          applyDebugMode(debugModeValue);
+          console.log('✅ [CONFIG] Set DEBUG_MODE:', debugModeValue);
+        } else {
+          console.log('⚠️ [CONFIG] DEBUG_MODE input not found');
+        }
+
         if (maxFilesInput) {
           const maxFilesValue = config.MAX_FILES && String(config.MAX_FILES).trim() !== ''
             ? config.MAX_FILES
@@ -97,6 +137,9 @@ export async function initializeConfigTab(): Promise<void> {
         console.log('⚠️ [CONFIG] Config is empty or null, using default values');
         if (maxFilesInput) {
           maxFilesInput.value = MAX_FILES_DEFAULT;
+        }
+        if (debugModeHiddenInput) {
+          applyDebugMode(DEBUG_MODE_DEFAULT);
         }
       }
     } catch (error) {
@@ -218,6 +261,11 @@ export async function initializeConfigTab(): Promise<void> {
         
         if (teamsInput?.value) {
           configData.TEAMS = teamsInput.value;
+        }
+
+        if (debugModeHiddenInput) {
+          const debugModeValue: DebugMode = debugModeHiddenInput.value === 'on' ? 'on' : 'off';
+          configData.DEBUG_MODE = debugModeValue;
         }
 
         if (maxFilesInput) {

@@ -76,8 +76,11 @@ async function runBackup() {
     try {
       const playwrightCli = resolvePlaywrightCli(projectRoot);
       const env = buildEnv(projectRoot);
+      const debugModeEnabled = String(process.env.DEBUG_MODE || "").toLowerCase() === "on";
+      const playwrightModeFlag = debugModeEnabled ? "--headed" : "";
+      console.log(`Backup tool is running in ${debugModeEnabled ? "headed" : "headless"} mode (Debug mode ${debugModeEnabled ? "on" : "off"}).`);
       execSync(
-        `"${process.execPath}" "${playwrightCli}" test automations/download.spec.ts --headed`,
+        `"${process.execPath}" "${playwrightCli}" test automations/download.spec.ts ${playwrightModeFlag}`,
         {
           stdio: "inherit",
           cwd: projectRoot,

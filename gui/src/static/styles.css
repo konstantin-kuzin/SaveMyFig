@@ -211,7 +211,6 @@ a:hover:not(.nav-link) {
 }
 
 #config-tab.tab-content {
-  /* Отступ под фиксированный футер только на вкладке Config */
   padding-bottom: 60px;
 }
 
@@ -220,11 +219,6 @@ a:hover:not(.nav-link) {
   padding: 20px;
   flex: 1;
   overflow: auto;
-}
-
-/* Дополнительный отступ в форме конфигурации, чтобы поля не заходили под фиксированный футер */
-#config-tab .tab-body {
-  padding-bottom: 120px;
 }
 
 
@@ -281,6 +275,39 @@ select:focus {
   background-color: var(--bg-medium);
   color: var(--text-hard);
   outline: none;
+}
+
+.segmented-control {
+  display: inline-flex;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segment-btn {
+  padding: 8px 12px;
+  background-color: var(--bg-soft);
+  border: none;
+  color: var(--text-medium);
+  cursor: pointer;
+  flex: 1 1 0;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.segment-btn:hover,
+.segment-btn:focus-visible {
+  background-color: var(--bg-medium);
+  outline: none;
+}
+
+.segment-btn.active {
+  background-color: var(--bg-hard);
+  color: var(--text-hard);
+}
+
+.segment-btn.active:hover,
+.segment-btn.active:focus-visible {
+  background-color: var(--bg-medium);
 }
 
 .form-help {

@@ -131,6 +131,16 @@
               <small class="form-help">Limit of files per run for one backup session</small>
             </div>
 
+            <div class="form-group">
+              <label class="required">Debug mode</label>
+              <div class="segmented-control" role="group" aria-label="Debug mode">
+                <button type="button" class="segment-btn debug-mode-segment active" data-value="off" aria-pressed="true">Off</button>
+                <button type="button" class="segment-btn debug-mode-segment" data-value="on" aria-pressed="false">On</button>
+              </div>
+              <input type="hidden" id="debug-mode" name="DEBUG_MODE" value="off">
+              <small class="form-help">Headless Playwright by default; switch on to run headed for debugging.</small>
+            </div>
+
 
           </div>
         </div>

@@ -88,6 +88,12 @@ export class EnvManager {
       errors.push('MAX_FILES must be an integer between 1 and 45');
     }
 
+    if (config.DEBUG_MODE) {
+      const debugMode = String(config.DEBUG_MODE).toLowerCase();
+      if (!['on', 'off'].includes(debugMode)) {
+        errors.push('DEBUG_MODE must be "on" or "off"');
+      }
+    }
 
     return {
       valid: errors.length === 0,
