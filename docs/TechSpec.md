@@ -116,7 +116,7 @@ SaveMy.Fig/
   2. **Backup** — кнопка `Start backup` → `npm run run-backup`, окно логов, индикатор статуса.
   3. **Statistics** — три карточки (`total`, `needing backup`, `with errors`) + таблица `backups`. Поиск/фильтры предусмотрены в коде, но UI‑элементы минимальны (тоггл поиска).
   4. **Config** — форма для `FIGMA_ACCOUNT_1_EMAIL`, `FIGMA_ACCOUNT_1_AUTH_COOKIE`, `FIGMA_ACCESS_TOKEN`, `DOWNLOAD_PATH`, `PROJECTS`, `TEAMS`. `WAIT_TIMEOUT` жёстко фиксирован на `10000` мс.
-  > Экран Diagnostics присутствует в коде (`ui-settings.ts`) и скрыт в меню (`index.html` закомментирована ссылка).
+  5. **Diagnostics** - информация о системе и окружении.
 - Пользовательский поток: первый запуск через `install.command` (ставит portable Node при отсутствии npm, инсталлирует зависимости и открывает GUI), последующие — через `backup.command` (просто открывает GUI).
 - **Утилиты (`gui/src/utils/*.ts`)**:
   - `EnvManager` — читает/пишет `.userData/.env` (включая `CONFIG_VERSION=1.0`), выполняет базовую валидацию.

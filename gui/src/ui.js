@@ -1,9 +1,8 @@
 // Основной модуль рендерера приложения
 import { initializeConfigTab } from './ui-config.js';
-import { initializeWelcomeTab } from './ui-welcome.js';
 import { initializeBackupTab } from './ui-backup.js';
 import { initializeStatisticsTab } from './ui-statistics.js';
-import { initializeSettingsTab } from './ui-settings.js';
+import { initializeDiagnosticsTab } from './ui-diagnostics.js';
 
 class AppRenderer {
     constructor() {
@@ -118,8 +117,8 @@ class AppRenderer {
             console.log(`Tab ${tabId} activated`);
             if (tabId === 'statistics') {
                 document.dispatchEvent(new CustomEvent('statistics-tab-activated'));
-            } else if (tabId === 'settings') {
-                document.dispatchEvent(new CustomEvent('settings-tab-activated'));
+            } else if (tabId === 'diagnostics') {
+                document.dispatchEvent(new CustomEvent('diagnostics-tab-activated'));
             }
         } else {
             console.error(`Target tab ${tabId}-tab not found`);
@@ -128,14 +127,6 @@ class AppRenderer {
 
     async initializeTabs() {
         console.log('Starting tabs initialization...');
-        
-        try {
-            console.log('Initializing welcome tab...');
-            await initializeWelcomeTab();
-            console.log('✅ Welcome tab initialized successfully');
-        } catch (error) {
-            console.error('❌ Error initializing welcome tab:', error);
-        }
 
         try {
             console.log('Initializing config tab...');
@@ -162,11 +153,11 @@ class AppRenderer {
         }
 
         try {
-            console.log('Initializing settings tab...');
-            await initializeSettingsTab();
-            console.log('✅ Settings tab initialized successfully');
+            console.log('Initializing diagnostics tab...');
+            await initializeDiagnosticsTab();
+            console.log('✅ Diagnostics tab initialized successfully');
         } catch (error) {
-            console.error('❌ Error initializing settings tab:', error);
+            console.error('❌ Error initializing diagnostics tab:', error);
         }
 
         console.log('🎉 All tabs initialization completed');
