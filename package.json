@@ -1,6 +1,6 @@
 {
   "name": "save-my-fig",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Figma backup tool with GUI ",
   "main": "gui/dist/main.js",
   "private": true,
@@ -34,12 +34,12 @@
   },
   "build": {
     "appId": "com.figmaexport.backup",
-    "productName": "Figma Backup",
+    "productName": "SaveMy.Fig",
     "asar": false,
     "mac": {
       "category": "public.app-category.utilities",
       "target": "dmg",
-      "icon": "build/icon.icns"
+      "icon": "gui/src/static/icon.icns"
     },
     "files": [
       "**/*",

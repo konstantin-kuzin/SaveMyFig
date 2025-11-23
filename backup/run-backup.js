@@ -70,7 +70,10 @@ async function runBackup() {
       console.log("PROJECTS/TEAMS are not defined in .env file. Skipping file generation.");
       return;
     }
-return;
+    
+    // Breakpoint for debugging file generation issues
+    // return;
+    
     // Step 2: Run tests
     console.log("Running backup...");
     try {

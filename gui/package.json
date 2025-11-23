@@ -23,11 +23,11 @@
   },
   "build": {
     "appId": "com.figmaexport.gui",
-    "productName": "Figma Export GUI",
+    "productName": "SaveMy.Fig",
     "mac": {
       "category": "public.app-category.utilities",
       "target": "dmg",
-      "icon": "build/icon.icns"
+      "icon": "src/static/icon.icns"
     },
     "files": [
       "**/*",

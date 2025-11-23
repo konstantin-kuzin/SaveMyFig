@@ -3,7 +3,7 @@
 :root {
   --primary-color: #3a8ac9e6;
   --primary-dark: #2e6fa3e6;
-  
+
 
   --danger-color: #ff5e84;
   --warning-color: #FF9800;
@@ -540,6 +540,7 @@ select:focus {
   font-weight: 300;
   font-size: 11px;
 }
+
 .log-controls {
   display: flex;
   gap: 10px;
@@ -922,8 +923,8 @@ th:hover {
 }
 
 .alert-critical {
-  background-color: #250101;
-  border-color: #a00505;
+  background-color: #251d01;
+  border-color: #a06a05;
   color: #fa8f8f;
 }
 

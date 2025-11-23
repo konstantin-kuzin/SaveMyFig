@@ -10,7 +10,7 @@ const DIST_UI_DIR = DIST_DIR;
 const DIST_UI_FILE = path.join(DIST_DIR, 'ui.js');
 
 
-const STATIC_FILES = ['index.html', 'styles.css', 'bg.jpg'];
+const STATIC_FILES = ['index.html', 'styles.css', 'bg.jpg', 'icon.png'];
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {

@@ -23,13 +23,13 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "setup",
-      testMatch: /.*\.setup\.ts/,
+      name: "login",
+      testMatch: /.*\.login\.ts/,
     },
     {
       name: "download",
       use: { ...devices["Desktop Chrome"], storageState: ".userData/user.json" },
-      dependencies: ["setup"],
+      dependencies: ["login"],
     },
   ],
 });
