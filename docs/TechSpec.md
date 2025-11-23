@@ -1,15 +1,15 @@
-# Техническая спецификация: Figma Export Tool + GUI
+# Техническая спецификация: SaveMy.Fig (CLI + GUI)
 
 ## Версия документа: 1.1
-**Дата обновления:** 15 ноября 2025  
-**Актуализировал:** Codex (GPT‑5)  
+**Дата обновления:** 23 ноября 2025  
+**Актуализировал:** GPT‑5  
 **Платформа:** macOS 11+  
 **Статус:** Соответствует текущему коду репозитория
 
 ---
 
 ## 1. Назначение документа
-Документ фиксирует фактическую архитектуру решения для резервного копирования проектов Figma. Он описывает CLI‑скрипты, Playwright‑автоматизацию, базу данных, а также Electron‑приложение `gui/`, которое выступает в роли графической оболочки. Спецификация служит источником правды для команды разработки и документации.
+Документ фиксирует фактическую архитектуру решения SaveMy.Fig для резервного копирования проектов Figma. Он описывает CLI‑скрипты, Playwright‑автоматизацию, базу данных, а также Electron‑приложение `gui/`, которое выступает в роли графической оболочки. Спецификация служит источником правды для команды разработки и документации.
 
 ---
 
@@ -17,8 +17,8 @@
 
 | Слой | Назначение | Основные файлы |
 | --- | --- | --- |
-| **CLI / backend** | Сбор списка файлов через Figma API, ведение SQLite, запуск Playwright для скачивания `.fig/.jam/.deck` | `scripts/*.js`, `automations/*.ts`, `playwright.config.ts`, `figma_backups.db` |
-| **GUI (Electron)** | Настройка `.userData/.env`, установка зависимостей, запуск CLI‑скриптов и просмотр статистики без терминала | `gui/main.ts`, `gui/preload.ts`, `gui/dist/*`, `gui/utils/*`, `gui/app/ui/*.ts` |
+| **CLI / backend** | Сбор списка файлов через Figma API, ведение SQLite, запуск Playwright для скачивания `.fig/.jam/.deck` | `backup/*.js` (в т.ч. `figma-lib.js`), `automations/*.ts`, `playwright.config.ts`, `figma_backups.db` |
+| **GUI (Electron)** | Настройка `.userData/.env`, установка зависимостей, запуск CLI‑скриптов и просмотр статистики без терминала | `gui/src/main.ts`, `gui/src/utils/preload.ts`, `gui/src/ui-*.ts`, `gui/src/static/*`, `gui/dist/*` |
 | **Инфраструктура** | Конфигурация, хранение токенов, очереди и логов | `.userData/.env`, `.userData/figma_backups.db`, `.userData/files.json`, `.auth/*`, `downloads/*`, `logs/` |
 
 Основной сценарий: пользователь задаёт токены/ID в `.userData/.env`, запускает `npm run run-backup` (через GUI или CLI), после чего:
@@ -32,22 +32,24 @@
 ## 3. Структура репозитория
 
 ```
-Figma-export/
+SaveMy.Fig/
 ├── automations/              # Playwright setup + тест скачивания
 │   ├── auth.setup.ts         # Авторизация/ротация аккаунтов → .auth/user.json
 │   └── download.spec.ts      # Скачивание файлов из .userData/files.json
-├── scripts/
+├── backup/
 │   ├── run-backup.js         # Точка входа, orchestration
 │   ├── get-team-files.js     # Генерация .userData/files.json по team ID
 │   ├── get-project-files.js  # Аналог по project ID
 │   ├── db.js                 # Работа с SQLite (backups)
-│   ├── lib.js                # Вызовы Figma API
+│   ├── figma-lib.js          # Вызовы Figma API
 │   └── generate-db-report.js # HTML-отчёт по БД
 ├── gui/                      # Электронный GUI
-│   ├── main.ts, preload.ts
-│   ├── dist/                 # Скомпилированный main/renderer/ui
-│   ├── app/ui/*.ts           # Логика экранов
-│   └── utils/*.ts            # EnvManager, ScriptRunner, DatabaseManager и т.д.
+│   ├── src/main.ts, src/utils/preload.ts
+│   ├── src/static/*          # index.html и стили
+│   ├── src/ui-*.ts           # Логика экранов
+│   └── dist/                 # Собранный main/renderer/ui
+├── install.command           # Bootstrap: portable Node 20.17.0 (если нет npm), npm install (root+gui), playwright install, запуск GUI
+├── backup.command            # Запуск GUI после установки
 ├── .userData/                # Runtime‑данные и конфигурация
 │   ├── .env                  # Основной конфиг (токены, пути, ID)
 │   ├── files.json            # Очередь скачивания (внутри .userData/)
@@ -64,11 +66,11 @@ Figma-export/
 ## 4. Поток данных CLI
 
 1. **Конфигурация** — `.userData/.env` содержит `FIGMA_ACCESS_TOKEN`, акккаунты (`FIGMA_ACCOUNT_<N>_*`), `DOWNLOAD_PATH`, `TEAMS` или `PROJECTS`, `WAIT_TIMEOUT`.
-2. **Выбор исходных данных** — `scripts/run-backup.js` читает `.userData/.env` и вызывает:
-   - `node scripts/get-team-files.js <teamIds>` если задан `TEAMS`.
-   - `node scripts/get-project-files.js <projectIds>` если задан `PROJECTS`.
-3. **Figma API** — `scripts/lib.js` вызывает `/v1/teams/{teamId}/projects` и `/v1/projects/{projectId}/files` с заголовком `X-FIGMA-TOKEN`.
-4. **SQLite** — `scripts/db.js` обновляет таблицу `backups` (ключ `file_key`) и сортирует очередь по `last_backup_date`/`next_attempt_date`.
+2. **Выбор исходных данных** — `backup/run-backup.js` читает `.userData/.env` и вызывает:
+   - `node backup/get-team-files.js <teamIds>` если задан `TEAMS`.
+   - `node backup/get-project-files.js <projectIds>` если задан `PROJECTS`.
+3. **Figma API** — `backup/figma-lib.js` вызывает `/v1/teams/{teamId}/projects` и `/v1/projects/{projectId}/files` с заголовком `X-FIGMA-TOKEN`.
+4. **SQLite** — `backup/db.js` обновляет таблицу `backups` (ключ `file_key`) и сортирует очередь по `last_backup_date`/`next_attempt_date`.
 5. **files.json** — `get-team-files.js` / `get-project-files.js` фильтруют записи БД и записывают только выбранные файлы (по умолчанию `MAX_FILES = 3` за прогон) в `.userData/files.json` в формате:
    ```json
    [
@@ -91,36 +93,37 @@ Figma-export/
 ## 5. Компоненты и ответственность
 
 ### 5.1 CLI
-- **`scripts/run-backup.js`** — чистит старый `.userData/files.json`, выбирает `TEAMS` или `PROJECTS`, запускает Playwright, следит за ошибками и инициирует post-processing (`rsync`).
-- **`scripts/get-*-files.js`** — собирают файлы из API, обновляют SQLite и формируют очередь скачивания. Ключевые настройки:
+- **`backup/run-backup.js`** — чистит старый `.userData/files.json`, выбирает `TEAMS` или `PROJECTS`, запускает Playwright, следит за ошибками и инициирует post-processing (`rsync`).
+- **`backup/get-*-files.js`** — собирают файлы из API, обновляют SQLite и формируют очередь скачивания. Ключевые настройки:
   - `MAX_FILES = 3` — ограничение на число файлов за один запуск (при необходимости увеличить константу).
   - Фильтрация по наличию записей в актуальном API ответе (устаревшие записи пропускаются).
-- **`scripts/lib.js`** — инкапсулирует HTTP запросы к Figma API, повторно использует `dotenv` для токена.
-- **`scripts/db.js`** — единая точка чтения/записи SQLite. Методы: `getFilesToBackup()`, `updateBackupInfo()`, `updateBackupDate()`, `recordBackupFailure()`, `close()`.
+- **`backup/figma-lib.js`** — инкапсулирует HTTP запросы к Figma API, повторно использует `dotenv` для токена.
+- **`backup/db.js`** — единая точка чтения/записи SQLite. Методы: `getFilesToBackup()`, `updateBackupInfo()`, `updateBackupDate()`, `recordBackupFailure()`, `close()`.
 - **`automations/auth.setup.ts`** — формирует `.auth/user.json` и ротуирует аккаунты по порядку (`FIGMA_ACCOUNT_1_*`, `FIGMA_ACCOUNT_2_*` и т.д.), сохраняя состояние в `.auth/account-state.json`.
 - **`automations/download.spec.ts`** — единственный тест, который исчерпывающим образом скачивает каждый файл из `.userData/files.json` и кладёт результат в `DOWNLOAD_PATH`.
 
 ### 5.2 GUI (`gui/`)
-- **Main process (`gui/main.ts`)** — создаёт окно 1200×800, подключает preload, регистрирует IPC:
+- **Main process (`gui/src/main.ts`)** — создаёт окно 1200×800, подключает preload, регистрирует IPC:
   - `check-nodejs`/`check-npm` — проверки через `child_process.execSync`.
   - `install-dependencies` — передаёт управление `ScriptRunner`, который последовательно выполняет `npm install` и `npx playwright install` в корне репозитория.
   - `read-env`/`write-env`/`validate-config` — используют `EnvManager` и работают только с `.userData/.env` (без electron-store).
   - `run-script(-with-progress)`/`stop-script` — запускают `npm run <command>` через `child_process.spawn`.
   - `get-statistics`, `get-all-backups`, `reset-errors` — читают SQLite через `DatabaseManager`.
   - `select-directory`, `show-notification`, `open-external` — вспомогательные операции.
-- **Preload (`gui/preload.ts`)** — экспортирует API под `window.electronAPI` (ContextBridge включён, но `contextIsolation` пока закомментирован в `BrowserWindow`).
-- **Renderer (`gui/dist/index.html`, `gui/app/ui/*.ts`)** — реализует 5 вкладок:
-  1. **Installation** — проверяет Node/npm и запускает установку зависимостей.
-  2. **Config** — простая форма для `FIGMA_ACCOUNT_1_EMAIL`, `FIGMA_ACCOUNT_1_AUTH_COOKIE`, `FIGMA_ACCESS_TOKEN`, `DOWNLOAD_PATH`, `PROJECTS`, `TEAMS`. `WAIT_TIMEOUT` жёстко фиксирован на `10000` мс.
-  3. **Download** — кнопка `Start backup` → `npm run run-backup`, окно логов, индикатор статуса.
-  4. **Statistics** — три карточки (`total`, `needing backup`, `with errors`) + таблица `backups`. Поиск/фильтры предусмотрены в коде, но элементы UI пока отсутствуют.
-  5. **Diagnostics** — отображает версии Node/npm и даёт доступ к простому текстовому логу (пока без чтения реальных log-файлов).
-- **Утилиты (`gui/utils/*.ts`)**:
+- **Preload (`gui/src/utils/preload.ts`)** — экспортирует API под `window.electronAPI` (ContextBridge включён, но `contextIsolation` пока закомментирован в `BrowserWindow`).
+- **Renderer (`gui/dist/index.html`, `gui/src/ui-*.ts`)** — навигация на 4 вкладки:
+  1. **Installation** — проверяет Node/npm и запускает установку зависимостей (`npm install`, `npx playwright install`).
+  2. **Backup** — кнопка `Start backup` → `npm run run-backup`, окно логов, индикатор статуса.
+  3. **Statistics** — три карточки (`total`, `needing backup`, `with errors`) + таблица `backups`. Поиск/фильтры предусмотрены в коде, но UI‑элементы минимальны (тоггл поиска).
+  4. **Config** — форма для `FIGMA_ACCOUNT_1_EMAIL`, `FIGMA_ACCOUNT_1_AUTH_COOKIE`, `FIGMA_ACCESS_TOKEN`, `DOWNLOAD_PATH`, `PROJECTS`, `TEAMS`. `WAIT_TIMEOUT` жёстко фиксирован на `10000` мс.
+  > Экран Diagnostics присутствует в коде (`ui-settings.ts`) и скрыт в меню (`index.html` закомментирована ссылка).
+- Пользовательский поток: первый запуск через `install.command` (ставит portable Node при отсутствии npm, инсталлирует зависимости и открывает GUI), последующие — через `backup.command` (просто открывает GUI).
+- **Утилиты (`gui/src/utils/*.ts`)**:
   - `EnvManager` — читает/пишет `.userData/.env` (включая `CONFIG_VERSION=1.0`), выполняет базовую валидацию.
   - `ScriptRunner` — обёртка вокруг `spawn`, умеет парсить прогресс из stdout (`[x/y]`, `Downloaded…`).
   - `DatabaseManager` — лениво открывает SQLite (`.userData/figma_backups.db`), предоставляет запросы и `resetErrors()`.
   - `NodeChecker` — проверяет `node --version` / `which node`, при необходимости умеет запускать `brew install node@20` (используется вручную).
-  - `Logger` — пишет ротационные логи в `~/Library/Application Support/Figma Export GUI/logs/figma-export-gui.log`.
+  - `Logger` — пишет ротационные логи в `~/Library/Application Support/SaveMy.Fig/.userData/logs/savemyfig.log`.
 
 ---
 
@@ -130,7 +133,7 @@ Figma-export/
 
 | Переменная | Обязательна | Описание |
 | --- | --- | --- |
-| `FIGMA_ACCESS_TOKEN` | Да | Personal Access Token (`figd_…`). Используется в `scripts/lib.js` и Playwright.
+| `FIGMA_ACCESS_TOKEN` | Да | Personal Access Token (`figd_…`). Используется в `backup/figma-lib.js` и Playwright.
 | `FIGMA_ACCOUNT_<N>_EMAIL` | Да (минимум один) | Email аккаунта для Playwright авторизации. Для cookie‑режима поле можно оставить пустым.
 | `FIGMA_ACCOUNT_<N>_PASSWORD` | Опционально | Пароль, если используем логин/пароль. Не используется в текущем GUI (форма содержит только email + cookie).
 | `FIGMA_ACCOUNT_<N>_AUTH_COOKIE` | Опционально | Значение `__Host-figma.authn`. В GUI поле обязательно, если не планируется вводить пароль вручную в браузере.
@@ -145,7 +148,7 @@ Figma-export/
 ## 7. База данных
 
 - Файл: `.userData/figma_backups.db` (sqlite3).
-- Таблица `backups` создаётся автоматически (см. `scripts/db.js`).
+- Таблица `backups` создаётся автоматически (см. `backup/db.js`).
 
 | Поле | Тип | Описание |
 | --- | --- | --- |
@@ -165,7 +168,7 @@ Figma-export/
 - `.auth/user.json` — storage state Playwright, генерируется из `auth.setup.ts`. Папка `.auth` создаётся автоматически.
 - `playwright-report/` и `test-results/` — стандартные артефакты Playwright.
 - `downloads/` или значение `DOWNLOAD_PATH` — структура `<team(optional)>/<project name (id)>/<file name (key)>.fig`.
-- `logs/*` — в корне нет логов GUI, зато Electron сохраняет их в `~/Library/Application Support/Figma Export GUI/logs` (см. Logger).
+- `logs/*` — в корне нет логов GUI, зато Electron сохраняет их в `~/Library/Application Support/SaveMy.Fig/.userData/logs` (см. Logger).
 
 ---
 
@@ -182,23 +185,23 @@ npm install && npx playwright install
 npm run run-backup
 ```
 Дополнительно доступны:
-- `node scripts/get-project-files.js 123 456`
-- `node scripts/get-team-files.js 789`
+- `node backup/get-project-files.js 123 456`
+- `node backup/get-team-files.js 789`
 - `npx playwright test automations/download.spec.ts --debug`
-- `node scripts/generate-db-report.js` → `backup_report.html`
+- `node backup/generate-db-report.js` → `backup_report.html`
 
 ### 9.2 GUI
 ```bash
 cd gui
 npm install
-npm run main        # очистка dist + build + electron .
+npm run start       # очистка dist + build + electron .
 ```
 Далее использовать вкладки:
 1. **Installation** → Install Dependencies (важно запускать до Config).
-2. **Config** → заполнить поля и `Save settings`.
-3. **Download** → `Start backup` (выполняет `npm run run-backup`).
-4. **Statistics** → просмотреть таблицу (в режиме read-only).
-5. **Diagnostics** → посмотреть версии Node/npm и текстовый лог.
+2. **Backup** → `Start backup` (выполняет `npm run run-backup`).
+3. **Statistics** → просмотреть таблицу (в режиме read-only).
+4. **Config** → заполнить поля и `Save settings`.
+> Экран Diagnostics есть в коде, но ссылка в сайдбаре закомментирована.
 
 ---
 
@@ -211,13 +214,13 @@ npm run main        # очистка dist + build + electron .
 ---
 
 ## 11. Известные ограничения / TODO
-1. **Жёстко закодированный rsync** в `scripts/run-backup.js` → требуется вынести в конфигурацию или удалить для нейтральной сборки.
+1. **Жёстко закодированный rsync** в `backup/run-backup.js` → требуется вынести в конфигурацию или удалить для нейтральной сборки.
 2. **`MAX_FILES = 3`** — ограничивает пропускную способность. Для полного бэкапа больших проектов придётся поднимать лимит вручную.
 3. **GUI Config** поддерживает только поля первого аккаунта и не умеет редактировать `WAIT_TIMEOUT`, `MAX_FILES`, `RETRY_DELAY_HOURS` и т.п.
 4. **Installation tab** не пытается ставить Node.js — пользователь должен сделать это вручную (несмотря на подсказки в интерфейсе).
 5. **Download tab** не предоставляет выбор команды, нет кнопки Stop (закомментирована), нет сохранения логов между сессиями.
-6. **Statistics tab** рендерит метрики и таблицу, но UI‑элементы поиска/фильтров/экспорта отсутствуют.
-7. **Diagnostics** отображает статусы, но не выполняет фактическую проверку Playwright, базы данных и прав доступа.
+6. **Statistics tab** рендерит метрики и таблицу, но поиск/фильтры/экспорт практически отсутствуют (есть только тумблер поиска).
+7. **Diagnostics** скрыт из меню; экран показывает версии Node/npm и временный лог, но не читает реальные логи и не проверяет Playwright/БД/права.
 8. **Electron окно** создано без `contextIsolation: true` (строка закомментирована) — для продакшена рекомендуется включить.
 9. **`start-gui.command`** отсутствует в репозитории (README и старые документы упоминали его). Лаунчер нужно добавить или обновить инструкции.
 10. **Многоязычие UI** — часть интерфейса на английском, часть подсказок/доков на русском.

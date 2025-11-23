@@ -16,9 +16,21 @@ export function initializeStatisticsTab(): void {
   const filterNeedingBackup = document.getElementById('filter-needing-backup') as HTMLInputElement;
   const tableHeaders = document.querySelectorAll<HTMLTableCellElement>('#backups-table th[data-sort]');
   
-  let backupsData: any[] = [];
-  const dateColumns = new Set(['last_backup_date', 'last_modified_date', 'next_attempt_date']);
-  const sortState: { column: string | null; direction: 'asc' | 'desc' } = {
+  type SortableColumn = 'project_name' | 'file_name' | 'last_backup_date' | 'last_modified_date' | 'next_attempt_date';
+
+  type BackupRow = {
+    file_key?: string;
+    project_name?: string;
+    file_name?: string;
+    last_backup_date?: string | null;
+    last_modified_date?: string | null;
+    next_attempt_date?: string | null;
+    backup_missing?: boolean;
+  };
+
+  let backupsData: BackupRow[] = [];
+  const dateColumns = new Set<SortableColumn>(['last_backup_date', 'last_modified_date', 'next_attempt_date']);
+  const sortState: { column: SortableColumn | null; direction: 'asc' | 'desc' } = {
     column: 'last_backup_date',
     direction: 'desc',
   };
@@ -134,7 +146,7 @@ export function initializeStatisticsTab(): void {
 
       // Загружаем все бэкапы
       console.log('[Statistics] Запрос всех бэкапов...');
-      backupsData = await window.electronAPI.getAllBackups();
+      backupsData = await window.electronAPI.getAllBackups() as BackupRow[];
       console.log('[Statistics] Бэкапы получены:', backupsData.length, 'записей');
       applySortAndRender();
       console.log('[Statistics] Таблица обновлена');
@@ -146,7 +158,7 @@ export function initializeStatisticsTab(): void {
   }
   
   // Функция форматирования дат в формате dd.mm.yyyy HH:MM
-  function formatDateTime(dateStr: string | null, defaultText: string): string {
+  function formatDateTime(dateStr: string | null | undefined, defaultText: string): string {
     if (!dateStr) return defaultText;
     
     const date = new Date(dateStr);
@@ -159,10 +171,10 @@ export function initializeStatisticsTab(): void {
     const minutes = date.getMinutes().toString().padStart(2, '0');
     
     return `${day}.${month}.${year} ${hours}:${minutes}`;
-  }
+ }
 
  // Отображение таблицы
- function renderTable(backups: any[]): void {
+ function renderTable(backups: BackupRow[]): void {
     if (!backupsTbody) return;
     
     backupsTbody.innerHTML = '';
@@ -171,20 +183,29 @@ export function initializeStatisticsTab(): void {
       const row = document.createElement('tr');
       
       // Форматируем даты
-      const lastBackupRaw = backup.last_backup_date;
-      const lastModifiedRaw = backup.last_modified_date;
+      const lastBackupRaw = backup.last_backup_date ?? null;
+      const lastModifiedRaw = backup.last_modified_date ?? null;
+      const isBackupMissing = Boolean(backup.backup_missing);
       const lastBackupDate = formatDateTime(lastBackupRaw, '—');
       const lastModifiedDate = formatDateTime(lastModifiedRaw, '—');
       const isModifiedAfterBackup = Boolean(
         lastModifiedRaw &&
         (!lastBackupRaw || new Date(lastModifiedRaw).getTime() > new Date(lastBackupRaw).getTime())
       );
-      const nextAttemptDate = formatDateTime(backup.next_attempt_date, '—');
+      const nextAttemptRaw = backup.next_attempt_date ?? (isBackupMissing ? new Date().toISOString() : null);
+      const nextAttemptDate = formatDateTime(nextAttemptRaw, '—');
       const fileKey = backup.file_key || '';
       const fileName = backup.file_name || '';
       const figmaLink = fileKey ? `https://www.figma.com/file/${fileKey}` : null;
       const shortFileKey = fileKey ? `${fileKey.substring(0, 40)}${fileKey.length > 40 ? '…' : ''}` : '';
       row.dataset.fileName = fileName.toLowerCase();
+      const lastBackupClasses = isBackupMissing ? 'date-missing' : 'date';
+      
+      const lastBackupContent = isBackupMissing
+        ? `${lastBackupDate}<span class="warning-icon" title="File not found">⚠</span>`
+        : `${lastBackupDate}`;
+      const nextAttemptClasses = `date${isBackupMissing ? ' date-missing' : 'date'}`;
+
       
       row.innerHTML = `
         
@@ -192,9 +213,9 @@ export function initializeStatisticsTab(): void {
         <td title="${fileName}">
           ${figmaLink ? `<a href="${figmaLink}" data-figma-link="${figmaLink}" target="_blank" rel="noopener noreferrer">${fileName}</a>` : fileName}
         </td>
-        <td class="date">${lastBackupDate}</td>
+        <td class="${lastBackupClasses}">${lastBackupContent}</td>
         <td class="date${isModifiedAfterBackup ? ' date-newer' : ''}">${lastModifiedDate}</td>
-        <td>${nextAttemptDate}</td>
+        <td class="${nextAttemptClasses}">${nextAttemptDate}</td>
         <!-- <td title="${fileKey}">${shortFileKey}</td> -->
       `;
       
@@ -232,7 +253,7 @@ export function initializeStatisticsTab(): void {
   }
 
   function handleSort(column: string): void {
-    if (!column) return;
+    if (!column || !isSortableColumn(column)) return;
     
     if (sortState.column === column) {
       sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
@@ -250,10 +271,26 @@ export function initializeStatisticsTab(): void {
     if (sortState.column) {
       const isDateColumn = dateColumns.has(sortState.column);
       const multiplier = sortState.direction === 'asc' ? 1 : -1;
+      const isProjectSort = sortState.column === 'project_name';
       
       data.sort((a, b) => {
-        const aValue = a[sortState.column as string];
-        const bValue = b[sortState.column as string];
+        const column = sortState.column as SortableColumn;
+        const aValue = a[column];
+        const bValue = b[column];
+
+        if (isProjectSort) {
+          const projectA = (a.project_name ?? '').toString().toLowerCase();
+          const projectB = (b.project_name ?? '').toString().toLowerCase();
+          const projectCompare = projectA.localeCompare(projectB);
+
+          if (projectCompare !== 0) {
+            return projectCompare * multiplier;
+          }
+
+          const fileA = (a.file_name ?? '').toString().toLowerCase();
+          const fileB = (b.file_name ?? '').toString().toLowerCase();
+          return fileA.localeCompare(fileB) * multiplier;
+        }
         
         if (isDateColumn) {
           const aTime = aValue ? new Date(aValue).getTime() : 0;
@@ -289,4 +326,12 @@ export function initializeStatisticsTab(): void {
       }
     });
   });
+
+  function isSortableColumn(value: string): value is SortableColumn {
+    return value === 'project_name'
+      || value === 'file_name'
+      || value === 'last_backup_date'
+      || value === 'last_modified_date'
+      || value === 'next_attempt_date';
+  }
 }

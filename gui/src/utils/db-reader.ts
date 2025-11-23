@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { app } from 'electron';
 import * as sqlite3 from 'sqlite3';
 import { Logger } from './logger';
 
@@ -19,19 +20,39 @@ export class DatabaseManager {
 
   constructor() {
     this.logger = new Logger();
-    this.dbPath = path.join(process.cwd(), '..', '.userData', 'figma_backups.db');
-    // console.log('DatabaseManager initialized', this.dbPath);
+
+    const baseUserDataDir = app?.isPackaged
+      ? path.join(app.getPath('userData'), '.userData')
+      : path.join(process.cwd(), '..', '.userData');
+
+    if (!fs.existsSync(baseUserDataDir)) {
+      fs.mkdirSync(baseUserDataDir, { recursive: true });
+    }
+
+    this.dbPath = path.join(baseUserDataDir, 'figma_backups.db');
     this.initializeDatabase();
     
   }
 
   private initializeDatabase(): void {
-    // Проверяем существование базы данных
-    if (!fs.existsSync(this.dbPath)) {
-      this.logger.warn('Database file not found, using existing database or it will be created by original scripts');
-    } else {
-      this.logger.info('Database found at: ' + this.dbPath);
-    }
+    // Ensure file exists and schema is ready
+    const db = this.getDB();
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS backups (
+        file_key           TEXT PRIMARY KEY,
+        project_name       TEXT,
+        file_name          TEXT,
+        last_backup_date   TEXT,
+        last_modified_date TEXT,
+        next_attempt_date  TEXT
+      )
+    `, (err: Error | null) => {
+      if (err) {
+        this.logger.error('Failed to initialize database: ' + err.message);
+      } else {
+        this.logger.info('Database initialized at: ' + this.dbPath);
+      }
+    });
   }
 
   private getDB(): sqlite3.Database {

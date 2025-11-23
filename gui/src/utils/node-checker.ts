@@ -1,8 +1,11 @@
 import { execSync } from 'child_process';
 import { Logger } from './logger';
+import fs from 'fs';
+import path from 'path';
 
 export class NodeChecker {
   private logger: Logger;
+  private fallbackPaths = ['/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin'];
 
   constructor() {
     this.logger = new Logger();
@@ -15,15 +18,21 @@ export class NodeChecker {
     meetsRequirement?: boolean;
   }> {
     try {
-      const version = execSync('node --version', { encoding: 'utf8' }).trim();
-      const path = execSync('which node', { encoding: 'utf8' }).trim();
+      const nodeBin = this.resolveNodeBinary();
+      if (!nodeBin) {
+        this.logger.error('Node.js not found in resolveNodeBinary');
+        return { installed: false };
+      }
+
+      const version = execSync(`"${nodeBin}" --version`, { encoding: 'utf8' }).trim();
+      const resolvedPath = nodeBin;
       const versionNumber = version.replace('v', '');
       const majorVersion = parseInt(versionNumber.split('.')[0]);
       
       return {
         installed: true,
         version,
-        path,
+        path: resolvedPath,
         meetsRequirement: majorVersion >= 20
       };
     } catch (error) {
@@ -76,5 +85,22 @@ export class NodeChecker {
         };
       }
     }
+  }
+
+  private resolveNodeBinary(): string | null {
+    const envPaths = (process.env.PATH || '').split(path.delimiter).filter(Boolean);
+    const dirs = Array.from(new Set([...this.fallbackPaths, ...envPaths]));
+    for (const dir of dirs) {
+      try {
+        const full = path.join(dir, 'node');
+        const stat = fs.statSync(full);
+        if (stat.isFile() || stat.isSymbolicLink()) {
+          return full;
+        }
+      } catch {
+        // skip
+      }
+    }
+    return null;
   }
 }

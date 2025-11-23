@@ -1,27 +1,22 @@
 {
-  "name": "figma-export-gui",
-  "version": "1.0",
-  "description": "GUI для Figma Export Tool",
   "main": "dist/main.js",
   "scripts": {
-    "main": "rm -rf dist && npm run build && npm start",
-    "start": "unset ELECTRON_RUN_AS_NODE && electron .",
-    "build": "npm run build:main && npm run copy-static",
-    "build:main": "tsc -p tsconfig.json",
-    "copy-static": "node scripts/copy-static.js",
-    "dist": "npm run build && electron-builder",
-    "build:electron": "npm run build",
-    "run-backup": "node ../scripts/run-backup.js"
+    "start": "rm -rf dist && npm run build && npm run gui",
+    "gui": "unset ELECTRON_RUN_AS_NODE && electron .",
+    "build": "tsc -p tsconfig.json && node copy-static.js",
+    "run-backup": "node ../backup/run-backup.js"
   },
   "dependencies": {
+    "@playwright/test": "^1.48.2",
     "dotenv": "^16.0.0",
     "electron": "^28.3.3",
     "execa": "^8.0.0",
+    "playwright": "^1.48.2",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.3.0",
-    "@types/node": "^20.0",
+    "@types/node": "^22.14.1",
     "@types/sqlite3": "^3.1.11",
     "electron-builder": "^24.9.1",
     "typescript": "^5.0.0"

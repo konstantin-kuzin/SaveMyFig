@@ -1,7 +1,9 @@
 gui/dist/
 gui/logs/
 node_modules/
+dist/
 playwright/.cache/
 .userData/
+.node
 .DS_Store
 rsync.sh

@@ -4,6 +4,7 @@ import { app } from 'electron';
 
 export class Logger {
   private logFile: string;
+  private logsDir: string;
   private maxLogSize = 10 * 1024 * 1024; // 10MB
   private maxLogFiles = 5;
 
@@ -15,6 +16,7 @@ export class Logger {
       fs.mkdirSync(logsDir, { recursive: true });
     }
     
+    this.logsDir = logsDir;
     this.logFile = path.join(logsDir, 'figma-export-gui.log');
   }
 
@@ -56,4 +58,12 @@ export class Logger {
   warn(message: string): void { this.log('WARN', message); }
   error(message: string): void { this.log('ERROR', message); }
   debug(message: string): void { this.log('DEBUG', message); }
+
+  getLogFilePath(): string {
+    return this.logFile;
+  }
+
+  getLogsDir(): string {
+    return this.logsDir;
+  }
 }

@@ -4,7 +4,7 @@
     "module": "commonjs",
     "lib": ["ES2022", "dom", "dom.iterable"],
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -25,13 +25,14 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["*"],
-      "@utils/*": ["utils/*"],
-      "@app/*": ["app/*"],
+      "@utils/*": ["src/utils/*"],
+      "@app/*": ["src/*"],
       //"@components/*": ["renderer/components/*"]
     }
   },
   "include": [
-    "**/*",
+    "src/**/*",
+    "types.d.ts",
     "../.userData/.env"
   ],
   "exclude": [

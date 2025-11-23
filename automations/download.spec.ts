@@ -2,7 +2,7 @@ import { test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
-import { updateBackupDate, recordBackupFailure } from "../scripts/db";
+import { updateBackupDate, recordBackupFailure } from "../backup/db";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".userData/.env") });
 

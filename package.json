@@ -1,29 +1,41 @@
-
-
 {
-  "name": "figma-backup-gui",
-  "version": "1.0.0",
-  "description": "GUI для бэкапа проектов Figma",
-  "main": "main.js",
+  "name": "save-my-fig",
+  "version": "1.2.4",
+  "description": "Figma backup tool with GUI ",
+  "main": "gui/dist/main.js",
+  "private": true,
+  "workspaces": [
+    "gui"
+  ],
   "scripts": {
-    "start": "electron .",
-    "run-backup": "node scripts/run-backup.js",
-    "dist": "electron-builder",
-    "build:electron": "electron-builder"
+    "start": "npm --workspace gui run start",
+    "gui": "npm --workspace gui run gui",
+    "build": "npm --workspace gui run build",
+    "run-backup": "node backup/run-backup.js",
+    "build-app": "npm --workspace gui run build && electron-builder",
+    "gui:start": "npm run start --workspace gui",
+    "gui:build": "npm run build --workspace gui",
+    "gui:dist": "npm run dist --workspace gui"
   },
   "dependencies": {
+    "@playwright/test": "^1.48.2",
+    "playwright": "^1.48.2",
     "dotenv": "^16.0.0",
-    "sqlite3": "^5.1.6"
+    "execa": "^8.0.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "electron": "^28.0.0",
+    "@types/node": "^22.14.1",
+    "@types/sqlite3": "^3.1.11",
+    "@electron/rebuild": "^3.3.0",
+    "electron": "^28.3.3",
     "electron-builder": "^24.9.1",
-    "@playwright/test": "^1.48.2",
-    "@types/node": "^22.14.1"
+    "typescript": "^5.0.0"
   },
   "build": {
     "appId": "com.figmaexport.backup",
     "productName": "Figma Backup",
+    "asar": false,
     "mac": {
       "category": "public.app-category.utilities",
       "target": "dmg",
@@ -31,6 +43,7 @@
     },
     "files": [
       "**/*",
+      "!.node/**",
       "!node_modules/electron/**",
       "!dist/**"
     ]

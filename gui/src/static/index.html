@@ -4,27 +4,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Figma Export GUI v 1.0</title>
+  <title>SaveMy.Fig v 1.2</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <div class="app">
+    <div id="update-banner" class="update-banner hidden">
+      <div class="update-banner__info">
+        <div class="update-banner__title">New version available</div>
+        <div class="update-banner__text" id="update-banner-text">Checking for updates...</div>
+      </div>
+      <div class="update-banner__actions">
+        <button id="update-banner-action" class="btn btn-primary border-square">Open GitHub</button>
+        <button id="update-banner-dismiss" class="icon-button" aria-label="Close">✕</button>
+      </div>
+    </div>
     <!-- Navigation -->
     <nav class="sidebar">
       <div class="nav-menu">
-        <div><a href="#" data-tab="welcome" class="nav-link active">Installation</a></div>
         <div><a href="#" data-tab="backup" class="nav-link">Backup</a></div>
-        <div><a href="#" data-tab="statistics" class="nav-link">Statistics</a></div>
+        <div><a href="#" data-tab="statistics" class="nav-link active">Statistics</a></div>
         <div><a href="#" data-tab="config" class="nav-link">Config</a></div>
-        <!-- <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div> -->
+        <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div>
       </div>
     </nav>
+
+    
 
     <!-- Основной контент -->
     <main class="main-content">
       <!-- Экран установки -->
-      <div id="welcome-tab" class="tab-content active">
+      <div id="welcome-tab" class="tab-content">
         <div class="tab-body">
           <div id="system-check" class="check-section">
             <h3>System Check</h3>
@@ -128,6 +139,13 @@
       <!-- Экран выполнения бэкапа -->
       <div id="backup-tab" class="tab-content">
         <div class="tab-body">
+          <div class="alert alert-critical">
+            <div class="alert-icon">⚠️</div>
+            <div>
+              <strong>Warning:</strong> Before starting downloads, open any file in Figma, go to <a href="https://help.figma.com/hc/en-us/articles/360039824334-Open-links-in-the-desktop-app">Preferences</a>, and
+              DISABLE "Open link in desktop app". If you skip this, this tool will not work.
+            </div>
+          </div>
           <div class="log-container">
             <div id="backup-log" class="log-content"></div>
           </div>
@@ -147,22 +165,22 @@
       </div>
 
       <!-- Экран статистики -->
-      <div id="statistics-tab" class="tab-content">
+      <div id="statistics-tab" class="tab-content active">
         <div class="tab-body">
           <div class="stat-cards">
             <div class="stat-section">
-                <div class="stat-value" id="total-files">0</div>
-                <div class="stat-label">Total files</div>
+              <div class="stat-value" id="total-files">0</div>
+              <div class="stat-label">Total files</div>
             </div>
 
             <div class="stat-section">
-                <div class="stat-value" id="needing-backup">0</div>
-                <div class="stat-label">Need backup</div>
+              <div class="stat-value" id="needing-backup">0</div>
+              <div class="stat-label">Need backup</div>
             </div>
 
-            <div class="stat-section">
-                <div class="stat-value" id="with-errors">0</div>
-                <div class="stat-label">With errors</div>
+            <div class="stat-section" style="background-color: var(--bg-danger);">
+              <div class="stat-value" id="with-errors">0</div>
+              <div class="stat-label">With errors</div>
             </div>
           </div>
 
@@ -176,12 +194,13 @@
                   <th data-sort="project_name">Project</th>
                   <th data-sort="file_name" class="file-name-header">
                     <span>File Name</span>
-                    <button type="button" id="table-search-toggle" class="icon-button" aria-label="Toggle file name search">🔍</button>
+                    <button type="button" id="table-search-toggle" class="icon-button"
+                      aria-label="Toggle file name search">🔍</button>
                   </th>
-                  <th data-sort="last_backup_date">Last Backup</th>
-                  <th data-sort="last_modified_date">Last Modified in Figma</th>
+                  <th data-sort="last_backup_date" style="width: 180px;">Last Backup</th>
+                  <th data-sort="last_modified_date" style="width: 180px;">Last Modified in Figma</th>
                   <!-- <th data-sort="file_key">File Key</th> -->
-                  <th data-sort="next_attempt_date">Next Attempt</th>
+                  <th data-sort="next_attempt_date" style="width: 160px;">Next Attempt</th>
                 </tr>
               </thead>
               <tbody id="backups-tbody">
@@ -195,62 +214,62 @@
       <div id="settings-tab" class="tab-content">
         <div class="tab-body">
           <div class="diagnostic-section">
-            <h3>Системная информация</h3>
+            <h3>System Information</h3>
             <div class="info-grid">
               <div class="info-item">
-                <label>Node.js версия:</label>
-                <span id="node-version">Проверка...</span>
+                <label>Node.js version:</label>
+                <span id="node-version">Checking...</span>
               </div>
               <div class="info-item">
-                <label>Node.js путь:</label>
-                <span id="node-path">Проверка...</span>
+                <label>Node.js path:</label>
+                <span id="node-path">Checking...</span>
               </div>
               <div class="info-item">
-                <label>npm версия:</label>
-                <span id="npm-version">Проверка...</span>
+                <label>npm version:</label>
+                <span id="npm-version">Checking...</span>
               </div>
               <div class="info-item">
-                <label>npm путь:</label>
-                <span id="npm-path">Проверка...</span>
+                <label>npm path:</label>
+                <span id="npm-path">Checking...</span>
               </div>
               <div class="info-item">
-                <label>Версия GUI:</label>
+                <label>GUI version:</label>
                 <span id="gui-version">1.0.0</span>
               </div>
               <div class="info-item">
-                <label>Версия скрипта:</label>
-                <span id="script-version">Проверка...</span>
+                <label>Script version:</label>
+                <span id="script-version">Checking...</span>
               </div>
             </div>
           </div>
 
           <div class="diagnostic-section">
-            <h3>Статус зависимостей</h3>
+            <h3>Dependency Status</h3>
             <div id="deps-status" class="status-list">
               <!-- Статус будет добавлен динамически -->
             </div>
           </div>
 
           <div class="diagnostic-section">
-            <h3>Доступ к файловой системе</h3>
+            <h3>Filesystem Access</h3>
             <div id="fs-status" class="status-list">
               <!-- Статус будет добавлен динамически -->
             </div>
           </div>
 
           <div class="diagnostic-section">
-            <h3>Доступ к Figma API</h3>
+            <h3>Figma API Access</h3>
             <div id="api-status" class="status-list">
               <!-- Статус будет добавлен динамически -->
             </div>
           </div>
 
           <div class="diagnostic-section">
-            <h3>Логи приложения</h3>
+            <h3>Application Logs</h3>
             <div class="log-controls">
-              <button id="refresh-logs" class="btn btn-secondary">🔄 Обновить</button>
-              <button id="clear-logs" class="btn btn-warning">🗑️ Очистить</button>
-              <button id="open-logs-folder" class="btn btn-secondary">📁 Открыть папку</button>
+              <button id="refresh-logs" class="btn btn-secondary">Refresh</button>
+              <button id="clear-logs" class="btn btn-secondary">Clear</button>
+              <button id="open-logs-folder" class="btn btn-secondary">Open folder</button>
             </div>
             <div class="log-container">
               <div id="diagnostic-log" class="log-content"></div>
@@ -261,7 +280,7 @@
     </main>
   </div>
 
-  <script type="module" src="./ui.js"></script>
+  <script type="module" src="../../ui.js"></script>
 </body>
 
 </html>

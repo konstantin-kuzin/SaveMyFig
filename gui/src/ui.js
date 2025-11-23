@@ -1,14 +1,78 @@
 // Основной модуль рендерера приложения
-import { initializeConfigTab } from './ui/config.js';
-import { initializeWelcomeTab } from './ui/welcome.js';
-import { initializeBackupTab } from './ui/backup.js';
-import { initializeStatisticsTab } from './ui/statistics.js';
-import { initializeSettingsTab } from './ui/settings.js';
+import { initializeConfigTab } from './ui-config.js';
+import { initializeWelcomeTab } from './ui-welcome.js';
+import { initializeBackupTab } from './ui-backup.js';
+import { initializeStatisticsTab } from './ui-statistics.js';
+import { initializeSettingsTab } from './ui-settings.js';
 
 class AppRenderer {
     constructor() {
         this.initializeNavigation();
         this.initializeTabs();
+        this.initializeUpdateBanner();
+    }
+
+    async initializeUpdateBanner() {
+        const banner = document.getElementById('update-banner');
+        const text = document.getElementById('update-banner-text');
+        const actionBtn = document.getElementById('update-banner-action');
+        const dismissBtn = document.getElementById('update-banner-dismiss');
+
+        if (!window.electronAPI?.checkForUpdates) {
+            console.warn('Update check API is not available');
+            return;
+        }
+
+        try {
+            console.log('[Updates] Checking for updates...');
+            const updateInfo = await window.electronAPI.checkForUpdates();
+            console.log('[Updates] Result:', updateInfo);
+
+            if (!updateInfo || !updateInfo.isOutdated || !updateInfo.latestVersion) {
+                console.log('[Updates] App is up to date.', {
+                    current: updateInfo?.currentVersion,
+                    latest: updateInfo?.latestVersion
+                });
+                banner?.classList.add('hidden');
+                return;
+            }
+
+            const current = updateInfo.currentVersion || 'unknown';
+            const latest = updateInfo.latestVersion;
+            const targetUrl = updateInfo.url;
+            console.log(`[Updates] Local version: ${current}, latest on server: ${latest}`);
+
+            if (text) {
+                text.textContent = `A new version ${latest} is available. You have ${current} installed.`;
+            }
+
+            if (actionBtn) {
+                actionBtn.addEventListener('click', () => {
+                    if (!targetUrl) {
+                        console.warn('[Updates] Target URL is not available');
+                        return;
+                    }
+                    if (window.electronAPI?.openExternal) {
+                        window.electronAPI.openExternal(targetUrl);
+                    } else {
+                        window.open(targetUrl, '_blank');
+                    }
+                });
+                if (!targetUrl) {
+                    actionBtn.disabled = true;
+                }
+            }
+
+            if (dismissBtn) {
+                dismissBtn.addEventListener('click', () => {
+                    banner?.classList.add('hidden');
+                });
+            }
+
+            banner?.classList.remove('hidden');
+        } catch (error) {
+            console.error('Failed to check for updates:', error);
+        }
     }
 
     initializeNavigation() {
@@ -54,6 +118,8 @@ class AppRenderer {
             console.log(`Tab ${tabId} activated`);
             if (tabId === 'statistics') {
                 document.dispatchEvent(new CustomEvent('statistics-tab-activated'));
+            } else if (tabId === 'settings') {
+                document.dispatchEvent(new CustomEvent('settings-tab-activated'));
             }
         } else {
             console.error(`Target tab ${tabId}-tab not found`);
