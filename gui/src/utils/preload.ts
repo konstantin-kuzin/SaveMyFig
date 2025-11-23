@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkNodeJS: () => ipcRenderer.invoke('check-nodejs'),
   checkNpm: () => ipcRenderer.invoke('check-npm'),
   getSystemInfo: () => ipcRenderer.invoke('diagnostics:get-system-info'),
+  checkForUpdates: () => ipcRenderer.invoke('updates:check'),
   getDependencyStatus: () => ipcRenderer.invoke('diagnostics:get-dependencies'),
   getFsStatus: () => ipcRenderer.invoke('diagnostics:get-fs-status'),
   getApiStatus: () => ipcRenderer.invoke('diagnostics:get-api-status'),

@@ -10,6 +10,16 @@
 
 <body>
   <div class="app">
+    <div id="update-banner" class="update-banner hidden">
+      <div class="update-banner__info">
+        <div class="update-banner__title">New version available</div>
+        <div class="update-banner__text" id="update-banner-text">Checking for updates...</div>
+      </div>
+      <div class="update-banner__actions">
+        <button id="update-banner-action" class="btn btn-primary border-square">Open GitHub</button>
+        <button id="update-banner-dismiss" class="icon-button" aria-label="Close">✕</button>
+      </div>
+    </div>
     <!-- Navigation -->
     <nav class="sidebar">
       <div class="nav-menu">
@@ -19,6 +29,8 @@
         <div><a href="#" data-tab="settings" class="nav-link">Diagnostics</a></div>
       </div>
     </nav>
+
+    
 
     <!-- Основной контент -->
     <main class="main-content">

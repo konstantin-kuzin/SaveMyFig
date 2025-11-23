@@ -49,6 +49,10 @@
   box-sizing: border-box
 }
 
+.hidden {
+  display: none !important;
+}
+
 
 body {
   width: 100%;
@@ -141,6 +145,49 @@ a:hover:not(.nav-link) {
   padding: 4px 12px;
   border-radius: 999px;
 
+}
+
+.update-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(126deg, rgb(16 178 72), rgb(56 168 196 / 80%));
+}
+
+.update-banner__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.update-banner__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-hard);
+  letter-spacing: 0.2px;
+}
+
+.update-banner__text {
+  font-size: 12px;
+  color: var(--text-medium);
+}
+
+.update-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.update-banner__actions .btn {
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+.update-banner__actions .icon-button {
+  color: var(--text-medium);
+  border-color: var(--border-medium);
 }
 
 /* Основной контент */

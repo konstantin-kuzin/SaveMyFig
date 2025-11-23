@@ -1,7 +1,7 @@
 {
   "name": "save-my-fig",
-  "version": "1.2",
-  "description": "GUI для бэкапа проектов Figma",
+  "version": "1.2.4",
+  "description": "Figma backup tool with GUI ",
   "main": "gui/dist/main.js",
   "private": true,
   "workspaces": [

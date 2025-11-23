@@ -7,6 +7,14 @@ declare global {
       checkNodeJS: () => Promise<any>;
       checkNpm: () => Promise<any>;
       getSystemInfo: () => Promise<any>;
+      checkForUpdates: () => Promise<{
+        currentVersion: string;
+        latestVersion: string | null;
+        isOutdated: boolean;
+        url?: string;
+        publishedAt?: string;
+        error?: string;
+      }>;
       getDependencyStatus: () => Promise<any>;
       getFsStatus: () => Promise<any>;
       getApiStatus: () => Promise<any>;

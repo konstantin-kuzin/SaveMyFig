@@ -11,6 +11,7 @@ import { EnvManager } from './utils/env-manager';
 import { BackupRecord, DatabaseManager } from './utils/db-reader';
 import { ScriptRunner } from './utils/script-runner';
 import { NodeChecker } from './utils/node-checker';
+import { UpdatesChecker } from './utils/updates-checker';
 
 class FigmaExportApp {
   private mainWindow: BrowserWindow | null = null;
@@ -19,6 +20,8 @@ class FigmaExportApp {
   private dbManager: DatabaseManager;
   private scriptRunner: ScriptRunner;
   private nodeChecker: NodeChecker;
+  private updatesChecker: UpdatesChecker;
+  private readonly githubRepo = 'konstantin-kuzin/SaveMyFig';
 
   constructor() {
     this.logger = new Logger();
@@ -26,6 +29,7 @@ class FigmaExportApp {
     this.dbManager = new DatabaseManager();
     this.scriptRunner = new ScriptRunner();
     this.nodeChecker = new NodeChecker();
+    this.updatesChecker = new UpdatesChecker(this.githubRepo, this.logger);
     
     this.setupApp();
     this.setupIPC();
@@ -113,8 +117,13 @@ class FigmaExportApp {
 
     ipcMain.handle('diagnostics:open-logs-folder', async () => {
       const folder = this.logger.getLogsDir();
-      await shell.openPath(folder);
+        await shell.openPath(folder);
       return { success: true, folder };
+    });
+
+    ipcMain.handle('updates:check', async () => {
+      const currentVersion = this.getRootPackageVersion();
+      return await this.updatesChecker.checkForUpdates(currentVersion);
     });
 
     // Installation
@@ -362,6 +371,31 @@ class FigmaExportApp {
     }
 
     return candidates.find(c => fs.existsSync(c)) || process.cwd();
+  }
+
+  /**
+   * Returns version strictly from the repository root package.json.
+   * Falls back to Electron app version if root package is not found.
+   */
+  private getRootPackageVersion(): string {
+    try {
+      const repoRoot = this.resolveRepoRoot();
+      const pkgPath = path.join(repoRoot, 'package.json');
+
+      if (fs.existsSync(pkgPath)) {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        if (pkg?.version) {
+          return pkg.version;
+        }
+        this.logger.warn(`Version not found in ${pkgPath}`);
+      } else {
+        this.logger.warn(`Root package.json not found at ${pkgPath}`);
+      }
+    } catch (error: any) {
+      this.logger.warn(`Failed to read root package version: ${error?.message || error}`);
+    }
+
+    return app.getVersion() || '0.0.0';
   }
 
   private async getDependencyStatus(): Promise<Array<{ name: string; ok: boolean; message: string }>> {

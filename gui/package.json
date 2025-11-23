@@ -1,7 +1,4 @@
 {
-  "name": "save-my-fig",
-  "version": "1.2",
-  "description": "GUI для Figma Export Tool",
   "main": "dist/main.js",
   "scripts": {
     "start": "rm -rf dist && npm run build && npm run gui",
