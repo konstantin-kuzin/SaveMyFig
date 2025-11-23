@@ -67,7 +67,7 @@ async function runBackup() {
       console.log(`Checking queue for PROJECTS: ${projects}.`);
       execSync(`node backup/get-project-files.js ${projects}`, { stdio: "inherit", cwd: projectRoot });
     } else {
-      console.log("PROJECTS/TEAMS are not defined in .env file. Skipping file generation.");
+      console.error("PROJECTS/TEAMS are not defined in .env file. Skipping file generation.");
       return;
     }
     

@@ -82,7 +82,7 @@ npm_install_if_needed() {
   current_hash="$(hash_lockfile "$hash_source")"
 
   if [ -d "$project_dir/node_modules" ] && [ -f "$marker" ] && [ "$(cat "$marker")" = "$current_hash" ]; then
-    echo "[$label DEPENDENCIES] Installed (hash source: $hash_label)."
+    : #echo "[$label DEPENDENCIES] Installed (hash source: $hash_label)."
   else
     echo "[$label DEPENDENCIES] Installing (hash source: $hash_label)..."
     run_quiet "npm install ($label)" "$NPM_CMD" install --no-progress --silent
@@ -186,12 +186,12 @@ install_root() {
   cd "$ROOT_DIR"
 
   if playwright_chromium_present; then
-    echo "" # echo "[Playwright] Chromium already installed."
+    : # echo "[Playwright] Chromium already installed."
   else
     echo "[Playwright] Installing..."
     run_quiet "npx playwright install chromium" "$NPX_CMD" playwright install chromium
     if playwright_chromium_present; then
-    echo "" # echo "[Playwright] Chromium ready."
+    : # echo "[Playwright] Chromium ready."
     else
       echo "[Playwright] Warning: Playwright Chromium not detected after install; check $LOG_FILE" >&2
     fi

@@ -23,15 +23,15 @@ class AppRenderer {
         }
 
         try {
-            console.log('[Updates] Checking for updates...');
+            // console.log('[Updates] Checking for updates...');
             const updateInfo = await window.electronAPI.checkForUpdates();
-            console.log('[Updates] Result:', updateInfo);
+            // console.log('[Updates] Result:', updateInfo);
 
             if (!updateInfo || !updateInfo.isOutdated || !updateInfo.latestVersion) {
-                console.log('[Updates] App is up to date.', {
-                    current: updateInfo?.currentVersion,
-                    latest: updateInfo?.latestVersion
-                });
+                // console.log('[Updates] App is up to date.', {
+                //    current: updateInfo?.currentVersion,
+                //    latest: updateInfo?.latestVersion
+                //});
                 banner?.classList.add('hidden');
                 return;
             }
@@ -39,7 +39,7 @@ class AppRenderer {
             const current = updateInfo.currentVersion || 'unknown';
             const latest = updateInfo.latestVersion;
             const targetUrl = updateInfo.url;
-            console.log(`[Updates] Local version: ${current}, latest on server: ${latest}`);
+            // console.log(`[Updates] Local version: ${current}, latest on server: ${latest}`);
 
             if (text) {
                 text.textContent = `A new version ${latest} is available. You have ${current} installed.`;
@@ -75,15 +75,15 @@ class AppRenderer {
     }
 
     initializeNavigation() {
-        console.log('Initializing navigation...');
+        // console.log('Initializing navigation...');
         const navLinks = document.querySelectorAll('.nav-link');
-        console.log(`Found ${navLinks.length} navigation links`);
+        // console.log(`Found ${navLinks.length} navigation links`);
         
         navLinks.forEach((link) => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const tabId = link.dataset.tab;
-                console.log(`Navigation clicked: ${tabId}`);
+                // console.log(`Navigation clicked: ${tabId}`);
                 
                 if (tabId) {
                     this.switchTab(tabId);
@@ -92,7 +92,7 @@ class AppRenderer {
                     
                     // При переключении на config tab, перезагружаем данные
                     if (tabId === 'config') {
-                        console.log('Switching to config tab, reloading data...');
+                        // console.log('Switching to config tab, reloading data...');
                         setTimeout(() => {
                             if (window.electronAPI) {
                                 initializeConfigTab().catch(error => {
@@ -107,14 +107,14 @@ class AppRenderer {
     }
 
     switchTab(tabId) {
-        console.log(`Switching to tab: ${tabId}`);
+        // console.log(`Switching to tab: ${tabId}`);
         document.querySelectorAll('.tab-content').forEach((tab) => {
             tab.classList.remove('active');
         });
         const targetTab = document.getElementById(`${tabId}-tab`);
         if (targetTab) {
             targetTab.classList.add('active');
-            console.log(`Tab ${tabId} activated`);
+            // console.log(`Tab ${tabId} activated`);
             if (tabId === 'statistics') {
                 document.dispatchEvent(new CustomEvent('statistics-tab-activated'));
             } else if (tabId === 'diagnostics') {
@@ -126,47 +126,47 @@ class AppRenderer {
     }
 
     async initializeTabs() {
-        console.log('Starting tabs initialization...');
+        // console.log('Starting tabs initialization...');
 
         try {
-            console.log('Initializing config tab...');
+            // console.log('Initializing config tab...');
             await initializeConfigTab();
-            console.log('✅ Config tab initialized successfully');
+            // console.log('✅ Config tab initialized successfully');
         } catch (error) {
             console.error('❌ Error initializing config tab:', error);
         }
 
         try {
-            console.log('Initializing backup tab...');
+            // console.log('Initializing backup tab...');
             await initializeBackupTab();
-            console.log('✅ Backup tab initialized successfully');
+            // console.log('✅ Backup tab initialized successfully');
         } catch (error) {
             console.error('❌ Error initializing backup tab:', error);
         }
 
         try {
-            console.log('Initializing statistics tab...');
+            // console.log('Initializing statistics tab...');
             await initializeStatisticsTab();
-            console.log('✅ Statistics tab initialized successfully');
+            // console.log('✅ Statistics tab initialized successfully');
         } catch (error) {
             console.error('❌ Error initializing statistics tab:', error);
         }
 
         try {
-            console.log('Initializing diagnostics tab...');
+            // console.log('Initializing diagnostics tab...');
             await initializeDiagnosticsTab();
-            console.log('✅ Diagnostics tab initialized successfully');
+            // console.log('✅ Diagnostics tab initialized successfully');
         } catch (error) {
             console.error('❌ Error initializing diagnostics tab:', error);
         }
 
-        console.log('🎉 All tabs initialization completed');
+        // console.log('🎉 All tabs initialization completed');
     }
 }
 
 // Инициализация приложения при загрузке DOM
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM loaded, initializing AppRenderer...');
+    // console.log('🚀 DOM loaded, initializing AppRenderer...');
     new AppRenderer();
-    console.log('🎉 AppRenderer initialized successfully');
+    // console.log('🎉 AppRenderer initialized successfully');
 });

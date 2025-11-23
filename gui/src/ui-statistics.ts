@@ -38,7 +38,7 @@ export function initializeStatisticsTab(): void {
   // Загрузка данных при инициализации
   loadStatistics();
   document.addEventListener('statistics-tab-activated', () => {
-    console.log('[Statistics] Таб активирован, перезагружаем данные');
+    // console.log('[Statistics] Таб активирован, перезагружаем данные');
     loadStatistics();
   });
   backupsTbody?.addEventListener('click', (event) => {
@@ -55,16 +55,16 @@ export function initializeStatisticsTab(): void {
   
   // Обработчик обновления данных
   if (refreshDataBtn) {
-    console.log('[Statistics] Кнопка "Обновить" найдена, привязываем обработчик');
+    // console.log('[Statistics] Кнопка "Обновить" найдена, привязываем обработчик');
     refreshDataBtn.addEventListener('click', () => {
-      console.log('[Statistics] Клик по кнопке "Обновить" - вызываем loadStatistics()');
+      // console.log('[Statistics] Клик по кнопке "Обновить" - вызываем loadStatistics()');
       loadStatistics();
     });
   }
   
   // Проверяем доступность electronAPI
   if (window.electronAPI) {
-    console.log('[Statistics] electronAPI доступен');
+    // console.log('[Statistics] electronAPI доступен');
   } else {
     console.error('[Statistics] electronAPI недоступен!');
   }
@@ -124,32 +124,32 @@ export function initializeStatisticsTab(): void {
   // Загрузка статистики
   async function loadStatistics(): Promise<void> {
     try {
-      console.log('[Statistics] Начало загрузки статистики...');
+      // console.log('[Statistics] Начало загрузки статистики...');
       
       // Загружаем статистику
-      console.log('[Statistics] Запрос статистики...');
+      // console.log('[Statistics] Запрос статистики...');
       const stats = await window.electronAPI.getStatistics();
-      console.log('[Statistics] Статистика получена:', stats);
+      // console.log('[Statistics] Статистика получена:', stats);
       
       if (totalFilesEl) {
         totalFilesEl.textContent = stats.total.toString();
-        console.log('[Statistics] Обновлен элемент total-files:', stats.total);
+        // console.log('[Statistics] Обновлен элемент total-files:', stats.total);
       }
       if (needingBackupEl) {
         needingBackupEl.textContent = stats.needingBackup.toString();
-        console.log('[Statistics] Обновлен элемент needing-backup:', stats.needingBackup);
+        // console.log('[Statistics] Обновлен элемент needing-backup:', stats.needingBackup);
       }
       if (withErrorsEl) {
         withErrorsEl.textContent = stats.withErrors.toString();
-        console.log('[Statistics] Обновлен элемент with-errors:', stats.withErrors);
+        // console.log('[Statistics] Обновлен элемент with-errors:', stats.withErrors);
       }
 
       // Загружаем все бэкапы
-      console.log('[Statistics] Запрос всех бэкапов...');
+      // console.log('[Statistics] Запрос всех бэкапов...');
       backupsData = await window.electronAPI.getAllBackups() as BackupRow[];
-      console.log('[Statistics] Бэкапы получены:', backupsData.length, 'записей');
+      // console.log('[Statistics] Бэкапы получены:', backupsData.length, 'записей');
       applySortAndRender();
-      console.log('[Statistics] Таблица обновлена');
+      // console.log('[Statistics] Таблица обновлена');
     } catch (error) {
       console.error('[Statistics] Ошибка при загрузке статистики:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -185,7 +185,10 @@ export function initializeStatisticsTab(): void {
       // Форматируем даты
       const lastBackupRaw = backup.last_backup_date ?? null;
       const lastModifiedRaw = backup.last_modified_date ?? null;
-      const isBackupMissing = Boolean(backup.backup_missing);
+      const hasBackupHistory = Boolean(
+        lastBackupRaw && !isNaN(new Date(lastBackupRaw).getTime())
+      );
+      const isBackupMissing = Boolean(backup.backup_missing && hasBackupHistory);
       const lastBackupDate = formatDateTime(lastBackupRaw, '—');
       const lastModifiedDate = formatDateTime(lastModifiedRaw, '—');
       const isModifiedAfterBackup = Boolean(

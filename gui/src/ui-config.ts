@@ -1,12 +1,12 @@
 export async function initializeConfigTab(): Promise<void> {
-  console.log('🔧 [CONFIG] Starting config tab initialization...');
+  // console.log('🔧 [CONFIG] Starting config tab initialization...');
   
   if (!window.electronAPI) {
     console.error('❌ [CONFIG] electronAPI not available');
     return;
   }
 
-  console.log('✅ [CONFIG] electronAPI available');
+  // console.log('✅ [CONFIG] electronAPI available');
 
   const figmaAccountEmailInput = document.getElementById('figma-account-1-email') as HTMLInputElement;
   const figmaAccountAuthCookieInput = document.getElementById('figma-account-1-auth-cookie') as HTMLInputElement;
@@ -22,18 +22,18 @@ export async function initializeConfigTab(): Promise<void> {
   const MAX_FILES_DEFAULT = '5';
   const DEBUG_MODE_DEFAULT: DebugMode = 'off';
 
-  console.log('[CONFIG] Checking form elements...');
-  console.log('[CONFIG] figmaAccountEmailInput:', !!figmaAccountEmailInput);
-  console.log('[CONFIG] figmaAccountAuthCookieInput:', !!figmaAccountAuthCookieInput);
-  console.log('[CONFIG] figmaAccessTokenInput:', !!figmaAccessTokenInput);
-  console.log('[CONFIG] downloadPathInput:', !!downloadPathInput);
-  console.log('[CONFIG] projectsInput:', !!projectsInput);
-  console.log('[CONFIG] teamsInput:', !!teamsInput);
-  console.log('[CONFIG] WAIT_TIMEOUT forced value:', WAIT_TIMEOUT_VALUE);
-  console.log('[CONFIG] maxFilesInput:', !!maxFilesInput);
-  console.log('[CONFIG] MAX_FILES default value:', MAX_FILES_DEFAULT);
-  console.log('[CONFIG] debugModeHiddenInput:', !!debugModeHiddenInput);
-  console.log('[CONFIG] DEBUG_MODE default value:', DEBUG_MODE_DEFAULT);
+  // console.log('[CONFIG] Checking form elements...');
+  // console.log('[CONFIG] figmaAccountEmailInput:', !!figmaAccountEmailInput);
+  // console.log('[CONFIG] figmaAccountAuthCookieInput:', !!figmaAccountAuthCookieInput);
+  // console.log('[CONFIG] figmaAccessTokenInput:', !!figmaAccessTokenInput);
+  // console.log('[CONFIG] downloadPathInput:', !!downloadPathInput);
+  // console.log('[CONFIG] projectsInput:', !!projectsInput);
+  // console.log('[CONFIG] teamsInput:', !!teamsInput);
+  // console.log('[CONFIG] WAIT_TIMEOUT forced value:', WAIT_TIMEOUT_VALUE);
+  // console.log('[CONFIG] maxFilesInput:', !!maxFilesInput);
+  // console.log('[CONFIG] MAX_FILES default value:', MAX_FILES_DEFAULT);
+  // console.log('[CONFIG] debugModeHiddenInput:', !!debugModeHiddenInput);
+  // console.log('[CONFIG] DEBUG_MODE default value:', DEBUG_MODE_DEFAULT);
 
   function applyDebugMode(mode: DebugMode): void {
     if (debugModeHiddenInput) {
@@ -62,64 +62,64 @@ export async function initializeConfigTab(): Promise<void> {
   setupDebugModeControl();
 
   async function loadEnvData(): Promise<void> {
-    console.log('[CONFIG] Starting to load .env data...');
+    // console.log('[CONFIG] Starting to load .env data...');
     
     try {
-      console.log('🔄 [CONFIG] Calling window.electronAPI.readEnv()...');
+      // console.log('🔄 [CONFIG] Calling window.electronAPI.readEnv()...');
       const config = await window.electronAPI.readEnv();
-      console.log('📦 [CONFIG] Received config from API:', config);
+      // console.log('📦 [CONFIG] Received config from API:', config);
       
       if (config && Object.keys(config).length > 0) {
-        console.log('✅ [CONFIG] Config loaded successfully, updating form fields...');
+        // console.log('✅ [CONFIG] Config loaded successfully, updating form fields...');
         
         if (config.FIGMA_ACCOUNT_1_EMAIL) {
           figmaAccountEmailInput.value = config.FIGMA_ACCOUNT_1_EMAIL;
-          console.log('✅ [CONFIG] Set FIGMA_ACCOUNT_1_EMAIL:', config.FIGMA_ACCOUNT_1_EMAIL);
+          // console.log('✅ [CONFIG] Set FIGMA_ACCOUNT_1_EMAIL:', config.FIGMA_ACCOUNT_1_EMAIL);
         } else {
-          console.log('⚠️ [CONFIG] FIGMA_ACCOUNT_1_EMAIL not found in config');
+          // console.log('⚠️ [CONFIG] FIGMA_ACCOUNT_1_EMAIL not found in config');
         }
         
         if (config.FIGMA_ACCOUNT_1_AUTH_COOKIE) {
           figmaAccountAuthCookieInput.value = config.FIGMA_ACCOUNT_1_AUTH_COOKIE;
-          console.log('✅ [CONFIG] Set FIGMA_ACCOUNT_1_AUTH_COOKIE:', config.FIGMA_ACCOUNT_1_AUTH_COOKIE.substring(0, 50) + '...');
+          // console.log('✅ [CONFIG] Set FIGMA_ACCOUNT_1_AUTH_COOKIE:', config.FIGMA_ACCOUNT_1_AUTH_COOKIE.substring(0, 50) + '...');
         } else {
-          console.log('⚠️ [CONFIG] FIGMA_ACCOUNT_1_AUTH_COOKIE not found in config');
+          // console.log('⚠️ [CONFIG] FIGMA_ACCOUNT_1_AUTH_COOKIE not found in config');
         }
         
         if (config.FIGMA_ACCESS_TOKEN) {
           figmaAccessTokenInput.value = config.FIGMA_ACCESS_TOKEN;
-          console.log('✅ [CONFIG] Set FIGMA_ACCESS_TOKEN:', config.FIGMA_ACCESS_TOKEN.substring(0, 20) + '...');
+          // console.log('✅ [CONFIG] Set FIGMA_ACCESS_TOKEN:', config.FIGMA_ACCESS_TOKEN.substring(0, 20) + '...');
         } else {
-          console.log('⚠️ [CONFIG] FIGMA_ACCESS_TOKEN not found in config');
+          // console.log('⚠️ [CONFIG] FIGMA_ACCESS_TOKEN not found in config');
         }
         
         if (config.DOWNLOAD_PATH) {
           downloadPathInput.value = config.DOWNLOAD_PATH;
-          console.log('✅ [CONFIG] Set DOWNLOAD_PATH:', config.DOWNLOAD_PATH);
+          // console.log('✅ [CONFIG] Set DOWNLOAD_PATH:', config.DOWNLOAD_PATH);
         } else {
-          console.log('⚠️ [CONFIG] DOWNLOAD_PATH not found in config');
+          // console.log('⚠️ [CONFIG] DOWNLOAD_PATH not found in config');
         }
         
         if (config.PROJECTS) {
           projectsInput.value = config.PROJECTS;
-          console.log('✅ [CONFIG] Set PROJECTS:', config.PROJECTS);
+          // console.log('✅ [CONFIG] Set PROJECTS:', config.PROJECTS);
         } else {
-          console.log('⚠️ [CONFIG] PROJECTS not found in config');
+          // console.log('⚠️ [CONFIG] PROJECTS not found in config');
         }
         
         if (config.TEAMS) {
           teamsInput.value = config.TEAMS;
-          console.log('✅ [CONFIG] Set TEAMS:', config.TEAMS);
+          // console.log('✅ [CONFIG] Set TEAMS:', config.TEAMS);
         } else {
-          console.log('⚠️ [CONFIG] TEAMS not found in config');
+          // console.log('⚠️ [CONFIG] TEAMS not found in config');
         }
 
         if (debugModeHiddenInput) {
           const debugModeValue: DebugMode = config.DEBUG_MODE?.toLowerCase() === 'on' ? 'on' : DEBUG_MODE_DEFAULT;
           applyDebugMode(debugModeValue);
-          console.log('✅ [CONFIG] Set DEBUG_MODE:', debugModeValue);
+          // console.log('✅ [CONFIG] Set DEBUG_MODE:', debugModeValue);
         } else {
-          console.log('⚠️ [CONFIG] DEBUG_MODE input not found');
+          // console.log('⚠️ [CONFIG] DEBUG_MODE input not found');
         }
 
         if (maxFilesInput) {
@@ -127,14 +127,14 @@ export async function initializeConfigTab(): Promise<void> {
             ? config.MAX_FILES
             : MAX_FILES_DEFAULT;
           maxFilesInput.value = maxFilesValue;
-          console.log('✅ [CONFIG] Set MAX_FILES:', maxFilesValue);
+          // console.log('✅ [CONFIG] Set MAX_FILES:', maxFilesValue);
         } else {
-          console.log('⚠️ [CONFIG] MAX_FILES input not found, unable to set value');
+          // console.log('⚠️ [CONFIG] MAX_FILES input not found, unable to set value');
         }
         
-        console.log('🎉 [CONFIG] All form fields updated successfully');
+        // console.log('🎉 [CONFIG] All form fields updated successfully');
       } else {
-        console.log('⚠️ [CONFIG] Config is empty or null, using default values');
+        // console.log('⚠️ [CONFIG] Config is empty or null, using default values');
         if (maxFilesInput) {
           maxFilesInput.value = MAX_FILES_DEFAULT;
         }
@@ -151,34 +151,40 @@ export async function initializeConfigTab(): Promise<void> {
   async function getProjectRoot(): Promise<string> {
     try {
       const currentPath = window.location.href;
-      console.log('[CONFIG] Current URL:', currentPath);
-      
-      const filePathMatch = currentPath.match(/file:\/\/(.+)\/gui\/dist\/.*$/);
-      if (filePathMatch && filePathMatch[1]) {
-        const projectRoot = decodeURIComponent(filePathMatch[1]);
-        console.log('📂 [CONFIG] Project root from file path:', projectRoot);
-        return projectRoot;
+      // console.log('[CONFIG] Current URL:', currentPath);
+
+      const pathMatchers = [
+        /file:\/\/(.+)\/gui\/dist\/.*$/i,
+        /file:\/\/(.+)\/src\/static\/.*$/i,
+      ];
+
+      for (const matcher of pathMatchers) {
+        const match = currentPath.match(matcher);
+        if (match && match[1]) {
+          const projectRoot = decodeURIComponent(match[1]);
+          // console.log('📂 [CONFIG] Project root from URL:', projectRoot);
+          return projectRoot;
+        }
       }
-      
+
       const scriptTags = document.querySelectorAll('script[src*="ui.js"]');
       if (scriptTags.length > 0) {
         const scriptSrc = scriptTags[0].getAttribute('src');
         if (scriptSrc) {
           const basePathMatch = scriptSrc.match(/^(.+)\/gui\/dist\/ui\.js$/);
           if (basePathMatch && basePathMatch[1]) {
-            console.log('📂 [CONFIG] Project root from script src:', basePathMatch[1]);
+            // console.log('📂 [CONFIG] Project root from script src:', basePathMatch[1]);
             return basePathMatch[1];
           }
         }
       }
-      
-      const fallbackRoot = '/Users/Kuzin_K/Dev/Figma-export';
-      console.log('[CONFIG] Using fallback project root:', fallbackRoot);
-      return fallbackRoot;
-      
+
+      console.warn('[CONFIG] Unable to detect project root automatically');
+      return '';
+
     } catch (error) {
       console.error('❌ [CONFIG] Error detecting project root:', error);
-      return '/Users/Kuzin_K/Dev/Figma-export';
+      return '';
     }
   }
 
@@ -198,7 +204,7 @@ export async function initializeConfigTab(): Promise<void> {
   if (selectPathBtn && downloadPathInput) {
     selectPathBtn.addEventListener('click', async () => {
       try {
-        console.log('[CONFIG] Opening directory selection dialog...');
+        // console.log('[CONFIG] Opening directory selection dialog...');
         
         const projectRoot = await getProjectRoot();
         
@@ -206,20 +212,20 @@ export async function initializeConfigTab(): Promise<void> {
         if (absolutePath) {
           downloadPathInput.value = absolutePath;
           
-          console.log('✅ [CONFIG] Selected folder:');
-          console.log('   Absolute path:', absolutePath);
+          // console.log('✅ [CONFIG] Selected folder:');
+          // console.log('   Absolute path:', absolutePath);
         } else {
-          console.log('⚠️ [CONFIG] No folder selected');
+          // console.log('⚠️ [CONFIG] No folder selected');
         }
       } catch (error) {
         console.error('❌ [CONFIG] Error selecting folder:', error);
         alert('Error selecting folder');
       }
     });
-    console.log('✅ [CONFIG] Directory selection button handler added');
+    // console.log('✅ [CONFIG] Directory selection button handler added');
   }
 
-  console.log('🚀 [CONFIG] Starting auto-load of .env data...');
+  // console.log('🚀 [CONFIG] Starting auto-load of .env data...');
   await loadEnvData();
   
   type SaveHandlerElement = HTMLElement & {
@@ -235,7 +241,7 @@ export async function initializeConfigTab(): Promise<void> {
     
     const saveHandler = async () => {
       try {
-        console.log('💾 [CONFIG] Starting config save process...');
+        // console.log('💾 [CONFIG] Starting config save process...');
         
         const configData: Record<string, string> = {};
         
@@ -274,9 +280,9 @@ export async function initializeConfigTab(): Promise<void> {
         
         configData.WAIT_TIMEOUT = WAIT_TIMEOUT_VALUE;
         
-        console.log('📝 [CONFIG] Collected config data:', configData);
+        // console.log('📝 [CONFIG] Collected config data:', configData);
         
-        console.log('🔍 [CONFIG] Validating config before saving...');
+        // console.log('🔍 [CONFIG] Validating config before saving...');
         const validationResponse = await window.electronAPI.validateConfig(configData);
         if (!validationResponse.valid) {
           console.error('❌ [CONFIG] Config validation failed:', validationResponse.errors);
@@ -284,11 +290,11 @@ export async function initializeConfigTab(): Promise<void> {
           return;
         }
         
-        console.log('💾 [CONFIG] Saving config to .env file...');
+        // console.log('💾 [CONFIG] Saving config to .env file...');
         const saveResponse = await window.electronAPI.writeEnv(configData);
         
         if (saveResponse.success) {
-          console.log('✅ [CONFIG] Config saved successfully');
+          // console.log('✅ [CONFIG] Config saved successfully');
           alert('Settings saved successfully!');
         } else {
           console.error('❌ [CONFIG] Failed to save config:', saveResponse.message);
@@ -302,8 +308,8 @@ export async function initializeConfigTab(): Promise<void> {
     
     saveConfigBtn.saveHandler = saveHandler;
     saveConfigBtn.addEventListener('click', saveHandler);
-    console.log('✅ [CONFIG] Save config button handler added');
+    // console.log('✅ [CONFIG] Save config button handler added');
   }
   
-  console.log('🎉 [CONFIG] Config tab initialization completed');
+  // console.log('🎉 [CONFIG] Config tab initialization completed');
 }

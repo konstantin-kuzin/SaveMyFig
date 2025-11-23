@@ -20,7 +20,7 @@ const teamIds = process.argv
     const allApiFilesData = [];
 
     // Step 1: Fetch all files from Figma API for all teams
-    console.log("Fetching file metadata from Figma API...");
+    //console.log("Fetching file metadata from Figma API...");
     for (const teamId of teamIds) {
       const { projects } = await getProjects(teamId);
 
@@ -40,7 +40,7 @@ const teamIds = process.argv
         }
       }
     }
-    console.log(`Fetched metadata for ${allApiFilesData.reduce((sum, p) => sum + p.files.length, 0)} files across ${allApiFilesData.length} projects.`);
+    //console.log(`Fetched metadata for ${allApiFilesData.reduce((sum, p) => sum + p.files.length, 0)} files across ${allApiFilesData.length} projects.`);
 
     // Step 3: Get ALL files that need backup from DB
     const filesToBackupFromDb = await getFilesToBackup();
@@ -50,12 +50,12 @@ const teamIds = process.argv
     const allApiFileKeys = new Set(allApiFilesData.flatMap(project => project.files.map(file => file.key)));
     
     const existingFilesToBackup = filesToBackupFromDb.filter(dbFile => allApiFileKeys.has(dbFile.file_key));
-    console.log(`Found ${existingFilesToBackup.length} files that exist in Figma and need backup.`);
+    //console.log(`Found ${existingFilesToBackup.length} files that exist in Figma and need backup.`);
 
     // Apply the limit to the existing files needing backup (already sorted by priority in DB query)
     const finalFilesToBackup = existingFilesToBackup.slice(0, MAX_FILES);
     const backupFileKeys = new Set(finalFilesToBackup.map(f => f.file_key));
-    console.log(`Selected ${finalFilesToBackup.length} files for this backup run based on priority and limit.`);
+    //console.log(`Selected ${finalFilesToBackup.length} files for this backup run based on priority and limit.`);
 
     // Step 5: Filter the API data to include only the final selected files for files.json
     const filteredFiles = allApiFilesData.map(project => ({
@@ -67,7 +67,7 @@ const teamIds = process.argv
     // Step 6: Write to files.json
     const filesJsonPath = path.join(__dirname, "../.userData/files.json");
     fs.writeFileSync(filesJsonPath, JSON.stringify(filteredFiles, null, 2));
-    console.log(`Successfully wrote ${filteredFiles.length} projects with ${filteredFiles.reduce((acc, proj) => acc + proj.files.length, 0)} files to ${filesJsonPath}`);
+    //console.log(`Successfully wrote ${filteredFiles.length} projects with ${filteredFiles.reduce((acc, proj) => acc + proj.files.length, 0)} files to ${filesJsonPath}`);
     
     await closeDb();
   } catch (error) {

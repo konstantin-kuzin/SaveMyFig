@@ -102,8 +102,9 @@ class FigmaExportApp {
     
     this.mainWindow.loadFile(indexPath);
     
-    // DevTools в development
-    if (!app.isPackaged) {
+    // DevTools в development только по явному запросу
+    const devtoolsEnabled = process.env.OPEN_DEVTOOLS === 'true';
+    if (!app.isPackaged && devtoolsEnabled) {
       this.mainWindow.webContents.openDevTools();
     }
   }
@@ -271,11 +272,12 @@ class FigmaExportApp {
 
   /**
    * Enriches backups with a flag about physical presence of the backup file.
-   * If the file is missing, forces next_attempt_date to now for display purposes.
+   * For entries that have been backed up before, mark missing files and surface an error timestamp.
    */
   private async enrichBackupsWithFileStatus(backups: BackupRecord[]): Promise<Array<BackupRecord & { backup_missing: boolean }>> {
     const envConfig = await this.envManager.readEnv();
     const downloadPath = envConfig?.DOWNLOAD_PATH;
+    const hasValidDate = (value?: string | null) => Boolean(value && !isNaN(new Date(value).getTime()));
 
     if (!downloadPath) {
       this.logger.warn('DOWNLOAD_PATH is not configured; skipping backup file existence check.');
@@ -287,7 +289,12 @@ class FigmaExportApp {
       return backups.map(backup => ({ ...backup, backup_missing: false }));
     }
 
-    const fileKeys = new Set(backups.map(b => b.file_key).filter(Boolean));
+    const fileKeys = new Set(
+      backups
+        .filter(b => hasValidDate(b.last_backup_date))
+        .map(b => b.file_key)
+        .filter(Boolean)
+    );
     if (fileKeys.size === 0) {
       return backups.map(backup => ({ ...backup, backup_missing: false }));
     }
@@ -296,11 +303,16 @@ class FigmaExportApp {
     const existingKeys = await this.findExistingBackupKeys(downloadPath, fileKeys);
 
     return backups.map(backup => {
-      const missing = backup.file_key ? !existingKeys.has(backup.file_key) : true;
+      const hasCompletedBackup = hasValidDate(backup.last_backup_date);
+      const missing = hasCompletedBackup
+        ? (backup.file_key ? !existingKeys.has(backup.file_key) : true)
+        : false;
       return {
         ...backup,
         backup_missing: missing,
-        next_attempt_date: missing ? nowIso : backup.next_attempt_date
+        next_attempt_date: missing
+          ? (backup.next_attempt_date ?? nowIso)
+          : backup.next_attempt_date
       };
     });
   }
