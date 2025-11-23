@@ -44,7 +44,7 @@ const { execSync } = require("child_process");
 const dotenv = require("dotenv");
 const { close: closeDb } = require("./db");
 
-dotenv.config({ path: path.join(__dirname, "../.userData/.env") });
+dotenv.config({ path: path.join(__dirname, "../.userData/.env"), override: true });
 
 async function runBackup() {
   try {
@@ -145,7 +145,7 @@ function resolvePlaywrightCli(projectRoot) {
       const { label, path: candidate } = candidateFn();
       attempted.push({ label, path: candidate, exists: fs.existsSync(candidate) });
       if (fs.existsSync(candidate)) {
-        console.log(`[playwright-cli] using ${label}: ${candidate}`);
+        //console.log(`[playwright-cli] using ${label}: ${candidate}`);
         return candidate;
       }
     } catch (err) {

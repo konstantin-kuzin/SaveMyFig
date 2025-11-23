@@ -1,9 +1,12 @@
 const fs = require("node:fs");
 const path = require("path");
+const dotenv = require("dotenv");
 const { getFiles } = require("./figma-lib");
 const { getFilesToBackup, updateBackupInfo, close: closeDb } = require("./db");
 
-const MAX_FILES = 20;
+dotenv.config({ path: path.join(__dirname, "../.userData/.env"), override: true });
+
+const MAX_FILES = Number(process.env.MAX_FILES ?? MAX_FILES_DEFAULT);
 const projectIds = process.argv
   .slice(2)
   .join(" ")
