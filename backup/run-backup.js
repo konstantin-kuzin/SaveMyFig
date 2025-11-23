@@ -70,7 +70,7 @@ async function runBackup() {
       console.log("PROJECTS/TEAMS are not defined in .env file. Skipping file generation.");
       return;
     }
-
+return;
     // Step 2: Run tests
     console.log("Running backup...");
     try {
@@ -78,7 +78,7 @@ async function runBackup() {
       const env = buildEnv(projectRoot);
       const debugModeEnabled = String(process.env.DEBUG_MODE || "").toLowerCase() === "on";
       const playwrightModeFlag = debugModeEnabled ? "--headed" : "";
-      console.log(`Backup tool is running in ${debugModeEnabled ? "headed" : "headless"} mode (Debug mode ${debugModeEnabled ? "on" : "off"}).`);
+      console.log(`Backup tool is running in ${debugModeEnabled ? "debug" : "silent"} mode.`);
       execSync(
         `"${process.execPath}" "${playwrightCli}" test automations/download.spec.ts ${playwrightModeFlag}`,
         {

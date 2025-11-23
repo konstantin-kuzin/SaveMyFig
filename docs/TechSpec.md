@@ -159,7 +159,7 @@ SaveMy.Fig/
 | `last_modified_date` | TEXT | Последняя дата правки в Figma (нормализуется до секунды).
 | `next_attempt_date` | TEXT | Дата следующей попытки, если загрузка упала (`recordBackupFailure` откладывает на +72h).
 
-`getFilesToBackup()` возвращает записи, где `last_modified_date > last_backup_date` или `last_backup_date IS NULL`, а также `next_attempt_date <= now`. Очередь сортируется так, чтобы приоритет имели никогда не скачанные файлы.
+`getFilesToBackup()` возвращает записи, которые нуждаются в скачивании: есть запланированный ретрай (`next_attempt_date IS NOT NULL`), отсутствует `last_backup_date` или в Figma есть более свежая версия (`last_modified_date > last_backup_date`). Если задан и существует `DOWNLOAD_PATH`, дополнительно подхватываются записи, для которых физический файл отсутствует на диске. Очередь сортируется так, чтобы приоритет имели никогда не скачанные файлы.
 
 ---
 

@@ -16,7 +16,7 @@
  *    - getFilesToBackup(): returns list of files requiring backup
  *      - Files with modification date newer than last backup
  *      - Files without last backup date (new files)
- *      - Files with passed next attempt date (after error)
+ *      - Files that have any pending retry (next_attempt_date IS NOT NULL)
  *      - Sorted by priority: new files first, then by ascending last backup date
  *    - updateBackupInfo(fileKey, lastModifiedDate, projectName, fileName): updates/creates file record
  *      - Normalizes date (removes milliseconds for consistency)
@@ -29,6 +29,7 @@
  */
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('node:fs');
 
 const db = new sqlite3.Database(path.join(__dirname, '../.userData/figma_backups.db'));
 
@@ -48,24 +49,86 @@ db.serialize(() => {
 });
 
 async function getFilesToBackup() {
-  const utcNow = new Date().toISOString();
-  return new Promise((resolve, reject) => {
+  const baseRows = await new Promise((resolve, reject) => {
     db.all(`
       SELECT file_key, last_modified_date
       FROM backups
-      WHERE (last_modified_date > last_backup_date OR last_backup_date IS NULL)
-        AND (next_attempt_date IS NULL OR next_attempt_date <= ?)
+      WHERE next_attempt_date IS NOT NULL
+        OR last_backup_date IS NULL
+        OR (last_modified_date IS NOT NULL AND last_modified_date > last_backup_date)
       ORDER BY
         CASE
           WHEN last_backup_date IS NULL THEN 0
           ELSE 1
         END,
         last_backup_date ASC
-    `, [utcNow], (err, rows) => {
+    `, (err, rows) => {
       if (err) reject(err);
       else resolve(rows);
     });
   });
+
+  const downloadPath = process.env.DOWNLOAD_PATH;
+  if (!downloadPath || !fs.existsSync(downloadPath)) {
+    return baseRows;
+  }
+
+  // Add files whose backups are missing on disk to align with GUI statistics.
+  const allKeys = await getAllFileKeys();
+  if (!allKeys.length) return baseRows;
+
+  const existingKeys = await findExistingBackupKeys(downloadPath, new Set(allKeys));
+  const alreadyQueued = new Set(baseRows.map(row => row.file_key));
+  const missingRows = allKeys
+    .filter(key => !existingKeys.has(key) && !alreadyQueued.has(key))
+    .map(key => ({ file_key: key, last_modified_date: null }));
+
+  return [...baseRows, ...missingRows];
+}
+
+async function getAllFileKeys() {
+  return new Promise((resolve, reject) => {
+    db.all('SELECT file_key FROM backups', [], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows.map(r => r.file_key).filter(Boolean));
+    });
+  });
+}
+
+async function findExistingBackupKeys(root, fileKeys) {
+  const found = new Set();
+  const stack = [root];
+
+  while (stack.length > 0 && found.size < fileKeys.size) {
+    const current = stack.pop();
+    let entries;
+
+    try {
+      entries = await fs.promises.readdir(current, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+
+    for (const entry of entries) {
+      const fullPath = path.join(current, entry.name);
+
+      if (entry.isDirectory()) {
+        stack.push(fullPath);
+        continue;
+      }
+
+      if (!entry.isFile()) continue;
+
+      for (const key of fileKeys) {
+        if (entry.name.includes(key)) {
+          found.add(key);
+          break;
+        }
+      }
+    }
+  }
+
+  return found;
 }
 
 async function updateBackupInfo(fileKey, lastModifiedDate, projectName, fileName) {
