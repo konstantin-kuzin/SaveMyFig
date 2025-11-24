@@ -1,6 +1,6 @@
 {
   "name": "save-my-fig",
-  "version": "1.4.1",
+  "version": "1.5",
   "description": "Figma backup tool with GUI ",
   "main": "gui/dist/main.js",
   "private": true,

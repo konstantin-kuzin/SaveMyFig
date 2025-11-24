@@ -10,6 +10,11 @@ PORTABLE_NODE_DIR="$ROOT_DIR/.node"
 PORTABLE_BIN="$PORTABLE_NODE_DIR/bin"
 LOG_FILE="$ROOT_DIR/.install.log"
 PLAYWRIGHT_MARKER="$ROOT_DIR/.playwright-chromium.path"
+PLAYWRIGHT_LOCAL_BROWSERS="$ROOT_DIR/node_modules/.cache/ms-playwright"
+PLAYWRIGHT_PACKAGE_DIR="$ROOT_DIR/node_modules/playwright"
+
+# Force Playwright to use local cache under node_modules.
+export PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_LOCAL_BROWSERS"
 
 export NPM_CONFIG_FUND=false
 export NPM_CONFIG_AUDIT=false
@@ -154,7 +159,7 @@ playwright_chromium_present() {
   if [ -f "$PLAYWRIGHT_MARKER" ]; then
     local cached
     cached="$(cat "$PLAYWRIGHT_MARKER")"
-    if [ -n "$cached" ] && [ -x "$cached" ]; then
+    if [ -n "$cached" ] && [ -x "$cached" ] && [[ "$cached" == "$PLAYWRIGHT_BROWSERS_PATH"* ]]; then
       return 0
     fi
   fi
@@ -173,7 +178,7 @@ try {
 NODE
 )"
 
-  if [ -n "$resolved" ] && [ -x "$resolved" ]; then
+  if [ -n "$resolved" ] && [ -x "$resolved" ] && [[ "$resolved" == "$PLAYWRIGHT_BROWSERS_PATH"* ]]; then
     echo "$resolved" > "$PLAYWRIGHT_MARKER"
     return 0
   fi
@@ -181,19 +186,32 @@ NODE
   return 1
 }
 
+ensure_playwright_dependency() {
+  # If node_modules exists but playwright directory is missing, reinstall deps to restore it.
+  if [ -f "$PLAYWRIGHT_PACKAGE_DIR/package.json" ]; then
+    return
+  fi
+
+  echo "[PLAYWRIGHT] Package missing; reinstalling project dependencies locally..."
+  run_quiet "npm install (root - ensure playwright)" "$NPM_CMD" install --no-progress --silent
+}
+
 install_root() {
   npm_install_if_needed "$ROOT_DIR" "root"
   cd "$ROOT_DIR"
 
+  ensure_playwright_dependency
+
   if playwright_chromium_present; then
     : # echo "[Playwright] Chromium already installed."
   else
-    echo "[Playwright] Installing..."
+    echo "[PLAYWRIGHT] Installing Chromium locally..."
+    mkdir -p "$PLAYWRIGHT_BROWSERS_PATH"
     run_quiet "npx playwright install chromium" "$NPX_CMD" playwright install chromium
     if playwright_chromium_present; then
     : # echo "[Playwright] Chromium ready."
     else
-      echo "[Playwright] Warning: Playwright Chromium not detected after install; check $LOG_FILE" >&2
+      echo "[PLAYWRIGHT] Warning: Playwright Chromium not detected after install; check $LOG_FILE" >&2
     fi
   fi
 }
